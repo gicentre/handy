@@ -1,0 +1,8 @@
+#summary Source code documentation.
+
+=API Documentation =
+
+If you make changes to the public API in the source, you should rebuild the API documentation and commit. It will then be automatically linked below:
+
+[http://gicentre-handy.googlecode.com/svn/trunk/Handy/reference/index.html Latest build API documentation]
+
