@@ -89,7 +89,7 @@ public class HandyRenderer implements Drawable
 	 *  @param seed Random number seed. This can be any whole number. A given number give the same random 
 	 *              variation in rendering appearance every time.
 	 */
-	public void setSeed(long seed)
+	public void setSeed(int seed)
 	{
 		rand.setSeed(seed);
 	}
