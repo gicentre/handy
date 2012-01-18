@@ -1,4 +1,4 @@
-package org.gicentre.handy.test;
+package org.gicentre.tests;
 import org.gicentre.handy.HandyDraw;
 
 import processing.core.PApplet;
@@ -8,12 +8,14 @@ import processing.core.PApplet;
  * @author sbbb717
  *
  */
+@SuppressWarnings("serial")
 public class HandyDrawTest extends PApplet {
 
 	HandyDraw handyCanvas;
 	
 	public void setup(){
 		handyCanvas=new HandyDraw(this);
+		smooth();
 	}
 	
 	public void draw(){

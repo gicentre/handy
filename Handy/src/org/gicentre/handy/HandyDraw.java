@@ -54,13 +54,13 @@ public class HandyDraw extends PGraphics2D{
 	}
 	
 	//this method crashes
-//	public void ellipse(float x, float y,float w, float h){
-//		handyRenderer.ellipse(x, y, w, h);
-//	}
-
-	//...but this one doesn't!
-	public void rect(float x, float y,float w, float h){
+	public void ellipse(float x, float y,float w, float h){
 		handyRenderer.ellipse(x, y, w, h);
 	}
+
+	//...but this one doesn't!
+//	public void rect(float x, float y,float w, float h){
+//		handyRenderer.ellipse(x, y, w, h);
+//	}
 
 }
