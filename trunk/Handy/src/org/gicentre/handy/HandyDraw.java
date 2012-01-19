@@ -64,8 +64,11 @@ public class HandyDraw extends PGraphics2D{
 		this.sketch.g=this;
 		beginDraw();
 		this.style(sketchG.getStyle());			// Set the style of this to that of the sketch
-		if (sketch.g.smooth) {
+		if (sketchG.smooth) {
 			this.smooth();
+		}
+		else{
+			this.noSmooth();
 		}
 		if (sketch.width!=this.width || sketch.height!=this.height) {
 			this.setSize(sketch.width, sketch.height);
