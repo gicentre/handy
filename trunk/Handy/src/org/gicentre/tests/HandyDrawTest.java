@@ -33,14 +33,14 @@ public class HandyDrawTest extends PApplet {
 	public void setup(){
 		handyDraw=new HandyDraw(this);
 		smooth();
-		size(240,240);
+		size(400,500);
 	}
 
 	public void draw(){
 		background(255);
 		
 		fill(200,100,100); //styles are honoured by handyDraw even if set outside start/stopHandy
-
+		stroke(0,0,200);
 		if (useHandy){
 			handyDraw.startHandy();
 		}
@@ -64,17 +64,136 @@ public class HandyDrawTest extends PApplet {
 		vertex(180,40);
 		endShape(CLOSE);
 		
+		
+		//examples from http://processing.org/reference/beginShape_.html
+		
+		translate(0,200);
+		beginShape();
+		vertex(30, 20);
+		vertex(85, 20);
+		vertex(85, 75);
+		vertex(30, 75);
+		endShape(CLOSE);
+
+		translate(100,0);
+		beginShape(POINTS);
+		vertex(30, 20);
+		vertex(85, 20);
+		vertex(85, 75);
+		vertex(30, 75);
+		endShape();
+
+		translate(100,0);
+		beginShape(LINES);
+		vertex(30, 20);
+		vertex(85, 20);
+		vertex(85, 75);
+		vertex(30, 75);
+		endShape();
+
+		translate(100,0);
+		noFill();
+		beginShape();
+		vertex(30, 20);
+		vertex(85, 20);
+		vertex(85, 75);
+		vertex(30, 75);
+		endShape();
+
+		translate(-300,100);
+		noFill();
+		beginShape();
+		vertex(30, 20);
+		vertex(85, 20);
+		vertex(85, 75);
+		vertex(30, 75);
+		endShape(CLOSE);
+
+		translate(100,0);
+		fill(200,100,100);
+		beginShape(TRIANGLES);
+		vertex(30, 75);
+		vertex(40, 20);
+		vertex(50, 75);
+		vertex(60, 20);
+		vertex(70, 75);
+		vertex(80, 20);
+		endShape();
+
+		translate(100,0);
+		beginShape(TRIANGLE_STRIP);
+		vertex(30, 75);
+		vertex(40, 20);
+		vertex(50, 75);
+		vertex(60, 20);
+		vertex(70, 75);
+		vertex(80, 20);
+		vertex(90, 75);
+		endShape();
+
+		translate(100,0);
+		beginShape(TRIANGLE_FAN);
+		vertex(57.5f, 50);
+		vertex(57.5f, 15); 
+		vertex(92, 50); 
+		vertex(57.5f, 85); 
+		vertex(22, 50); 
+		vertex(57.5f, 15); 
+		endShape();
+
+		translate(-300,100);
+		beginShape(QUADS);
+		vertex(30, 20);
+		vertex(30, 75);
+		vertex(50, 75);
+		vertex(50, 20);
+		vertex(65, 20);
+		vertex(65, 75);
+		vertex(85, 75);
+		vertex(85, 20);
+		endShape();
+
+		translate(100,0);
+		beginShape(QUAD_STRIP); 
+		vertex(30, 20); 
+		vertex(30, 75); 
+		vertex(50, 20);
+		vertex(50, 75);
+		vertex(65, 20); 
+		vertex(65, 75); 
+		vertex(85, 20);
+		vertex(85, 75); 
+		endShape();
+
+		translate(100,0);
+		beginShape();
+		vertex(20, 20);
+		vertex(40, 20);
+		vertex(40, 40);
+		vertex(60, 40);
+		vertex(60, 60);
+		vertex(20, 60);
+		endShape(CLOSE);
+
+		resetMatrix();
 		ellipse(mouseX,mouseY,40,40);
+
 		
 		if (useHandy) {
 			handyDraw.stopHandy();
 		}
+		noLoop();
 	}
 
+	public void mouseMoved(){
+		loop();
+	}
+	
 	public void keyPressed(){
 		//toggle use handy
 		if (key=='h')
 			useHandy=!useHandy;
+		loop();
 	}
 
 }

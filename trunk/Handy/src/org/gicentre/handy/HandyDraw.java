@@ -43,6 +43,7 @@ public class HandyDraw extends PGraphics2D{
 	private  List<PVector> vertices=new ArrayList<PVector>();
 	
 	private boolean useSuper=false;
+	private int shapeMode;
 	
 	// ----------------------------------- Constructor -----------------------------------
 	
@@ -176,13 +177,24 @@ public class HandyDraw extends PGraphics2D{
 	 */
 	@Override	
 	public void beginShape(){
+		this.beginShape(POLYGON);
+	}
+
+	/** Starts a new shape of the type specified in the mode parameter. This must be paired
+	 * with a call to <code>endShape()</code> or one of its variants.
+	 *	@param mode either POINTS, LINES, TRIANGLES, TRIANGLE_FAN, TRIANGLE_STRIP, QUADS, QUAD_STRIP	 
+	 */
+	@Override	
+	public void beginShape(int mode){
 		if (useSuper){
-			super.beginShape();
+			super.beginShape(mode);
 		}
 		else{
-			vertices.clear();
+			this.shapeMode=mode;
+			this.vertices.clear();
 		}
 	}
+
 	
 	@Override
 	/** Adds a vertex to a shape that was started with a call to <code>beginShape()</code> 
@@ -211,17 +223,7 @@ public class HandyDraw extends PGraphics2D{
 		}
 		else{
 			useSuper=true;
-			float[] xs=new float[vertices.size()];
-			float[] ys=new float[vertices.size()];
-			int i=0;
-			for (PVector pVector:vertices){
-				xs[i]=pVector.x;
-				ys[i]=pVector.y;
-				i++;
-			}
-			
-			handyRenderer.shape(xs,ys,false);
-			vertices.clear();
+			endShapeImpl(false);
 			useSuper=false;
 		}
 	}
@@ -239,27 +241,63 @@ public class HandyDraw extends PGraphics2D{
 		}
 		else{
 			useSuper=true;
-
-			if (mode == PConstants.CLOSE)
-			{
-				if ((vertices.get(0).x != vertices.get(vertices.size()-1).x) ||
-						(vertices.get(0).y != vertices.get(vertices.size()-1).y))
-				{
-					vertices.add(vertices.get(0));
-				}
-			}
-			float[] xs=new float[vertices.size()];
-			float[] ys=new float[vertices.size()];
-			int i=0;
-			for (PVector pVector:vertices){
-				xs[i]=pVector.x;
-				ys[i]=pVector.y;
-				i++;
-			}
-			handyRenderer.shape(xs,ys,mode==PConstants.CLOSE? true:false);
-			vertices.clear();
+			endShapeImpl(mode==PConstants.CLOSE);
 			useSuper=false;
 		}
+	}
+	
+	private void endShapeImpl(boolean closeShape){
+		float[] xs=new float[vertices.size()];
+		float[] ys=new float[vertices.size()];
+		int i=0;
+		for (PVector pVector:vertices){
+			xs[i]=pVector.x;
+			ys[i]=pVector.y;
+			i++;
+		}
+		if (this.shapeMode==POLYGON){
+			handyRenderer.shape(xs,ys,closeShape);
+		}
+		else if (this.shapeMode==LINES){
+			for (i=0;i<xs.length-1;i+=2){
+				handyRenderer.line(xs[i],ys[i],xs[i+1],ys[i+1]);
+			}
+		}
+		else if (this.shapeMode==POINTS){
+			for (i=0;i<xs.length;i++){
+				handyRenderer.point(xs[i],ys[i]);
+			}
+		}
+		else if (this.shapeMode==TRIANGLES){
+			for (i=0;i<xs.length-2;i+=3){
+				handyRenderer.triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+			}
+		}
+		else if (this.shapeMode==TRIANGLE_STRIP){
+			for (i=0;i<xs.length-2;i++){
+				handyRenderer.triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+			}
+		}
+		else if (this.shapeMode==TRIANGLE_FAN){
+			for (i=1;i<xs.length-1;i++){
+				handyRenderer.triangle(xs[0],ys[0],xs[i],ys[i],xs[i+1],ys[i+1]);
+			}
+		}
+		else if (this.shapeMode==QUADS){
+			for (i=0;i<xs.length-3;i+=4){
+				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+2],xs[i+3]};
+				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+2],ys[i+3]};
+				handyRenderer.shape(quadXs,quadYs);
+			}
+		}
+		else if (this.shapeMode==QUAD_STRIP){
+			for (i=0;i<xs.length-3;i+=2){
+				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+3],xs[i+2]};
+				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+3],ys[i+2]};
+				handyRenderer.shape(quadXs,quadYs);
+			}
+		}
+		vertices.clear();
 	}
 
 }
