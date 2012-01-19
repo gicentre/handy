@@ -193,6 +193,12 @@ public class HandyDrawTest extends PApplet {
 		//toggle use handy
 		if (key=='h')
 			useHandy=!useHandy;
+		if (key=='s')
+			if (g.smooth)
+				noSmooth();
+			else
+				smooth();
+				
 		loop();
 	}
 
