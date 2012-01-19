@@ -62,7 +62,7 @@ public class HandyDrawTest extends PApplet {
 		vertex(200,60);
 		vertex(200,40);
 		vertex(180,40);
-		endShape();
+		endShape(CLOSE);
 		
 		ellipse(mouseX,mouseY,40,40);
 		

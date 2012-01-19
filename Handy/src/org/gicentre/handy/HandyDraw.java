@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PGraphics2D;
 import processing.core.PVector;
@@ -229,11 +230,8 @@ public class HandyDraw extends PGraphics2D{
 				ys[i]=pVector.y;
 				i++;
 			}
-			// TODO: Need to allow handyRender.shape() to draw a non-closing polygon. At present all polygons
-			//       get closed. Will probably do this by adding version of shape with a boolean parameter to
-			//       leave boundary open or closed. Note that Processing's shape commands always close the 
-			//       fill of a shape, but closed shapes additionally close the bounding line.
-			handyRenderer.shape(xs,ys);
+			
+			handyRenderer.shape(xs,ys,false);
 			isDrawingShape=false;
 			vertices.clear();
 			useSuper=false;
@@ -254,10 +252,13 @@ public class HandyDraw extends PGraphics2D{
 		else{
 			useSuper=true;
 
-			if ((vertices.get(0).x != vertices.get(vertices.size()-1).x) ||
-				(vertices.get(0).y != vertices.get(vertices.size()-1).y))
+			if (mode == PConstants.CLOSE)
 			{
-				vertices.add(vertices.get(0));
+				if ((vertices.get(0).x != vertices.get(vertices.size()-1).x) ||
+						(vertices.get(0).y != vertices.get(vertices.size()-1).y))
+				{
+					vertices.add(vertices.get(0));
+				}
 			}
 			float[] xs=new float[vertices.size()];
 			float[] ys=new float[vertices.size()];
@@ -267,7 +268,7 @@ public class HandyDraw extends PGraphics2D{
 				ys[i]=pVector.y;
 				i++;
 			}
-			handyRenderer.shape(xs,ys);
+			handyRenderer.shape(xs,ys,mode==PConstants.CLOSE? true:false);
 			isDrawingShape=false;
 			vertices.clear();
 			useSuper=false;
