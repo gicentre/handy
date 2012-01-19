@@ -39,8 +39,8 @@ public class HandyDraw extends PGraphics2D{
 	
 	private HandyRenderer handyRenderer;
 	private PApplet sketch;
-	private PGraphics sketchG;		// Keep track of the Sketch's original canvas
-	private  List<PVector> vertices=new ArrayList<PVector>();
+	private List<PVector> vertices=new ArrayList<PVector>();
+	private PGraphics prevG; //The sketch's g when startHandy() is called 
 	
 	private boolean useSuper=false;
 	private int shapeMode;
@@ -49,7 +49,6 @@ public class HandyDraw extends PGraphics2D{
 	
 	public HandyDraw(PApplet sketch){
 		this.sketch=sketch;
-		this.sketchG=sketch.g;
 		this.handyRenderer=new HandyRenderer(sketch);
 		this.handyRenderer.setGraphics(this);	
 		this.setSize(sketch.width, sketch.height);
@@ -61,10 +60,11 @@ public class HandyDraw extends PGraphics2D{
 	 *  once sketchy rendering is complete.
 	 */
 	public void startHandy(){
+		prevG=this.sketch.g;
 		this.sketch.g=this;
 		beginDraw();
-		this.style(sketchG.getStyle());			// Set the style of this to that of the sketch
-		if (sketchG.smooth) {
+		this.style(prevG.getStyle());			// Set the style of this to that of the sketch
+		if (prevG.smooth) {
 			this.smooth();
 		}
 		else{
@@ -82,8 +82,8 @@ public class HandyDraw extends PGraphics2D{
 	 */
 	public void stopHandy(){
 		endDraw();
-		this.sketchG.style(this.getStyle());	// Set the style of the sketch to that of this
-		this.sketch.g=sketchG;
+		this.prevG.style(this.getStyle());	// Set the style of the sketch to that of this
+		this.sketch.g=prevG;
 		
 		this.sketch.pushStyle();
 		this.sketch.noTint(); 					// Temporarily remove tint while we draw handy screen buffer.
