@@ -73,7 +73,7 @@ public class HandyDraw extends PGraphics2D{
 		if (sketch.width!=this.width || sketch.height!=this.height) {
 			this.setSize(sketch.width, sketch.height);
 		}
-		background(0,0);  						// Erase previous drawing to screen buffer and set to transparent
+		background(255,0);  						// Erase previous drawing to screen buffer and set to transparent
 	}
 	
 
