@@ -702,11 +702,24 @@ public class HandyRenderer implements Drawable
 		}
 	}
 	
+	
 	/** Draws a closed polygon shape based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
 	 */
 	public void shape(float[] xCoords, float[] yCoords)
+	{
+		shape(xCoords,yCoords,true);
+	}
+	
+	
+	/** Draws a polygon shape based on the given arrays of vertices. This version can 
+	 *  draw either open or closed shapes.
+	 *  @param xCoords x coordinates of the shape.
+	 *  @param yCoords y coordinates of the shape.
+	 *  @param closeShape Boundary of shape will be closed if true.
+	 */
+	public void shape(float[] xCoords, float[] yCoords, boolean closeShape)
 	{
 		if (isHandy == false)
 		{
@@ -715,7 +728,14 @@ public class HandyRenderer implements Drawable
 			{
 				graphics.vertex(xCoords[i],yCoords[i]);
 			}
-			graphics.endShape(PConstants.CLOSE);
+			if (closeShape)
+			{
+				graphics.endShape(PConstants.CLOSE);
+			}
+			else
+			{
+				graphics.endShape();
+			}
 			return;
 		}
 
@@ -858,10 +878,12 @@ public class HandyRenderer implements Drawable
 			{
 				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1]);
 			}
-			line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],xCoords[0],yCoords[0]);
+			if (closeShape)
+			{
+				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],xCoords[0],yCoords[0]);
+			}
 		}
 	}
-	
 	
 	/** Draws a complex line that links the given coordinates. 
 	 *  @param xCoords x coordinates of the line.
