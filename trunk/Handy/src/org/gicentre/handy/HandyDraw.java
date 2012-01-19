@@ -40,9 +40,6 @@ public class HandyDraw extends PGraphics2D{
 	private HandyRenderer handyRenderer;
 	private PApplet sketch;
 	private PGraphics sketchG;		// Keep track of the Sketch's original canvas
-	
-									// TODO: Do we need this? It is currently not used.
-	private boolean isDrawingShape=false;					
 	private  List<PVector> vertices=new ArrayList<PVector>();
 	
 	private boolean useSuper=false;
@@ -53,8 +50,7 @@ public class HandyDraw extends PGraphics2D{
 		this.sketch=sketch;
 		this.sketchG=sketch.g;
 		this.handyRenderer=new HandyRenderer(sketch);
-									// TODO: Why typecast into PGraphics2D? It already is a PGraphics2D object.
-		this.handyRenderer.setGraphics((PGraphics2D)this);	
+		this.handyRenderer.setGraphics(this);	
 		this.setSize(sketch.width, sketch.height);
 	}
 	
@@ -91,7 +87,6 @@ public class HandyDraw extends PGraphics2D{
 		this.sketch.popStyle();
 		
 		// Clear any incomplete shapes
-		isDrawingShape=false;
 		vertices.clear();
 	}
 	
@@ -185,10 +180,7 @@ public class HandyDraw extends PGraphics2D{
 			super.beginShape();
 		}
 		else{
-						// TODO: Why set useSuper on and off here since we do not call anything from HandyRenderer?
-			useSuper=true;		
-			isDrawingShape=true;
-			useSuper=false;
+			vertices.clear();
 		}
 	}
 	
@@ -203,10 +195,7 @@ public class HandyDraw extends PGraphics2D{
 			super.vertex(x,y);
 		}
 		else{
-						// TODO: Why set useSuper on and off here since we do not call anything from HandyRenderer?
-			useSuper=true;
 			vertices.add(new PVector(x,y));
-			useSuper=false;
 		}
 	}
 	
@@ -232,7 +221,6 @@ public class HandyDraw extends PGraphics2D{
 			}
 			
 			handyRenderer.shape(xs,ys,false);
-			isDrawingShape=false;
 			vertices.clear();
 			useSuper=false;
 		}
@@ -269,7 +257,6 @@ public class HandyDraw extends PGraphics2D{
 				i++;
 			}
 			handyRenderer.shape(xs,ys,mode==PConstants.CLOSE? true:false);
-			isDrawingShape=false;
 			vertices.clear();
 			useSuper=false;
 		}
