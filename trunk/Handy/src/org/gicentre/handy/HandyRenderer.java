@@ -15,7 +15,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0, 17th January, 2012.
+ *  @version 1.0, 21st January, 2012.
  */ 
 // *****************************************************************************************
 
@@ -259,6 +259,7 @@ public class HandyRenderer implements Drawable
 		ry += getOffset(-ry*0.05f, ry*0.05f);
 
 		// Store the original stroke and fill colours.
+		
 		int oStroke = graphics.strokeColor;
 		int oFill   = graphics.fillColor;
 		float oWeight = graphics.strokeWeight;
@@ -371,11 +372,11 @@ public class HandyRenderer implements Drawable
 
 			buildEllipse(cx,cy,rx,ry,1,ellipseInc*getOffset(0.1f,getOffset(0.4f, 1f)));
 			buildEllipse(cx,cy,rx,ry,1.5f,0);
-
-			if (oIsFill)
-			{
-				graphics.fill(oFill);
-			}
+		}
+		
+		if (oIsFill)
+		{
+			graphics.fill(oFill);
 		}
 	}
 	
