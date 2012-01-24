@@ -6,7 +6,6 @@ import org.gicentre.handy.HandyRenderer;
 import org.gicentre.handy.Simplifier;
 
 import processing.core.PApplet;
-import processing.core.PFont;
 import processing.core.PVector;
 
 // *****************************************************************************************
@@ -56,9 +55,9 @@ public class Painter extends PApplet
 	{
 		size(1200,800);
 		smooth();
-		marks = new ArrayList<Mark>();
-		currentMark = new Mark();
 		h = new HandyRenderer(this);
+		marks = new ArrayList<Mark>();	
+		currentMark = new Mark(h);
 	}
 
 	// ------------------------ Processing draw -------------------------
@@ -94,7 +93,7 @@ public class Painter extends PApplet
 	public void mouseReleased()
 	{
 		marks.add(currentMark);
-		currentMark = new Mark();
+		currentMark = new Mark(h);
 		loop();
 	}
 
@@ -129,15 +128,17 @@ public class Painter extends PApplet
 	// Represents a single graphical mark such as a line or polygon.
 	private class Mark
 	{
-		ArrayList<PVector> coords;
-		float[] xCoords,yCoords;
-		int strokeColour, fillColour;
-		boolean isPolygon;
+		private ArrayList<PVector> coords;
+		private float[] xCoords,yCoords;
+		private int fillColour;
+		private boolean isPolygon;
+		private HandyRenderer handy;
+		
 
-		public Mark()
+		public Mark(HandyRenderer h)
 		{
+			this.handy = h;
 			coords = new ArrayList<PVector>();
-			strokeColour = color(0);
 			fillColour = color(80,30,30);
 			isPolygon = false;
 		}
@@ -168,11 +169,11 @@ public class Painter extends PApplet
 			if (isPolygon)
 			{
 				fill(fillColour);
-				h.shape(xCoords,yCoords);
+				handy.shape(xCoords,yCoords);
 			}
 			else
 			{
-				h.polyLine(xCoords,yCoords);
+				handy.polyLine(xCoords,yCoords);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package org.gicentre.tests;
 import org.gicentre.handy.HandyDraw;
+import org.gicentre.utils.move.ZoomPan;
 
 import processing.core.PApplet;
 
@@ -29,21 +30,29 @@ public class HandyDrawTest extends PApplet {
 
 	HandyDraw handyDraw;
 	boolean useHandy=true;
+	
+	ZoomPan zoomer;
 
 	public void setup(){
+		size(400,500);
 		handyDraw=new HandyDraw(this);
 		smooth();
-		size(400,500);
+		zoomer = new ZoomPan(this);
 	}
 
 	public void draw(){
+		
 		background(255);
+		zoomer.transform();
 		
 		fill(200,100,100); //styles are honoured by handyDraw even if set outside start/stopHandy
 		stroke(0,0,200);
 		if (useHandy){
 			handyDraw.startHandy();
 		}
+		
+		//background(255);
+		
 		
 		line(10, 10, 200, 200);
 		ellipse(100,100,20,20);
@@ -176,9 +185,8 @@ public class HandyDrawTest extends PApplet {
 		endShape(CLOSE);
 
 		resetMatrix();
-		ellipse(mouseX,mouseY,40,40);
+		ellipse(zoomer.getMouseCoord().x,zoomer.getMouseCoord().y,40,40);
 
-		
 		if (useHandy) {
 			handyDraw.stopHandy();
 		}
@@ -186,6 +194,10 @@ public class HandyDrawTest extends PApplet {
 	}
 
 	public void mouseMoved(){
+		loop();
+	}
+	
+	public void mouseDragged(){
 		loop();
 	}
 	

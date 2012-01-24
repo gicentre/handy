@@ -1,6 +1,8 @@
 package org.gicentre.tests;
 
+import org.gicentre.handy.HandyPresets;
 import org.gicentre.handy.HandyRenderer;
+import org.gicentre.utils.move.ZoomPan;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -41,8 +43,8 @@ public class RandomShapeExample extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	
+	private HandyRenderer pencil,marker,water,cPencil, border;	
+	private ZoomPan zoomer;
 	private float angle;
 	private boolean isHandy;
 		
@@ -52,60 +54,91 @@ public class RandomShapeExample extends PApplet
 	 */
 	public void setup()
 	{   
-		size(800,800);
+		size(1200,800);
 		smooth();
-		angle = 45;
-		isHandy = true;
-		h = new HandyRenderer(this);
-		h.setHachureAngle(angle);
-		h.setIsHandy(isHandy);
+		zoomer = new ZoomPan(this);
+		angle = -42;
+		isHandy = true;	
+		
+		pencil  = HandyPresets.createPencil(this);		
+		water   = HandyPresets.createWaterAndInk(this);
+		marker  = HandyPresets.createMarker(this);
+		cPencil = HandyPresets.createColouredPencil(this);
+		border = new HandyRenderer(this);
+		
+		pencil.setHachureAngle(angle);
+		water.setHachureAngle(angle);
+		marker.setHachureAngle(angle);
+		cPencil.setHachureAngle(angle);
+		
+		textFont(createFont("YWFTHLLVTKA-Normal",36));
 	}
 	
 	
-	/** Draws some sketchy lines.
+	/** Draws the same shapes in four different sketchy styles.
 	 */
 	public void draw()
 	{
 		background(255);
-		stroke(80);
-		strokeWeight(1.5f);
-		fill(162,187,243);
-		h.setSeed(1234);
+		zoomer.transform();
+		pencil.setSeed(1234);
+		water.setSeed(1234);
+		marker.setSeed(1234);
+		cPencil.setSeed(1234);
+		
+		stroke(0);
+		strokeWeight(1);
+		textAlign(RIGHT,BOTTOM);
+		
 				
-		randomSeed(124);
+		randomSeed(10);
+		noFill();
+		border.rect(10,10,width/2-20,height/2-20);
+		drawShapes(pencil,0,0,width/2,height/2);
+		fill(60);
+		text("Pencil",width/2-20,height/2-15);
 		
+		randomSeed(10);
+		noFill();
+		border.rect(width/2+10,10,width/2-20,height/2-20);
+		drawShapes(water,width/2,0,width/2,height/2);
+		fill(60);
+		text("Ink and watercolour",width-20,height/2-15);
 		
-		// Random rectangles.
-		for (int i=0; i<20; i++)
-		{
-			int colour = color(random(100,200),random(60,200), random(100,200));
-			fill(colour);
-			//fill(random(130,180),150);
-			h.setHachureAngle(angle+random(-10,10));
-			h.rect(random(50,width-50), random(50,height-50),random(30,200), random(30,200));
-		}
+		randomSeed(10);
+		noFill();
+		border.rect(10,height/2+10,width/2-20,height/2-20);
+		drawShapes(marker,0,height/2,width/2,height/2);
+		fill(60);
+		text("Marker pen",width/2-20,height-15);
 		
-		// Random ellipses
-		for (int i=0; i<20; i++)
-		{
-			int colour = color(random(100,200),random(60,200), random(100,200));
-			fill(colour);
-			//fill(random(130,180),150);
-			h.setSecondaryColour(color(random(130,180),150));
-			h.setHachureAngle(angle);
-			h.ellipse(random(50,width-50), random(50,height-50),random(30,200), random(30,200));
-		}
+		randomSeed(10);
+		noFill();
+		border.rect(width/2+10,height/2+10,width/2-20,height/2-20);
+		drawShapes(cPencil,width/2,height/2,width/2,height/2);
+		fill(60);
+		text("Coloured pencil",width-20,height-15);
 		
 		noLoop();
 	}
 		
+	/** Allow handy rendering to be toggled on or off and hachure angle to be changed with key presses.
+	 */
 	@Override
 	public void keyPressed()
 	{
 		if (key =='h')
 		{
 			isHandy = !isHandy;
-			h.setIsHandy(isHandy);
+			pencil.setIsHandy(isHandy);
+			water.setIsHandy(isHandy);
+			marker.setIsHandy(isHandy);
+			cPencil.setIsHandy(isHandy);
+			loop();
+		}
+		else if (key == 'r')
+		{
+			zoomer.reset();
 			loop();
 		}
 		
@@ -114,16 +147,71 @@ public class RandomShapeExample extends PApplet
 			if (keyCode == PConstants.LEFT)
 			{
 				angle--;
-				h.setHachureAngle(angle);
+				pencil.setHachureAngle(angle);
+				water.setHachureAngle(angle);
+				marker.setHachureAngle(angle);
+				cPencil.setHachureAngle(angle);
+				
 				loop();
 			}
 			else if (keyCode == PConstants.RIGHT)
 			{
 				angle++;
-				h.setHachureAngle(angle);
+				pencil.setHachureAngle(angle);
+				water.setHachureAngle(angle);
+				marker.setHachureAngle(angle);
+				cPencil.setHachureAngle(angle);
 				loop();
 			}
 		}
 	}
 	
+	/** Ensures screen is updated whenever a zooming/panning mouse is dragged.
+	 */
+	@Override
+	public void mouseDragged()
+	{
+		loop();
+	}
+	
+	/** Draws a range of shapes at random positions on the screen.
+	 *  @param handy Renderer to do the drawing.
+	 *  @param x Left hand edge of drawing area
+	 *  @param y Top of drawing area
+	 *  @param w Width of drawing area.
+	 *  @param h Height of drawing area.
+	 */
+	private void drawShapes(HandyRenderer handy, float x, float y, float w, float h)
+	{
+		float minSize = w/10;
+		float maxSize = Math.min(w,h)/4;
+			
+		for (int i=0; i<30; i++)
+		{
+			int colour = color(random(100,200),random(60,200), random(100,200),120);
+			fill(colour);
+			float shapeChoice = random(0,1);
+			if (shapeChoice < 0.33)
+			{
+				handy.rect(x+random(minSize,w-maxSize),y+random(minSize,h-maxSize),random(minSize,maxSize), random(minSize,maxSize));
+			}
+			else if (shapeChoice <0.66)
+			{
+				float x1 = x+random(minSize,w-maxSize);
+				float y1 = y+random(minSize,h-maxSize);
+				float x2 = x1+random(50,maxSize);
+				float y2 = y1+random(-10,10);
+				float x3 = (x1+x2)/2;
+				float y3 = y1+random(-minSize,-maxSize);
+				handy.triangle(x1,y1,x2,y2,x3,y3);	
+			}
+			else
+			{
+				handy.ellipse(x+random(minSize,w-maxSize), y+random(minSize,h-maxSize),random(minSize,maxSize), random(minSize,maxSize));	
+			}
+			
+		}
+		
+
+	}
 }

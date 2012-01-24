@@ -15,7 +15,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0, 21st January, 2012.
+ *  @version 1.0, 23rd January, 2012.
  */ 
 // *****************************************************************************************
 
@@ -44,15 +44,20 @@ public class HandyRenderer implements Drawable
 
 	// Configuration settings
 	private boolean isHandy;					// Determines if normal or hand-drawn appearance is used.
+	private int fillColour, strokeColour;		// Main fill and stroke colours. 
 	private int bgColour, secondaryColour;		// Background colour and secondary fill colour	
-	private boolean useSecondary;				// Determines if secondary colour is to be used.
-	private boolean isAlternating;				// Determines if hachuring alternates in direction in continuous stroke.
+	private boolean overrideFillColour;			// Determines whether the fill colour is based on parent's fill colour or the setting in this class.
+	private boolean overrideStrokeColour;		// Determines whether the stroke colour is based on parent's stroke colour or the setting in this class.
+	private boolean useSecondary;				// Determines whether secondary colour is to be used.
+	private boolean isAlternating;				// Determines whether hachuring alternates in direction in continuous stroke.
 	private float hachureAngle;					// Angle of diagonal hachuring.
 	private float anglePerturbation;			// Random perturbation in hachure angle per object drawn.
 	private float fillWeight, fillGap;			// Hachure filling characteristics.
+	private float strokeWeight;					// Stroke weight for lines.
+	private float roughness;					// Scaling for random perturbations.
 
 	private int numEllipseSteps;
-	private float ellipseInc;//, xInc, xIncAnti, yInc, yIncAnti;	// Incremental steps along an ellipse.
+	private float ellipseInc;					// Incremental steps along an ellipse.
 
 	// ----------------------------------- Constructor -----------------------------------
 
@@ -63,9 +68,7 @@ public class HandyRenderer implements Drawable
 
 		numEllipseSteps = 9;
 		ellipseInc = PConstants.TWO_PI/numEllipseSteps;
-		isAlternating = false;
-		anglePerturbation = 0;
-		
+				
 		// Set initial configuration options.
 		rand = new Random(123456);
 		setIsHandy(true);
@@ -133,7 +136,47 @@ public class HandyRenderer implements Drawable
 	{
 		this.bgColour = colour;
 	}
+	
+	/** Sets the fill colour for closed shapes. Note this will only have an effect if
+	 *  <code>setOverrideFillColour()</code> is true. 
+	 *  @param colour Fill colour to use.
+	 */
+	public void setFillColour(int colour)
+	{
+		this.fillColour = colour;
+	}
 
+	/** Determines whether or not to override the fill colour that would otherwise be determined by
+	 *  the sketch's <code>fillColor</code> setting. If overridden, the colour is instead chosen from the 
+	 *  value last provided to <code>setFillColour()</code>.
+	 *  @param override If true the interior colour of features is determined by <code>setFillColour</code>,
+	 *                  if not, it is determined by the parent sketch's fill colour setting.
+	 */
+	public void setOverrideFillColour(boolean override)
+	{
+		this.overrideFillColour = override;
+	}
+	
+	/** Sets the stroke colour for rendering features. Note this will only have an effect if
+	 *  <code>setOverrideStrokeColour()</code> is true. 
+	 *  @param colour Stroke colour to use.
+	 */
+	public void setStrokeColour(int colour)
+	{
+		this.strokeColour = colour;
+	}
+
+	/** Determines whether or not to override the stroke colour that would otherwise be determined by
+	 *  the sketch's <code>strokeColor</code> setting. If overridden, the colour is instead chosen from the 
+	 *  value last provided to <code>setStrokeColour()</code>.
+	 *  @param override If true the stroke colour of features is determined by <code>setStrokeColour</code>,
+	 *                  if not, it is determined by the parent sketch's stroke colour setting.
+	 */
+	public void setOverrideStrokeColour(boolean override)
+	{
+		this.overrideStrokeColour = override;
+	}
+	
 	/** Determines whether or not a secondary colour is used for filling lines.
 	 *  @param useSecondary If true a secondary colour is used.
 	 */
@@ -142,7 +185,8 @@ public class HandyRenderer implements Drawable
 		this.useSecondary = useSecondary;
 	}
 
-	/** Sets the secondary colour for line filling. 
+	/** Sets the secondary colour for line filling. Note this will only have an effect if
+	 *  <code>setUseSecondaryColour()</code> is true.
 	 *  @param colour Colour to tint line filling.
 	 */
 	public void setSecondaryColour(int colour)
@@ -152,11 +196,20 @@ public class HandyRenderer implements Drawable
 	
 	/** Determines the thickness of fill lines. If zero or negative, the thickness is
 	 *  proportional to the sketch's current strokeWeight.
-	 *  @param weight Fill weight in pixel units. If zero or negative, fill weight is based on strokeWeight setting. 
+	 *  @param weight Fill weight in pixel units. If zero or negative, fill weight is based on the sketch's strokeWeight setting. 
 	 */
 	public void setFillWeight(float weight)
 	{
 		this.fillWeight = weight;
+	}
+	
+	/** Determines the thickness of outer lines. If zero or negative, the thickness is
+	 *  proportional to the sketch's current strokeWeight.
+	 *  @param weight Stroke weight in pixel units. If zero or negative, stroke weight is based on the sketch's strokeWeight setting. 
+	 */
+	public void setStrokeWeight(float weight)
+	{
+		this.strokeWeight = weight;
 	}
 	
 	/** Determines the gap between fill lines. If zero, standard solid fill is used. If negative,
@@ -177,17 +230,35 @@ public class HandyRenderer implements Drawable
 		this.isAlternating = alternate;
 	}
 	
+	/** Sets the general roughness of the sketch. 1 is a typically neat sketchiness, 0 is very precise, 5 
+	 *  is very sketchy. Values are capped at 10.
+	 *  @param roughness The sketchiness of the rendering. The larger the number the more sketchy the rendering.
+	 */
+	public void setRoughness(float roughness)
+	{
+		// Cap roughness between += 10.
+		this.roughness = Math.max(-10,Math.min(roughness, 10));
+	}
+	
 	/** Resets the sketchy styles to default values.
 	 */
 	public void resetStyles()
 	{
+		isAlternating = false;
+		anglePerturbation = 0;
+		roughness = 1;
+		setStrokeColour(graphics.strokeColor);
+		setFillColour(graphics.fillColor);
 		setBackgroundColour(parent.color(255));
 		setSecondaryColour(parent.color(255));
 		setUseSecondaryColour(false);
 		setFillWeight(-1);
+		setStrokeWeight(-1);
 		setFillGap(-1);
 		setHachureAngle(-41);
 		setHachurePerturbationAngle(0);
+		setOverrideFillColour(false);
+		setOverrideStrokeColour(false);
 	}
 
 	// -------------------------------------- Drawing methods --------------------------------------
@@ -218,6 +289,8 @@ public class HandyRenderer implements Drawable
 			return;
 		}
 
+		graphics.pushStyle();
+		
 		// Default is to use 'CENTER' mode for defining ellipse
 		float cx = x;
 		float cy = y;
@@ -284,6 +357,10 @@ public class HandyRenderer implements Drawable
 			if (fillGap == 0)
 			{
 				// Fill with solid colour
+				if (overrideFillColour)
+				{
+					graphics.fill(fillColour);
+				}
 				int oEllipseMode = graphics.ellipseMode;
 				graphics.ellipseMode(PConstants.RADIUS);
 				graphics.noStroke();
@@ -294,7 +371,14 @@ public class HandyRenderer implements Drawable
 			else
 			{
 				// We will be using strokes to fill, so change stroke to fill colour.
-				graphics.stroke(oFill);
+				if (overrideFillColour)
+				{
+					graphics.stroke(fillColour);
+				}
+				else
+				{
+					graphics.stroke(oFill);
+				}
 				
 				// Perturb hachure angle if requested.
 				if (anglePerturbation > 0)
@@ -338,9 +422,9 @@ public class HandyRenderer implements Drawable
 					
 					if (isAlternating)
 					{
-						line(prevP2[0],prevP2[1],p1[0],p1[1]);	
+						line(prevP2[0],prevP2[1],p1[0],p1[1],2);	
 					}
-					line(p1[0],p1[1],p2[0],p2[1]);
+					line(p1[0],p1[1],p2[0],p2[1],2);
 					
 					prevP2 = p2;
 				}
@@ -353,31 +437,41 @@ public class HandyRenderer implements Drawable
 			}
 		}
 
-		// Restore original stroke colour and weight.
-		if (oIsStroke)
+		// Set stroke colour and weight.
+		if ((oIsStroke) || (strokeWeight > 0))
 		{
-			graphics.stroke(oStroke);
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			else
+			{
+				graphics.stroke(oStroke);	
+			}
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			else
+			{
+				graphics.strokeWeight(oWeight);
+			}
 		}
 		else
 		{
 			graphics.noStroke();
 		}
-		graphics.strokeWeight(oWeight);
-
-
+		
 		// Draw outline if requested
-		if (graphics.stroke)
+		if ((oIsStroke) || (overrideStrokeColour))
 		{
 			graphics.noFill();
-
 			buildEllipse(cx,cy,rx,ry,1,ellipseInc*getOffset(0.1f,getOffset(0.4f, 1f)));
 			buildEllipse(cx,cy,rx,ry,1.5f,0);
 		}
 		
-		if (oIsFill)
-		{
-			graphics.fill(oFill);
-		}
+		// Restore original style settings.
+		graphics.popStyle();
 	}
 	
 	/** Draws a rectangle using the given location and dimensions. By default the x,y coordinates
@@ -396,6 +490,7 @@ public class HandyRenderer implements Drawable
 			return;
 		}
 
+		graphics.pushStyle();
 		// Default is to use 'CORNER' mode for defining rectangle
 		float left   = Math.min(x,x+w);
 		float top    = Math.min(y,y+h);
@@ -451,6 +546,10 @@ public class HandyRenderer implements Drawable
 			if (fillGap == 0)
 			{
 				// Fill with solid colour
+				if (overrideFillColour)
+				{
+					graphics.fill(fillColour);
+				}
 				int oRectMode = graphics.rectMode;
 				graphics.rectMode(PConstants.CORNERS);
 				graphics.noStroke();
@@ -461,7 +560,14 @@ public class HandyRenderer implements Drawable
 			else
 			{
 				// We will be using strokes to fill, so change stroke to fill colour.
-				graphics.stroke(oFill);
+				if (overrideFillColour)
+				{
+					graphics.stroke(fillColour);
+				}
+				else
+				{
+					graphics.stroke(oFill);
+				}
 				
 				// Perturb hachure angle if requested.
 				float originalAngle = PApplet.degrees(hachureAngle);
@@ -496,15 +602,15 @@ public class HandyRenderer implements Drawable
 				
 				if (prevCoords != null)
 				{
-					line(prevCoords[0],prevCoords[1],prevCoords[2],prevCoords[3]);
+					line(prevCoords[0],prevCoords[1],prevCoords[2],prevCoords[3],2);
 					
 					while ((coords=i.getNextLine()) != null)
 					{
 						if (isAlternating)
 						{
-							line(prevCoords[2],prevCoords[3],coords[0],coords[1]);
+							line(prevCoords[2],prevCoords[3],coords[0],coords[1],2);
 						}
-						line(coords[0],coords[1],coords[2],coords[3]);
+						line(coords[0],coords[1],coords[2],coords[3],2);
 						prevCoords = coords;
 					}
 				}
@@ -516,27 +622,46 @@ public class HandyRenderer implements Drawable
 				}
 			}
 
-			// Restore original stroke colour and weight.
-			if (oIsStroke)
+			// Set stroke colour and weight.
+			if ((oIsStroke) || (strokeWeight > 0))
 			{
-				graphics.stroke(oStroke);
+				if (overrideStrokeColour)
+				{
+					graphics.stroke(strokeColour);
+				}
+				else
+				{
+					graphics.stroke(oStroke);	
+				}
+				
+				if (strokeWeight > 0)
+				{
+					graphics.strokeWeight(strokeWeight);
+				}
+				else
+				{
+					graphics.strokeWeight(oWeight);
+				}
 			}
 			else
 			{
 				graphics.noStroke();
 			}
-			graphics.strokeWeight(oWeight);
+			
 			graphics.fill(oFill);
 		}
 
 		// Draw boundary of the rectangle.
-		if (graphics.stroke)
+		if ((oIsStroke) || (overrideStrokeColour))
 		{
-			line(left,top, right, top);
-			line(right,top,right,bottom);
-			line(right,bottom,left,bottom);
-			line(left,bottom,left,top);
+			line(left,top, right, top,2);
+			line(right,top,right,bottom,2);
+			line(right,bottom,left,bottom,2);
+			line(left,bottom,left,top,2);
 		}
+		
+		// Restore original style settings.
+		graphics.popStyle();
 	}
 	
 	/** Draws a triangle through the three pairs of coordinates.
@@ -554,6 +679,7 @@ public class HandyRenderer implements Drawable
 			graphics.triangle(x1,y1,x2,y2,x3,y3);
 			return;
 		}
+		graphics.pushStyle();
 
 		// Bounding rectangle of the triangle.
 		float left   = Math.min(x1,Math.min(x2, x3));
@@ -581,6 +707,10 @@ public class HandyRenderer implements Drawable
 			if (fillGap == 0)
 			{
 				// Fill with solid colour
+				if (overrideFillColour)
+				{
+					graphics.fill(fillColour);
+				}
 				graphics.noStroke();
 				graphics.triangle(x1,y1,x2,y2,x3,y3);
 				graphics.noFill();
@@ -588,7 +718,14 @@ public class HandyRenderer implements Drawable
 			else
 			{
 				// We will be using strokes to fill, so change stroke to fill colour.
-				graphics.stroke(oFill);
+				if (overrideFillColour)
+				{
+					graphics.stroke(fillColour);
+				}
+				else
+				{
+					graphics.stroke(oFill);
+				}
 				
 				// Perturb hachure angle if requested.
 				float originalAngle = PApplet.degrees(hachureAngle);
@@ -666,11 +803,11 @@ public class HandyRenderer implements Drawable
 
 							if (prevCoords != null)
 							{
-								line(prevCoords[0],prevCoords[1],triCoords[0],triCoords[1]);
+								line(prevCoords[0],prevCoords[1],triCoords[0],triCoords[1],2);
 							}
 							prevCoords = new float[] {triCoords[2],triCoords[3]};
 						}
-						line(triCoords[0],triCoords[1],triCoords[2],triCoords[3]);
+						line(triCoords[0],triCoords[1],triCoords[2],triCoords[3],2);
 					}
 				}
 				
@@ -681,28 +818,38 @@ public class HandyRenderer implements Drawable
 				}
 			}
 
-			// Restore original stroke colour and weight.
-			if (oIsStroke)
-			{
-				graphics.stroke(oStroke);
-			}
-			else
-			{
-				graphics.noStroke();
-			}
-			graphics.strokeWeight(oWeight);
+			// Restore original fill settings.
 			graphics.fill(oFill);
 		}
 
 		// Draw boundary of the triangle.
-		if (graphics.stroke)
+		if ((oIsStroke) || (overrideStrokeColour))
 		{
-			line(x1,y1, x2, y2);
-			line(x2,y2, x3,y3);
-			line(x3,y3, x1,y1);
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			else
+			{
+				graphics.stroke(oStroke);	
+			}
+			
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			else
+			{
+				graphics.strokeWeight(oWeight);
+			}
+			line(x1,y1, x2, y2,2);
+			line(x2,y2, x3,y3,2);
+			line(x3,y3, x1,y1,2);
 		}
+		
+		// Restore original stroke settings.
+		graphics.popStyle();
 	}
-	
 	
 	/** Draws a closed polygon shape based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
@@ -712,7 +859,6 @@ public class HandyRenderer implements Drawable
 	{
 		shape(xCoords,yCoords,true);
 	}
-	
 	
 	/** Draws a polygon shape based on the given arrays of vertices. This version can 
 	 *  draw either open or closed shapes.
@@ -740,6 +886,8 @@ public class HandyRenderer implements Drawable
 			return;
 		}
 
+		graphics.pushStyle();
+		
 		// Bounding rectangle of the shape.
 		float left   = xCoords[0];
 		float right  = xCoords[0];
@@ -778,6 +926,10 @@ public class HandyRenderer implements Drawable
 			if (fillGap == 0)
 			{
 				// Fill with solid colour
+				if (overrideFillColour)
+				{
+					graphics.fill(fillColour);
+				}
 				graphics.noStroke();
 				graphics.beginShape();
 				for (int i=0; i<xCoords.length; i++)
@@ -790,7 +942,14 @@ public class HandyRenderer implements Drawable
 			else
 			{
 				// We will be using strokes to fill, so change stroke to fill colour.
-				graphics.stroke(oFill);
+				if (overrideFillColour)
+				{
+					graphics.stroke(fillColour);
+				}
+				else
+				{
+					graphics.stroke(oFill);
+				}
 				
 				// Perturb hachure angle if requested.
 				float originalAngle = PApplet.degrees(hachureAngle);
@@ -838,13 +997,13 @@ public class HandyRenderer implements Drawable
 						{
 							float[] p1 = lines.get(i);
 							float[] p2 = lines.get(i+1);
-							line(p1[0],p1[1],p2[0],p2[1]);
+							line(p1[0],p1[1],p2[0],p2[1],2);
 							
 //							if (isAlternating)
 //							{
 //								if (prevCoords.size() == lines.size())
 //								{
-//									line(prevCoords.get(i/2)[0],prevCoords.get(i/2)[1],p1[0],p1[1]);
+//									line(prevCoords.get(i/2)[0],prevCoords.get(i/2)[1],p1[0],p1[1],2);
 //								}
 //								prevCoords.add(new float[] {p2[0],p2[1]});
 //							}
@@ -859,31 +1018,44 @@ public class HandyRenderer implements Drawable
 				}
 			}
 
-			// Restore original stroke colour and weight.
-			if (oIsStroke)
-			{
-				graphics.stroke(oStroke);
-			}
-			else
-			{
-				graphics.noStroke();
-			}
-			graphics.strokeWeight(oWeight);
+			// Restore original fill and stroke weight settings.
 			graphics.fill(oFill);
+			graphics.strokeWeight(oWeight);
 		}
 
 		// Draw boundary of the shape.
-		if (graphics.stroke)
+		if ((oIsStroke) || (overrideStrokeColour))
 		{
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			else
+			{
+				graphics.stroke(oStroke);	
+			}
+
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			else
+			{
+				graphics.strokeWeight(oWeight);
+			}
+
 			for (int i=0; i<xCoords.length-1; i++)
 			{
-				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1]);
+				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1],2);
 			}
 			if (closeShape)
 			{
-				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],xCoords[0],yCoords[0]);
+				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],xCoords[0],yCoords[0],2);
 			}
 		}
+		
+		// Restore styles.
+		graphics.popStyle();
 	}
 	
 	/** Draws a complex line that links the given coordinates. 
@@ -892,26 +1064,91 @@ public class HandyRenderer implements Drawable
 	 */
 	public void polyLine(float[] xCoords, float[] yCoords)
 	{
-		if (isHandy == false)
+		if ((graphics.stroke) || (overrideStrokeColour))
 		{
-			graphics.pushStyle();
-			graphics.noFill();
-			graphics.beginShape();
-			for (int i=0; i<xCoords.length; i++)
+			if (isHandy == false)
 			{
-				graphics.vertex(xCoords[i],yCoords[i]);
+				graphics.pushStyle();
+				graphics.noFill();
+				graphics.beginShape();
+				for (int i=0; i<xCoords.length; i++)
+				{
+					graphics.vertex(xCoords[i],yCoords[i]);
+				}
+				graphics.endShape();
+				graphics.popStyle();
+				return;
 			}
-			graphics.endShape();
-			graphics.popStyle();
-			return;
-		}
 		
-		if (graphics.stroke)
-		{
+			graphics.pushStyle();
+			int oStroke = graphics.strokeColor;
+						
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			else
+			{
+				graphics.stroke(oStroke);	
+			}
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			
 			for (int i=0; i<xCoords.length-1; i++)
 			{
-				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1]);
+				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1],2);
 			}
+			
+			// Restore style settings.
+			graphics.popStyle();
+		}
+	}
+	
+	
+	/** Draws a complex curved line that links the given coordinates. 
+	 *  @param xCoords x coordinates of the line.
+	 *  @param yCoords y coordinates of the line.
+	 */
+	public void curveLine(float[] xCoords, float[] yCoords)
+	{
+		if ((graphics.stroke) || (overrideStrokeColour))
+		{
+			if (isHandy == false)
+			{
+				graphics.pushStyle();
+				graphics.noFill();
+				graphics.beginShape();
+				for (int i=0; i<xCoords.length; i++)
+				{
+					graphics.curveVertex(xCoords[i],yCoords[i]);
+				}
+				graphics.endShape();
+				graphics.popStyle();
+				return;
+			}
+
+			graphics.pushStyle();
+			
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			
+			for (int i=0; i<xCoords.length-1; i++)
+			{
+				//TODO: Create a curveLine method. Until then, draw straight line segments between vertices.
+				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1],2);
+			}
+			
+			// Restore original stroke settings.
+			graphics.popStyle();
 		}
 	}
 
@@ -922,14 +1159,31 @@ public class HandyRenderer implements Drawable
 	 *  @param y2 y coordinate of the end of the line.
 	 */
 	public void line(float x1, float y1, float x2, float y2)
-	{		
-		if (isHandy == false)
+	{	
+		if ((graphics.stroke) || (overrideStrokeColour))
 		{
-			graphics.line(x1,y1,x2,y2);
-			return;
-		}
+			if (isHandy == false)
+			{
+				graphics.line(x1,y1,x2,y2);
+				return;
+			}
+			
+			graphics.pushStyle();
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			
+			line(x1,y1,x2,y2,2);
 
-		line(x1,y1,x2,y2,2);
+			// Restore original stroke settings.
+			graphics.popStyle();
+		}
 	}
 	
 	/** Converts an array list of numeric values into a floating point array.
@@ -959,47 +1213,56 @@ public class HandyRenderer implements Drawable
 	 */
 	private void line(float x1, float y1, float x2, float y2, float maxOffset)
 	{
-		// Ensure random perturbation is no more than 10% of line length.
-		float lenSq = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
-		float offset = maxOffset;
-		
-		if (maxOffset*maxOffset*100 > lenSq)
+		if (graphics.stroke)
 		{
-			offset = (float)Math.sqrt(lenSq)/10;
-		}
-		
-		float halfOffset = offset/2;
-		float divergePoint = 0.2f + rand.nextFloat()*0.2f;
-		
-		int oFill = graphics.fillColor;
-		if (useSecondary)
-		{
-			graphics.fill(secondaryColour);
-		}
-		else
-		{
-			graphics.noFill();
-		}
-		
-		graphics.beginShape();
-		parent.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
-		parent.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
-		parent.curveVertex(x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
-		parent.curveVertex(x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
-		parent.curveVertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
-		parent.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
-		parent.endShape();  
+			if (isHandy == false)
+			{
+				graphics.line(x1,y1,x2,y2);
+				return;
+			}
+			// Ensure random perturbation is no more than 10% of line length.
+			float lenSq = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
+			float offset = maxOffset;
 
-		parent.beginShape();
-		parent.vertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
-		parent.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
-		parent.curveVertex(x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
-		parent.curveVertex(x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
-		parent.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
-		parent.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
-		parent.endShape();
+			if (maxOffset*maxOffset*100 > lenSq)
+			{
+				offset = (float)Math.sqrt(lenSq)/10;
+			}
 
-		graphics.fill(oFill);
+			float halfOffset = offset/2;
+			float divergePoint = 0.2f + rand.nextFloat()*0.2f;
+
+			int oFill = graphics.fillColor;
+			if (useSecondary)
+			{
+				graphics.fill(secondaryColour);
+			}
+			else
+			{
+				graphics.noFill();
+			}
+
+			graphics.beginShape();
+			parent.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
+			parent.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
+			parent.curveVertex(x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
+			parent.curveVertex(x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
+			parent.curveVertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
+			parent.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
+			parent.endShape();  
+
+			parent.beginShape();
+			parent.vertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
+			parent.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
+			parent.curveVertex(x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
+			parent.curveVertex(x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
+			parent.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
+			parent.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
+			parent.endShape();
+
+			graphics.fill(oFill);
+		
+		}
 	}
 	
 
@@ -1010,7 +1273,7 @@ public class HandyRenderer implements Drawable
 	 */
 	private float getOffset(float minVal, float maxVal)
 	{
-		return rand.nextFloat()*(maxVal-minVal)+minVal;
+		return roughness*(rand.nextFloat()*(maxVal-minVal)+minVal);
 	}
 	
 	/** Adds the curved vertices to build an ellipse.
