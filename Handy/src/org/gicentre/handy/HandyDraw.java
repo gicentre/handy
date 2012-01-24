@@ -1,6 +1,7 @@
 package org.gicentre.handy;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 import processing.core.PApplet;
@@ -43,7 +44,7 @@ public class HandyDraw extends PGraphics2D{
 	private PGraphics prevG; //The sketch's g when startHandy() is called 
 	
 	private boolean useSuper=false;
-	private int shapeMode;
+	private int shapeMode1;
 	
 	// ----------------------------------- Constructor -----------------------------------
 	
@@ -73,6 +74,7 @@ public class HandyDraw extends PGraphics2D{
 		if (sketch.width!=this.width || sketch.height!=this.height) {
 			this.setSize(sketch.width, sketch.height);
 		}
+
 		background(255,0);  						// Erase previous drawing to screen buffer and set to transparent
 	}
 	
@@ -193,7 +195,7 @@ public class HandyDraw extends PGraphics2D{
 			super.beginShape(mode);
 		}
 		else{
-			this.shapeMode=mode;
+			this.shapeMode1=mode;
 			this.vertices.clear();
 		}
 	}
@@ -258,42 +260,42 @@ public class HandyDraw extends PGraphics2D{
 			ys[i]=pVector.y;
 			i++;
 		}
-		if (this.shapeMode==POLYGON){
+		if (this.shapeMode1==POLYGON){
 			handyRenderer.shape(xs,ys,closeShape);
 		}
-		else if (this.shapeMode==LINES){
+		else if (this.shapeMode1==LINES){
 			for (i=0;i<xs.length-1;i+=2){
 				handyRenderer.line(xs[i],ys[i],xs[i+1],ys[i+1]);
 			}
 		}
-		else if (this.shapeMode==POINTS){
+		else if (this.shapeMode1==POINTS){
 			for (i=0;i<xs.length;i++){
 				handyRenderer.point(xs[i],ys[i]);
 			}
 		}
-		else if (this.shapeMode==TRIANGLES){
+		else if (this.shapeMode1==TRIANGLES){
 			for (i=0;i<xs.length-2;i+=3){
 				handyRenderer.triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
 			}
 		}
-		else if (this.shapeMode==TRIANGLE_STRIP){
+		else if (this.shapeMode1==TRIANGLE_STRIP){
 			for (i=0;i<xs.length-2;i++){
 				handyRenderer.triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
 			}
 		}
-		else if (this.shapeMode==TRIANGLE_FAN){
+		else if (this.shapeMode1==TRIANGLE_FAN){
 			for (i=1;i<xs.length-1;i++){
 				handyRenderer.triangle(xs[0],ys[0],xs[i],ys[i],xs[i+1],ys[i+1]);
 			}
 		}
-		else if (this.shapeMode==QUADS){
+		else if (this.shapeMode1==QUADS){
 			for (i=0;i<xs.length-3;i+=4){
 				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+2],xs[i+3]};
 				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+2],ys[i+3]};
 				handyRenderer.shape(quadXs,quadYs);
 			}
 		}
-		else if (this.shapeMode==QUAD_STRIP){
+		else if (this.shapeMode1==QUAD_STRIP){
 			for (i=0;i<xs.length-3;i+=2){
 				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+3],xs[i+2]};
 				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+3],ys[i+2]};
