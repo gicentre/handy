@@ -125,6 +125,32 @@ public class HandyDraw extends PGraphics2D{
 		}
 	}
 
+	
+	/** Draws a quadrilateral shape. Similar to a rectangle but angles not constrained to 90 degrees.
+	 *  Coordinates can proceed in either a clockwise or anti-clockwise direction.
+	 *  @param x1 x coordinate of the first quadrilateral vertex.
+	 *  @param y1 y coordinate of the first quadrilateral vertex.
+	 *  @param x2 x coordinate of the second quadrilateral vertex.
+	 *  @param y2 y coordinate of the second quadrilateral vertex.
+	 *  @param x3 x coordinate of the third quadrilateral vertex.
+	 *  @param y3 y coordinate of the third quadrilateral vertex.
+	 *  @param x4 x coordinate of the fourth quadrilateral vertex.
+	 *  @param y4 y coordinate of the fourth quadrilateral vertex.
+	 */
+	@Override
+	public void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+	{
+		if (useSuper){
+			super.quad(x1, y1, x2, y2, x3, y3, x4, y4);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.quad(x1, y1, x2, y2, x3, y3, x4, y4);
+			useSuper=false;
+		}
+	}
+	
+	
 	/** Draws a rectangle using the given location and dimensions. By default the x,y coordinates
 	 *  will be the top left of the rectangle, but the meanings of these parameters can be 
 	 *  changed with Processing's <code>rectMode()</code> command.

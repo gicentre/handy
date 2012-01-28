@@ -8,7 +8,6 @@ import java.util.TreeMap;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
-import processing.core.PVector;
 
 // *****************************************************************************************
 /** The renderer that draws graphic primitives in a sketchy style. The style of sketchiness
@@ -16,7 +15,7 @@ import processing.core.PVector;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0, 23rd January, 2012.
+ *  @version 1.0, 28th January, 2012.
  */ 
 // *****************************************************************************************
 
@@ -42,7 +41,7 @@ public class HandyRenderer
 	private PGraphics graphics;					// Graphics context in which this class is to render.
 	private Random rand;						// Random number generator for random but repeatable offsets.
 	private float cosAngle,sinAngle,tanAngle;	// Lookups for quick calculations.
-	private List<PVector> vertices;				// Temporary store of shape or polyline vertices.
+	private List<float[]> vertices;				// Temporary store of shape or polyline vertices.
 	private int shapeMode;						// Type of setting for shape drawing.
 
 	// Configuration settings
@@ -71,7 +70,7 @@ public class HandyRenderer
 		
 		numEllipseSteps = 9;
 		ellipseInc = PConstants.TWO_PI/numEllipseSteps;
-		vertices = new ArrayList<PVector>();
+		vertices = new ArrayList<float[]>();
 				
 		// Set initial configuration options.
 		setIsHandy(true);
@@ -871,6 +870,19 @@ public class HandyRenderer
 		shape(new float[] {x1,x2,x3,x4}, new float[] {y1,y2,y3,y4}, true);
 	}
 	
+	/** Draws an arc along the outer edge of an ellipse defined by the x,y, width and height parameters.
+	 *  @param x x coordinate of the start of the line.
+	 *  @param y y coordinate of the start of the line.
+	 *  @param width x coordinate of the end of the line.
+	 *  @param height y coordinate of the end of the line.
+	 *  @param start Angle to start the arc in radians.
+	 *  @param stop Angle to stop the arc in radians.
+	 */
+	public void arc(float x, float y, float width, float height, float start, float stop)
+	{
+		arc(x,y,width,height,start,stop,2);
+	}
+	
 	/** Starts a new shape of type <code>POLYGON</code>. This must be paired with a call to 
 	 *  <code>endShape()</code> or one of its variants.
 	 */
@@ -909,7 +921,7 @@ public class HandyRenderer
 		}
 		else
 		{
-			vertices.add(new PVector(x,y));
+			vertices.add(new float[] {x,y});
 		}
 	}
 	
@@ -1212,52 +1224,6 @@ public class HandyRenderer
 		}
 	}
 	
-	
-	/** Draws a complex curved line that links the given coordinates. 
-	 *  @param xCoords x coordinates of the line.
-	 *  @param yCoords y coordinates of the line.
-	 */
-	public void curveLine(float[] xCoords, float[] yCoords)
-	{
-		if ((graphics.stroke) || (overrideStrokeColour))
-		{
-			if (isHandy == false)
-			{
-				graphics.pushStyle();
-				graphics.noFill();
-				graphics.beginShape();
-				for (int i=0; i<xCoords.length; i++)
-				{
-					graphics.curveVertex(xCoords[i],yCoords[i]);
-				}
-				graphics.endShape();
-				graphics.popStyle();
-				return;
-			}
-
-			graphics.pushStyle();
-			
-			if (overrideStrokeColour)
-			{
-				graphics.stroke(strokeColour);
-			}
-			
-			if (strokeWeight > 0)
-			{
-				graphics.strokeWeight(strokeWeight);
-			}
-			
-			for (int i=0; i<xCoords.length-1; i++)
-			{
-				//TODO: Create a curveLine method. Until then, draw straight line segments between vertices.
-				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1],2);
-			}
-			
-			// Restore original stroke settings.
-			graphics.popStyle();
-		}
-	}
-
 	/** Draws a 2D line between the given coordinate pairs. 
 	 *  @param x1 x coordinate of the start of the line.
 	 *  @param y1 y coordinate of the start of the line.
@@ -1347,27 +1313,60 @@ public class HandyRenderer
 			{
 				graphics.noFill();
 			}
+			
+		
+			// This is the midpoint displacement value to give slightly bowed lines.
+			float midDispX = maxOffset*(y2-y1)/200;
+			float midDispY = maxOffset*(x1-x2)/200;
+			midDispX = getOffset(-midDispX,midDispX);
+			midDispY = getOffset(-midDispY,midDispY);
 
 			graphics.beginShape();
 			parent.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
 			parent.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
-			parent.curveVertex(x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
-			parent.curveVertex(x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
-			parent.curveVertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
+			parent.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
+			parent.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
+			parent.curveVertex(+x2 + getOffset(-offset,offset), +y2 +getOffset(-offset,offset));
 			parent.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
 			parent.endShape();  
 
 			parent.beginShape();
 			parent.vertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
 			parent.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
-			parent.curveVertex(x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
-			parent.curveVertex(x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
+			parent.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
+			parent.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
 			parent.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			parent.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			parent.endShape();
 
 			graphics.fill(oFill);
 		
+		}
+	}
+	
+	
+	/** Draws an arc along the outer edge of an ellipse defined by the x,y, width and height parameters.
+	 *  This version allows the maximum random offset of the arc to be set explicitly.
+	 *  @param x x coordinate of the start of the line.
+	 *  @param y y coordinate of the start of the line.
+	 *  @param width x coordinate of the end of the line.
+	 *  @param height y coordinate of the end of the line.
+	 *  @param start Angle to start the arc in radians.
+	 *  @param stop Angle to stop the arc in radians.
+	 *  @param maxOffset Maximum random offset in pixel coordinates.
+	 */
+	private void arc(float x, float y, float width, float height, float start, float stop, float maxOffset)
+	{
+		if (graphics.stroke)
+		{
+			if (isHandy == false)
+			{
+				graphics.arc(x,y,width,height,start,stop);
+				return;
+			}
+			
+			// TODO: Replace with sketchy arc code
+			graphics.arc(x,y,width,height,start,stop);
 		}
 	}
 	
@@ -1379,9 +1378,10 @@ public class HandyRenderer
 		float[] xs=new float[vertices.size()];
 		float[] ys=new float[vertices.size()];
 		int i=0;
-		for (PVector pVector:vertices){
-			xs[i]=pVector.x;
-			ys[i]=pVector.y;
+		for (float[] coords : vertices)
+		{
+			xs[i]=coords[0];
+			ys[i]=coords[1];
 			i++;
 		}
 		if (this.shapeMode==PConstants.POLYGON)
