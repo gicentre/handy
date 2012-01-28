@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PVector;
 
 // *****************************************************************************************
 /** The renderer that draws graphic primitives in a sketchy style. The style of sketchiness
@@ -33,7 +34,7 @@ import processing.core.PGraphics;
  * http://www.gnu.org/licenses/.
  */
 
-public class HandyRenderer implements Drawable
+public class HandyRenderer
 {
 	// -------------------------------- Object Variables ---------------------------------  
 
@@ -41,6 +42,8 @@ public class HandyRenderer implements Drawable
 	private PGraphics graphics;					// Graphics context in which this class is to render.
 	private Random rand;						// Random number generator for random but repeatable offsets.
 	private float cosAngle,sinAngle,tanAngle;	// Lookups for quick calculations.
+	private List<PVector> vertices;				// Temporary store of shape or polyline vertices.
+	private int shapeMode;						// Type of setting for shape drawing.
 
 	// Configuration settings
 	private boolean isHandy;					// Determines if normal or hand-drawn appearance is used.
@@ -65,12 +68,12 @@ public class HandyRenderer implements Drawable
 	{
 		this.parent = parent;
 		this.graphics = parent.g;
-
+		
 		numEllipseSteps = 9;
 		ellipseInc = PConstants.TWO_PI/numEllipseSteps;
+		vertices = new ArrayList<PVector>();
 				
 		// Set initial configuration options.
-		rand = new Random(123456);
 		setIsHandy(true);
 		resetStyles();		
 	}
@@ -89,10 +92,10 @@ public class HandyRenderer implements Drawable
 	/** Sets the seed used for random offsets when drawing. This should be called if repeated calls
 	 *  to the same sketchy drawing methods should result in exactly the same rendering. If not called
 	 *  a vibrating appearance can be given to the rendering.
-	 *  @param seed Random number seed. This can be any whole number. A given number give the same random 
-	 *              variation in rendering appearance every time.
+	 *  @param seed Random number seed. This can be any whole number, generating the same random variation
+	 *                                  in rendering on each redraw.
 	 */
-	public void setSeed(int seed)
+	public void setSeed(long seed)
 	{
 		rand.setSeed(seed);
 	}
@@ -247,6 +250,7 @@ public class HandyRenderer implements Drawable
 		isAlternating = false;
 		anglePerturbation = 0;
 		roughness = 1;
+		rand = new Random(12345);
 		setStrokeColour(graphics.strokeColor);
 		setFillColour(graphics.fillColor);
 		setBackgroundColour(parent.color(255));
@@ -288,7 +292,7 @@ public class HandyRenderer implements Drawable
 			graphics.ellipse(x,y,w,h);
 			return;
 		}
-
+		
 		graphics.pushStyle();
 		
 		// Default is to use 'CENTER' mode for defining ellipse
@@ -851,6 +855,96 @@ public class HandyRenderer implements Drawable
 		graphics.popStyle();
 	}
 	
+	/** Draws a quadrilateral shape. Similar to a rectangle but angles not constrained to 90 degrees.
+	 *  Coordinates can proceed in either a clockwise or anti-clockwise direction.
+	 *  @param x1 x coordinate of the first quadrilateral vertex.
+	 *  @param y1 y coordinate of the first quadrilateral vertex.
+	 *  @param x2 x coordinate of the second quadrilateral vertex.
+	 *  @param y2 y coordinate of the second quadrilateral vertex.
+	 *  @param x3 x coordinate of the third quadrilateral vertex.
+	 *  @param y3 y coordinate of the third quadrilateral vertex.
+	 *  @param x4 x coordinate of the fourth quadrilateral vertex.
+	 *  @param y4 y coordinate of the fourth quadrilateral vertex.
+	 */
+	public void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+	{
+		shape(new float[] {x1,x2,x3,x4}, new float[] {y1,y2,y3,y4}, true);
+	}
+	
+	/** Starts a new shape of type <code>POLYGON</code>. This must be paired with a call to 
+	 *  <code>endShape()</code> or one of its variants.
+	 */
+	public void beginShape()
+	{
+		beginShape(PConstants.POLYGON);
+	}
+
+	/** Starts a new shape of the type specified in the mode parameter. This must be paired
+	 *  with a call to <code>endShape()</code> or one of its variants.
+	 *	@param mode either POINTS, LINES, TRIANGLES, TRIANGLE_FAN, TRIANGLE_STRIP, QUADS, QUAD_STRIP	 
+	 */	
+	public void beginShape(int mode)
+	{
+		if (isHandy == false)
+		{
+			graphics.beginShape(mode);
+		}
+		else
+		{
+			this.shapeMode=mode;
+			vertices.clear();
+		}
+	}
+	
+	/** Adds a vertex to a shape that was started with a call to <code>beginShape()</code> 
+	 *  or one of its variants.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 */
+	public void vertex(float x, float y)
+	{
+		if (isHandy == false)
+		{
+			graphics.vertex(x,y);
+		}
+		else
+		{
+			vertices.add(new PVector(x,y));
+		}
+	}
+	
+	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code>
+	 *  or one of its variants. Note that this version will not close the shape if the last vertex does 
+	 *  not match the first one.
+	 */
+	public void endShape()
+	{
+		if (isHandy == false)
+		{
+			graphics.endShape();
+		}
+		else
+		{
+			drawShape(false);
+		}
+	}
+		
+	
+	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code> 
+	 *  or one of its variants. If the mode parameter <code>CLOSE</code> the shape will be closed.
+	 */
+	public void endShape(int mode) 
+	{
+		if (isHandy == false)
+		{
+			graphics.endShape(mode);
+		}
+		else
+		{
+			drawShape(mode==PConstants.CLOSE);
+		}
+	}
+	
 	/** Draws a closed polygon shape based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
@@ -868,6 +962,12 @@ public class HandyRenderer implements Drawable
 	 */
 	public void shape(float[] xCoords, float[] yCoords, boolean closeShape)
 	{
+		if ((xCoords == null) || (yCoords == null) || (xCoords.length ==0) || (yCoords.length == 0))
+		{
+			System.err.println("No coordinates provided to shape().");
+			return;
+		}			
+				
 		if (isHandy == false)
 		{
 			graphics.beginShape();
@@ -1064,6 +1164,12 @@ public class HandyRenderer implements Drawable
 	 */
 	public void polyLine(float[] xCoords, float[] yCoords)
 	{
+		if ((xCoords == null) || (yCoords == null) || (xCoords.length ==0) || (yCoords.length == 0))
+		{
+			System.err.println("No coordinates provided to polyLine().");
+			return;
+		}
+		
 		if ((graphics.stroke) || (overrideStrokeColour))
 		{
 			if (isHandy == false)
@@ -1263,6 +1369,79 @@ public class HandyRenderer implements Drawable
 			graphics.fill(oFill);
 		
 		}
+	}
+	
+	/** Draws a shape after it has been finished with <code>endShape()</code>.
+	 *  @param closeShape True if the shape is to be closed.
+	 */
+	private void drawShape(boolean closeShape)
+	{
+		float[] xs=new float[vertices.size()];
+		float[] ys=new float[vertices.size()];
+		int i=0;
+		for (PVector pVector:vertices){
+			xs[i]=pVector.x;
+			ys[i]=pVector.y;
+			i++;
+		}
+		if (this.shapeMode==PConstants.POLYGON)
+		{
+			shape(xs,ys,closeShape);
+		}
+		else if (this.shapeMode==PConstants.LINES)
+		{
+			for (i=0;i<xs.length-1;i+=2)
+			{
+				line(xs[i],ys[i],xs[i+1],ys[i+1]);
+			}
+		}
+		else if (this.shapeMode==PConstants.POINTS)
+		{
+			for (i=0;i<xs.length;i++)
+			{
+				point(xs[i],ys[i]);
+			}
+		}
+		else if (this.shapeMode==PConstants.TRIANGLES)
+		{
+			for (i=0;i<xs.length-2;i+=3)
+			{
+				triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+			}
+		}
+		else if (this.shapeMode==PConstants.TRIANGLE_STRIP)
+		{
+			for (i=0;i<xs.length-2;i++)
+			{
+				triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+			}
+		}
+		else if (this.shapeMode==PConstants.TRIANGLE_FAN)
+		{
+			for (i=1;i<xs.length-1;i++)
+			{
+				triangle(xs[0],ys[0],xs[i],ys[i],xs[i+1],ys[i+1]);
+			}
+		}
+		else if (this.shapeMode==PConstants.QUADS)
+		{
+			for (i=0;i<xs.length-3;i+=4)
+			{
+				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+2],xs[i+3]};
+				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+2],ys[i+3]};
+				shape(quadXs,quadYs);
+			}
+		}
+		else if (this.shapeMode==PConstants.QUAD_STRIP)
+		{
+			for (i=0;i<xs.length-3;i+=2)
+			{
+				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+3],xs[i+2]};
+				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+3],ys[i+2]};
+				shape(quadXs,quadYs);
+			}
+		}
+		vertices.clear();
 	}
 	
 

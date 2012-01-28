@@ -1,14 +1,8 @@
 package org.gicentre.handy;
 
-import java.util.ArrayList;
-
-import java.util.List;
-
 import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PGraphics2D;
-import processing.core.PVector;
 
 //  ****************************************************************************************
 /** Wrapper around a HandyRenderer that allows Handy drawing to be turned on or off inside
@@ -16,7 +10,7 @@ import processing.core.PVector;
  *  drawing code between calls to <code>startHandy()</code> and <code>stopHandy()</code> in
  *  a sketch.
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 19th January, 2012.
+ *  @version 1.0, 28th January, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -40,11 +34,9 @@ public class HandyDraw extends PGraphics2D{
 	
 	private HandyRenderer handyRenderer;
 	private PApplet sketch;
-	private List<PVector> vertices=new ArrayList<PVector>();
 	private PGraphics prevG; //The sketch's g when startHandy() is called 
 	
 	private boolean useSuper=false;
-	private int shapeMode1;
 	
 	// ----------------------------------- Constructor -----------------------------------
 	
@@ -91,9 +83,6 @@ public class HandyDraw extends PGraphics2D{
 		this.sketch.noTint(); 					// Temporarily remove tint while we draw handy screen buffer.
 		this.sketch.image(this.get(),0,0);
 		this.sketch.popStyle();
-		
-		// Clear any incomplete shapes
-		vertices.clear();
 	}
 	
 	// ----------------------- Overridden Processing Draw Methods ------------------------- 
@@ -195,8 +184,9 @@ public class HandyDraw extends PGraphics2D{
 			super.beginShape(mode);
 		}
 		else{
-			this.shapeMode1=mode;
-			this.vertices.clear();
+			useSuper=true;
+			handyRenderer.beginShape(mode);
+			useSuper=false;
 		}
 	}
 
@@ -212,7 +202,9 @@ public class HandyDraw extends PGraphics2D{
 			super.vertex(x,y);
 		}
 		else{
-			vertices.add(new PVector(x,y));
+			useSuper=true;
+			handyRenderer.vertex(x,y);
+			useSuper=false;
 		}
 	}
 	
@@ -228,7 +220,7 @@ public class HandyDraw extends PGraphics2D{
 		}
 		else{
 			useSuper=true;
-			endShapeImpl(false);
+			handyRenderer.endShape();
 			useSuper=false;
 		}
 	}
@@ -246,63 +238,8 @@ public class HandyDraw extends PGraphics2D{
 		}
 		else{
 			useSuper=true;
-			endShapeImpl(mode==PConstants.CLOSE);
+			handyRenderer.endShape(mode);
 			useSuper=false;
 		}
 	}
-	
-	private void endShapeImpl(boolean closeShape){
-		float[] xs=new float[vertices.size()];
-		float[] ys=new float[vertices.size()];
-		int i=0;
-		for (PVector pVector:vertices){
-			xs[i]=pVector.x;
-			ys[i]=pVector.y;
-			i++;
-		}
-		if (this.shapeMode1==POLYGON){
-			handyRenderer.shape(xs,ys,closeShape);
-		}
-		else if (this.shapeMode1==LINES){
-			for (i=0;i<xs.length-1;i+=2){
-				handyRenderer.line(xs[i],ys[i],xs[i+1],ys[i+1]);
-			}
-		}
-		else if (this.shapeMode1==POINTS){
-			for (i=0;i<xs.length;i++){
-				handyRenderer.point(xs[i],ys[i]);
-			}
-		}
-		else if (this.shapeMode1==TRIANGLES){
-			for (i=0;i<xs.length-2;i+=3){
-				handyRenderer.triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
-			}
-		}
-		else if (this.shapeMode1==TRIANGLE_STRIP){
-			for (i=0;i<xs.length-2;i++){
-				handyRenderer.triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
-			}
-		}
-		else if (this.shapeMode1==TRIANGLE_FAN){
-			for (i=1;i<xs.length-1;i++){
-				handyRenderer.triangle(xs[0],ys[0],xs[i],ys[i],xs[i+1],ys[i+1]);
-			}
-		}
-		else if (this.shapeMode1==QUADS){
-			for (i=0;i<xs.length-3;i+=4){
-				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+2],xs[i+3]};
-				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+2],ys[i+3]};
-				handyRenderer.shape(quadXs,quadYs);
-			}
-		}
-		else if (this.shapeMode1==QUAD_STRIP){
-			for (i=0;i<xs.length-3;i+=2){
-				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+3],xs[i+2]};
-				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+3],ys[i+2]};
-				handyRenderer.shape(quadXs,quadYs);
-			}
-		}
-		vertices.clear();
-	}
-
 }
