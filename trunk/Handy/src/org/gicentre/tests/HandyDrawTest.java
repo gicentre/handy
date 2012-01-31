@@ -10,7 +10,7 @@ import processing.core.PApplet;
 //****************************************************************************************
 /** Test class for HandyDraw.
  *  @author Aidan Slingsby, giCentre, City University London.
- *  @version 1.0, 19th January, 2012.
+ *  @version 1.0, 31st January, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -224,9 +224,9 @@ public class HandyDrawTest extends PApplet implements MouseWheelListener{
 
 	/** Responds to a mouse wheel movement by ensuring the screen is updated
 	 *  with new zoom level.
-	 *  @param mouseEvent Mouse wheel movement event.
+	 *  @param e Mouse wheel movement event.
 	 */
-	public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
+	public void mouseWheelMoved(MouseWheelEvent e) {
 		loop();
 	}
 
