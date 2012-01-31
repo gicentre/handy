@@ -8,7 +8,7 @@ import processing.core.PConstants;
 //*****************************************************************************************
 /** Simple sketch to test handy circle and ellipse drawing.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 29th November, 2011.
+ *  @version 1.0, 31st January, 2012
  */ 
 // *****************************************************************************************
 
@@ -73,6 +73,7 @@ public class CircleTest extends PApplet
 		strokeWeight(1f);
 		noFill();
 		//h.setSeed(1234);
+		h.setRoughness(2);
 
 		randomSeed(1245);
 
@@ -82,6 +83,13 @@ public class CircleTest extends PApplet
 			float diameter = random(50,200);
 			h.ellipse(random(40,width-40),random(40,height-40),diameter,random(100,200));
 		}
+		
+		// Test very small circles (should be invisible).
+		for (int i=0; i<20; i++)
+		{
+			h.ellipse(random(40,width-40),random(40,height-40),0,0.1f);
+		}
+		
 		noLoop();
 	}
 		

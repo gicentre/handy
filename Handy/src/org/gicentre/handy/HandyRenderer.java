@@ -15,7 +15,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0, 28th January, 2012.
+ *  @version 1.0, 31st January, 2012.
  */ 
 // *****************************************************************************************
 
@@ -238,8 +238,8 @@ public class HandyRenderer
 	 */
 	public void setRoughness(float roughness)
 	{
-		// Cap roughness between += 10.
-		this.roughness = Math.max(-10,Math.min(roughness, 10));
+		// Cap roughness between 0 and 10.
+		this.roughness = Math.max(0,Math.min(roughness, 10));
 	}
 	
 	/** Resets the sketchy styles to default values.
@@ -329,7 +329,19 @@ public class HandyRenderer
 			rx = Math.abs(w);
 			ry = Math.abs(h);
 		}
-
+		
+		if ((rx == 0) && (ry == 0))
+		{
+			// Never draw circles of radius 0.
+			return;
+		}
+				
+		if ((rx < roughness/4) || (ry < roughness/4))
+		{
+			// Don't draw anything with a radius less than a quarter of the roughness value
+			return;
+		}	
+				
 		// Add small proportionate perturbation to dimensions of ellipse
 		rx += getOffset(-rx*0.05f, rx*0.05f);
 		ry += getOffset(-ry*0.05f, ry*0.05f);
