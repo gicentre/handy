@@ -1,4 +1,7 @@
 package org.gicentre.tests;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+
 import org.gicentre.handy.HandyDraw;
 import org.gicentre.utils.move.ZoomPan;
 
@@ -26,7 +29,7 @@ import processing.core.PApplet;
  */
 
 @SuppressWarnings("serial")
-public class HandyDrawTest extends PApplet {
+public class HandyDrawTest extends PApplet implements MouseWheelListener{
 
 	HandyDraw handyDraw;
 	boolean useHandy=true;
@@ -34,6 +37,7 @@ public class HandyDrawTest extends PApplet {
 	ZoomPan zoomer;
 
 	public void setup(){
+		this.addMouseWheelListener(this);
 		size(400,500);
 		handyDraw=new HandyDraw(this);
 		smooth();
@@ -45,6 +49,7 @@ public class HandyDrawTest extends PApplet {
 		background(255);
 		zoomer.transform();
 		
+
 		fill(200,100,100); //styles are honoured by handyDraw even if set outside start/stopHandy
 		stroke(0,0,200);
 		if (useHandy){
@@ -75,6 +80,8 @@ public class HandyDrawTest extends PApplet {
 		
 		
 		//examples from http://processing.org/reference/beginShape_.html
+		
+		pushMatrix();
 		
 		translate(0,200);
 		beginShape();
@@ -184,7 +191,8 @@ public class HandyDrawTest extends PApplet {
 		vertex(20, 60);
 		endShape(CLOSE);
 
-		resetMatrix();
+		popMatrix();
+			
 		ellipse(zoomer.getMouseCoord().x,zoomer.getMouseCoord().y,40,40);
 
 		if (useHandy) {
@@ -211,6 +219,11 @@ public class HandyDrawTest extends PApplet {
 			else
 				smooth();
 				
+		loop();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
 		loop();
 	}
 
