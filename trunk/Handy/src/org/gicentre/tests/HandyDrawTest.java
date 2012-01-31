@@ -222,8 +222,11 @@ public class HandyDrawTest extends PApplet implements MouseWheelListener{
 		loop();
 	}
 
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent arg0) {
+	/** Responds to a mouse wheel movement by ensuring the screen is updated
+	 *  with new zoom level.
+	 *  @param mouseEvent Mouse wheel movement event.
+	 */
+	public void mouseWheelMoved(MouseWheelEvent mouseEvent) {
 		loop();
 	}
 
