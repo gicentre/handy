@@ -2,7 +2,7 @@ package org.gicentre.handy;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PGraphics2D;
+import processing.core.PGraphicsJava2D;
 
 //  ****************************************************************************************
 /** Wrapper around a HandyRenderer that allows Handy drawing to be turned on or off inside
@@ -28,12 +28,11 @@ import processing.core.PGraphics2D;
  * http://www.gnu.org/licenses/.
  */
 
-public class HandyDraw extends PGraphics2D{
+public class HandyDraw extends PGraphicsJava2D{
 
 	// -------------------------------- Object Variables ---------------------------------  
 	
 	private HandyRenderer handyRenderer;
-	private PApplet sketch;
 	private PGraphics prevG; //The sketch's g when startHandy() is called 
 	
 	private boolean useSuper=false;
@@ -41,7 +40,7 @@ public class HandyDraw extends PGraphics2D{
 	// ----------------------------------- Constructor -----------------------------------
 	
 	public HandyDraw(PApplet sketch){
-		this.sketch=sketch;
+		this.parent=sketch;
 		this.handyRenderer=new HandyRenderer(sketch);
 		this.handyRenderer.setGraphics(this);	
 		this.setSize(sketch.width, sketch.height);
@@ -53,18 +52,21 @@ public class HandyDraw extends PGraphics2D{
 	 *  once sketchy rendering is complete.
 	 */
 	public void startHandy(){
-		prevG=this.sketch.g;
-		this.sketch.g=this;
+		prevG=this.parent.g;
+		if (this.prevG instanceof PGraphicsJava2D==false)
+			System.err.println("Please only use the JAVA2D renderer.");
+		this.parent.g=this;
 		beginDraw();
 		this.style(prevG.getStyle());			// Set the style of this to that of the sketch
+		this.setMatrix(prevG.getMatrix());
 		if (prevG.smooth) {
 			this.smooth();
 		}
 		else{
 			this.noSmooth();
 		}
-		if (sketch.width!=this.width || sketch.height!=this.height) {
-			this.setSize(sketch.width, sketch.height);
+		if (parent.width!=this.width || parent.height!=this.height) {
+			this.setSize(parent.width, parent.height);
 		}
 
 		background(255,0);  						// Erase previous drawing to screen buffer and set to transparent
@@ -77,12 +79,17 @@ public class HandyDraw extends PGraphics2D{
 	public void stopHandy(){
 		endDraw();
 		this.prevG.style(this.getStyle());	// Set the style of the sketch to that of this
-		this.sketch.g=prevG;
+		this.prevG.setMatrix(this.getMatrix());
 		
-		this.sketch.pushStyle();
-		this.sketch.noTint(); 					// Temporarily remove tint while we draw handy screen buffer.
-		this.sketch.image(this.get(),0,0);
-		this.sketch.popStyle();
+		this.prevG.pushMatrix();
+		this.prevG.resetMatrix();
+		this.prevG.pushStyle();
+		this.prevG.noTint(); 					// Temporarily remove tint while we draw handy screen buffer.
+		this.prevG.image(this.get(),0,0);
+		this.prevG.popStyle();
+		this.prevG.popMatrix();
+
+		this.parent.g=prevG;
 	}
 	
 	// ----------------------- Overridden Processing Draw Methods ------------------------- 
