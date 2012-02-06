@@ -252,8 +252,8 @@ public class HandyRenderer
 		rand = new Random(12345);
 		setStrokeColour(graphics.strokeColor);
 		setFillColour(graphics.fillColor);
-		setBackgroundColour(parent.color(255));
-		setSecondaryColour(parent.color(255));
+		setBackgroundColour(graphics.color(255));
+		setSecondaryColour(graphics.color(255));
 		setUseSecondaryColour(false);
 		setFillWeight(-1);
 		setStrokeWeight(-1);
@@ -1334,22 +1334,22 @@ public class HandyRenderer
 			midDispY = getOffset(-midDispY,midDispY);
 
 			graphics.beginShape();
-			parent.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
-			parent.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
-			parent.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
-			parent.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
-			parent.curveVertex(+x2 + getOffset(-offset,offset), +y2 +getOffset(-offset,offset));
-			parent.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
-			parent.endShape();  
+			graphics.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
+			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
+			graphics.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
+			graphics.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
+			graphics.curveVertex(+x2 + getOffset(-offset,offset), +y2 +getOffset(-offset,offset));
+			graphics.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
+			graphics.endShape();  
 
-			parent.beginShape();
-			parent.vertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
-			parent.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
-			parent.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
-			parent.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
-			parent.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
-			parent.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
-			parent.endShape();
+			graphics.beginShape();
+			graphics.vertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
+			graphics.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
+			graphics.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
+			graphics.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
+			graphics.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
+			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
+			graphics.endShape();
 
 			graphics.fill(oFill);
 		
