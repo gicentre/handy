@@ -2,8 +2,7 @@ package org.gicentre.tests;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import org.gicentre.handy.HandyDraw;
-import org.gicentre.handy.HandyDraw2;
+import org.gicentre.tests.handy.HandyDraw2;
 import org.gicentre.utils.move.ZoomPan;
 
 import processing.core.PApplet;
