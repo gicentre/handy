@@ -64,7 +64,7 @@ public class Simplifier
 			ySimp[i] = yCoords.get(i).floatValue();
 		}
 	}
-	
+		
 	/** Provides the simplified x coordinates. This should only be called after simplify().
 	 *  @return x coordinates of simplified line.
 	 */

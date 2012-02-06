@@ -1,6 +1,7 @@
 package org.gicentre.handy;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.TreeMap;
@@ -15,7 +16,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0, 31st January, 2012.
+ *  @version 1.0, 6th February, 2012.
  */ 
 // *****************************************************************************************
 
@@ -37,11 +38,11 @@ public class HandyRenderer
 {
 	// -------------------------------- Object Variables ---------------------------------  
 
-	private PApplet parent;						// Parent sketch issuing rendering commands.
 	private PGraphics graphics;					// Graphics context in which this class is to render.
 	private Random rand;						// Random number generator for random but repeatable offsets.
 	private float cosAngle,sinAngle,tanAngle;	// Lookups for quick calculations.
 	private List<float[]> vertices;				// Temporary store of shape or polyline vertices.
+	private HashSet<Integer>curveIndices;		// Pointer to vertices that refer to curves
 	private int shapeMode;						// Type of setting for shape drawing.
 
 	// Configuration settings
@@ -63,14 +64,18 @@ public class HandyRenderer
 
 	// ----------------------------------- Constructor -----------------------------------
 
+	/** Creates a new HandyRender capable of using standard Processing drawing commands
+	 *  to render features in a sketchy hand-drawn style.
+	 *  @param parent Parent sketch that will be drawn to.
+	 */
 	public HandyRenderer(PApplet parent)
 	{
-		this.parent = parent;
 		this.graphics = parent.g;
 		
 		numEllipseSteps = 9;
 		ellipseInc = PConstants.TWO_PI/numEllipseSteps;
 		vertices = new ArrayList<float[]>();
+		curveIndices = new HashSet<Integer>();
 				
 		// Set initial configuration options.
 		setIsHandy(true);
@@ -917,6 +922,7 @@ public class HandyRenderer
 		{
 			this.shapeMode=mode;
 			vertices.clear();
+			curveIndices.clear();
 		}
 	}
 	
@@ -937,6 +943,28 @@ public class HandyRenderer
 		}
 	}
 	
+	
+	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
+	 *  started with a call to <code>beginShape()</code> without any parameter.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 */
+	public void curveVertex(float x, float y)
+	{
+		if (isHandy == false)
+		{
+			graphics.curveVertex(x,y);
+		}
+		else
+		{
+			// Log this position in the vertex list as being a curve
+			curveIndices.add(new Integer(vertices.size()));
+			
+			// Store the vertex geometry.
+			vertices.add(new float[] {x,y});			
+		}
+	}
+	
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code>
 	 *  or one of its variants. Note that this version will not close the shape if the last vertex does 
 	 *  not match the first one.
@@ -950,10 +978,11 @@ public class HandyRenderer
 		else
 		{
 			drawShape(false);
+			vertices.clear();
+			curveIndices.clear();
 		}
 	}
 		
-	
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code> 
 	 *  or one of its variants. If the mode parameter <code>CLOSE</code> the shape will be closed.
 	 */
@@ -1356,7 +1385,6 @@ public class HandyRenderer
 		}
 	}
 	
-	
 	/** Draws an arc along the outer edge of an ellipse defined by the x,y, width and height parameters.
 	 *  This version allows the maximum random offset of the arc to be set explicitly.
 	 *  @param x x coordinate of the start of the line.
@@ -1387,6 +1415,13 @@ public class HandyRenderer
 	 */
 	private void drawShape(boolean closeShape)
 	{
+		// Shapes with at least one curve vertex are a special case.
+		if (curveIndices.size() > 0)
+		{
+			curvedShape();
+			return;
+		}
+				
 		float[] xs=new float[vertices.size()];
 		float[] ys=new float[vertices.size()];
 		int i=0;
@@ -1396,6 +1431,7 @@ public class HandyRenderer
 			ys[i]=coords[1];
 			i++;
 		}
+		
 		if (this.shapeMode==PConstants.POLYGON)
 		{
 			shape(xs,ys,closeShape);
@@ -1453,7 +1489,166 @@ public class HandyRenderer
 				shape(quadXs,quadYs);
 			}
 		}
-		vertices.clear();
+	}
+	
+	
+	/** Draws a shape that includes curved edges.
+	 */
+	private void curvedShape()
+	{
+		float[] v0,v1=null,v2=null,v3=null;						// Last four vertices
+		float[] v0Prime,v1Prime=null,v2Prime=null,v3Prime=null;	// Minor variation in curve.
+
+		graphics.pushStyle();
+
+		if (graphics.fill)
+		{
+			// Build a straight line approximation of the shape.
+			// This is necessary to calculate the interior shape reasonably quickly.
+			List<float[]> coords = new ArrayList<float[]>();
+
+			v0 = vertices.get(0);
+			v0[0] += getOffset(-2, 2);
+			v0[1] += getOffset(-2, 2);
+
+			v0Prime = vertices.get(0);
+			v0Prime[0] += getOffset(-2, 2);
+			v0Prime[1] += getOffset(-2, 2);
+
+			for (int i=0; i<vertices.size(); i++)
+			{
+				boolean isCurveVertex = curveIndices.contains(new Integer(i));
+
+				// Advance vertices along by 1.
+				v3 = v2;
+				v2 = v1;
+				v1 = v0;
+
+				v0 = new float[2];
+				v0[0] = vertices.get(i)[0]+getOffset(-2, 2);
+				v0[1] = vertices.get(i)[1]+getOffset(-2, 2);
+
+				if (isCurveVertex == false)
+				{
+					// Store normal coordinate.
+					coords.add(vertices.get(i));
+				}
+				else
+				{
+					if (i >=3)
+					{
+						// Add enough vertices to approximate curve with a straight line.
+						float dist = distSq(v2[0], v2[1], v1[0], v1[1]);
+						float step = (25 + 300*roughness)/dist;
+
+						for (float t=0; t<1; t+= step)
+						{
+							float x = graphics.curvePoint(v3[0], v2[0], v1[0], v0[0], t);  
+							float y = graphics.curvePoint(v3[1], v2[1], v1[1], v0[1], t);
+							coords.add(new float[] {x,y});
+						}
+					}
+				}
+			}
+
+			// Convert coordinates into array and sent to shape to fill.
+			float[] xs=new float[coords.size()];
+			float[] ys=new float[coords.size()];
+			int i=0;
+			for (float[] vertex : coords)
+			{
+				xs[i]=vertex[0];
+				ys[i]=vertex[1];
+				i++;
+			}
+
+			// Temporarily disable stroke settings while we draw the interior.
+			boolean isOStroke = graphics.stroke;
+			boolean oOverrideStroke = overrideStrokeColour;
+			int oStroke = graphics.strokeColor;
+
+			graphics.noStroke();
+			overrideStrokeColour = false;
+
+			shape(xs, ys);
+
+			graphics.stroke = isOStroke;
+			overrideStrokeColour = oOverrideStroke;
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			else if (graphics.stroke)
+			{
+				graphics.stroke(oStroke);	
+			}
+		}
+		
+		// Draw the outlines as curved lines.
+		if ((graphics.stroke) || (overrideStrokeColour))
+		{
+			boolean oOverrideFill = overrideFillColour;
+
+			graphics.noFill();
+			overrideFillColour = false;
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+
+			v0 = vertices.get(0);
+			v0[0] += getOffset(-2, 2);
+			v0[1] += getOffset(-2, 2);
+
+			v0Prime = vertices.get(0);
+			v0Prime[0] += getOffset(-2, 2);
+			v0Prime[1] += getOffset(-2, 2);
+
+			for (int i=0; i<vertices.size(); i++)
+			{
+				boolean isCurveVertex = curveIndices.contains(new Integer(i));
+
+				// Advance vertices along by 1.
+				v3 = v2;
+				v2 = v1;
+				v1 = v0;
+
+				v3Prime = v2Prime;
+				v2Prime = v1Prime;
+				v1Prime = v0Prime;
+
+				v0 = new float[2];
+				v0[0] = vertices.get(i)[0]+getOffset(-2, 2);
+				v0[1] = vertices.get(i)[1]+getOffset(-2, 2);
+
+				v0Prime = new float[2];
+				v0Prime[0] = vertices.get(i)[0]+getOffset(-2, 2);
+				v0Prime[1] = vertices.get(i)[1]+getOffset(-2, 2);
+
+				if (isCurveVertex == false)
+				{
+					// Draw any straight line segments.
+					if (i > 0)
+					{
+						line(v1[0],v1[1],v0[0],v0[1]);
+					}
+				}
+				else
+				{
+					if (i >=3)
+					{
+						// We have enough to generate a curve.
+						graphics.curve(v3[0], v3[1], v2[0], v2[1], v1[0], v1[1], v0[0], v0[1]);
+						graphics.curve(v3Prime[0], v3Prime[1], v2Prime[0], v2Prime[1], v1Prime[0], v1Prime[1], v0Prime[0], v0Prime[1]);
+					}
+				}
+			}
+			
+			overrideFillColour = oOverrideFill;
+		}
+		
+		// Restore styles.
+		graphics.popStyle();
 	}
 	
 
