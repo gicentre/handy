@@ -383,7 +383,7 @@ public class HandyDraw2 extends PGraphics{
 
 	@Override
 	public void breakShape() {
-		canvas.breakShape();
+		handyRenderer.breakShape();
 	}
 
 	@Override
@@ -462,7 +462,7 @@ public class HandyDraw2 extends PGraphics{
 
 	@Override
 	public void curveVertex(float x, float y) {
-		canvas.curveVertex(x, y);
+		handyRenderer.curveVertex(x, y);
 	}
 
 
