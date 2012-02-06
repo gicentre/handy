@@ -943,6 +943,23 @@ public class HandyRenderer
 		}
 	}
 	
+	/** Breaks shape that was started with a call to <code>beginShape()</code> 
+	 *  or one of its variants.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 */
+	public void breakShape()
+	{
+		if (isHandy == false)
+		{
+			graphics.breakShape();
+		}
+		else
+		{
+			vertices.add(new float[] {Float.NaN,Float.NaN});
+		}
+	}
+	
 	
 	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
@@ -1026,7 +1043,10 @@ public class HandyRenderer
 			graphics.beginShape();
 			for (int i=0; i<xCoords.length; i++)
 			{
-				graphics.vertex(xCoords[i],yCoords[i]);
+				if (xCoords[i]==Float.NaN)
+					graphics.breakShape();
+				else
+					graphics.vertex(xCoords[i],yCoords[i]);
 			}
 			if (closeShape)
 			{
