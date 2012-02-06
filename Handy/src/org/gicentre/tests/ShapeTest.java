@@ -9,7 +9,7 @@ import processing.core.PConstants;
 //*****************************************************************************************
 /** Simple sketch to test positioning and colouring of handy shapes.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 3rd December, 2011.
+ *  @version 1.0, 6th February 2012.
  */ 
 // *****************************************************************************************
 
@@ -56,7 +56,7 @@ public class ShapeTest extends PApplet
 	 */
 	public void setup()
 	{   
-		size(1400,500);
+		size(1400,600);
 		smooth();
 		angle = -37;
 		isAlternating = false;
@@ -75,7 +75,7 @@ public class ShapeTest extends PApplet
 		zoomer.transform();
 		
 		int numShapes = 14;
-		int numTypes = 5;
+		int numTypes = 6;
 		float maxWidth  = (width-(numShapes+1)*BORDER)/numShapes;
 		float maxHeight = (height-(numTypes+1)*BORDER)/numTypes;
 		float y = BORDER;
@@ -136,7 +136,6 @@ public class ShapeTest extends PApplet
 		{
 			setStyle(i);
 			float x=BORDER + i*(maxWidth+BORDER);
-			
 			float cx = x+maxWidth/2;
 			float cy = y+maxHeight/2;
 			float armLength = min(maxWidth,maxHeight)/2;
@@ -178,8 +177,6 @@ public class ShapeTest extends PApplet
 		{
 			setStyle(i);
 			float x=BORDER + i*(maxWidth+BORDER);
-			
-
 			float armWidth = maxWidth/4;
 			if (i==0)
 			{
@@ -201,7 +198,41 @@ public class ShapeTest extends PApplet
 				h.shape(xCoords,yCoords);
 			}
 		}
-				
+		
+		y+= (maxHeight+BORDER);
+		
+		// Curved shapes
+		for (int i=0; i<numShapes; i++)
+		{
+			setStyle(i);
+			float x=BORDER + i*(maxWidth+BORDER);
+			if (i==0)
+			{				
+				beginShape();
+				curveVertex(x+maxWidth, y+ maxHeight*0.7f);
+				curveVertex(x+maxWidth, y+ maxHeight*0.7f);
+				curveVertex(x+maxWidth*0.9f, y+ maxHeight*0.2f);
+				curveVertex(x+maxWidth*0.03f, y+ maxHeight*0.15f);
+				curveVertex(x+maxWidth*.5f, y+maxHeight*0.8f);
+				curveVertex(x+maxWidth*.5f, y+maxHeight*0.8f);
+				vertex(x+maxWidth*0.7f, y+maxHeight);
+				vertex(x+maxWidth, y+maxHeight*0.7f);
+				endShape();
+			}
+			else
+			{
+				h.beginShape();
+				h.curveVertex(x+maxWidth, y+ maxHeight*0.7f);
+				h.curveVertex(x+maxWidth, y+ maxHeight*0.7f);
+				h.curveVertex(x+maxWidth*0.9f, y+ maxHeight*0.2f);
+				h.curveVertex(x+maxWidth*0.03f, y+ maxHeight*0.15f);
+				h.curveVertex(x+maxWidth*.5f, y+maxHeight*0.8f);
+				h.curveVertex(x+maxWidth*.5f, y+maxHeight*0.8f);
+				h.vertex(x+maxWidth*0.7f, y+maxHeight);
+				h.vertex(x+maxWidth, y+maxHeight*0.7f);
+				h.endShape();
+			}
+		}		
 		noLoop();
 	}
 		
@@ -214,7 +245,6 @@ public class ShapeTest extends PApplet
 			h.setIsAlternating(isAlternating);
 			loop();
 		}
-		
 		
 		if (key == PConstants.CODED)
 		{
@@ -253,7 +283,7 @@ public class ShapeTest extends PApplet
 			case 1:
 				stroke(80);
 				strokeWeight(1);
-				fill(162,187,243);
+				fill(162,187,243,150);
 				h.setIsHandy(false);
 				break;
 				
@@ -301,7 +331,7 @@ public class ShapeTest extends PApplet
 			case 7:
 				stroke(0);
 				strokeWeight(4);
-				fill(162,187,243);
+				fill(162,187,243,150);
 				h.setIsHandy(true);
 				h.setUseSecondaryColour(true);
 				h.setBackgroundColour(color(0,0));
@@ -330,7 +360,7 @@ public class ShapeTest extends PApplet
 			case 10:
 				stroke(0);
 				strokeWeight(4);
-				fill(162,187,243);
+				fill(162,187,243,150);
 				h.setIsHandy(true);
 				h.setFillWeight(4);
 				h.setUseSecondaryColour(true);
@@ -340,7 +370,7 @@ public class ShapeTest extends PApplet
 			case 11:
 				stroke(0);
 				strokeWeight(4);
-				fill(162,187,243);
+				fill(162,187,243,150);
 				h.setIsHandy(true);
 				h.setFillWeight(4);
 				h.setFillGap(6);
@@ -351,7 +381,7 @@ public class ShapeTest extends PApplet
 			case 12:
 				stroke(0);
 				strokeWeight(4);
-				fill(162,187,243);
+				fill(162,187,243,150);
 				h.setIsHandy(true);
 				h.setFillGap(0);
 				break;
@@ -359,7 +389,7 @@ public class ShapeTest extends PApplet
 			case 13:
 				stroke(0,120);
 				strokeWeight(2f);
-				fill(162,187,243);
+				fill(162,187,243,150);
 				h.setIsHandy(true);
 				h.setUseSecondaryColour(true);
 				h.setSecondaryColour(color(120,140,190,50));
