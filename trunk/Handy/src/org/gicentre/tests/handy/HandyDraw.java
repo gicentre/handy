@@ -1,4 +1,6 @@
-package org.gicentre.handy;
+package org.gicentre.tests.handy;
+
+import org.gicentre.handy.HandyRenderer;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
