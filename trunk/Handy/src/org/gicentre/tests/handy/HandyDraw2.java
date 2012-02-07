@@ -264,7 +264,7 @@ public class HandyDraw2 extends PGraphics{
 
 	@Override
 	public void arc(float a, float b, float c, float d, float start, float stop) {
-		canvas.arc(a, b, c, d, start, stop);
+		handyRenderer.arc(a, b, c, d, start, stop);
 	}
 
 	@Override
