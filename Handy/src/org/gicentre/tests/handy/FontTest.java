@@ -8,7 +8,16 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphicsJava2D;
 
-
+/**Experimenting with sketchy text. Using Java's built-in functions to extract
+ * the shape of text, and then draw with the sketchy renderer
+ * 
+ * Would probably work best if the font is quite thin and it's filled in solid
+ * colour, but there are some problems with rendering polygons with islands
+ * with handy renderer 
+ * 
+ * @author Aidan Slingsby
+ *
+ */
 public class FontTest extends PApplet{
 
 	HandyDraw2 handyDraw;
@@ -21,7 +30,7 @@ public class FontTest extends PApplet{
 		
 		handyDraw=new HandyDraw2(this);
 		
-		f=createFont("Helvetica", 200);
+		f=createFont("Helvetica", 20);
 		
 		//Get a FontRenderContext
 		Graphics2D g2d=null;
