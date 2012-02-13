@@ -54,6 +54,12 @@ public class HandyDraw2 extends PGraphics{
 		this.parent=sketch;
 		this.handyRenderer=new HandyRenderer(sketch);
 	}
+
+	public HandyDraw2(PApplet sketch,HandyRenderer handyRenderer){
+		this.parent=sketch;
+		this.handyRenderer=handyRenderer;
+	}
+
 	
 	// ------------------------------------- Methods ------------------------------------- 
 	
@@ -84,6 +90,14 @@ public class HandyDraw2 extends PGraphics{
 		else{
 			System.err.println("Handy already stopped - did you startHandy()?");
 		}
+	}
+
+	/** give access to the renderer so that its methods can be used to customise
+	 * the display
+	 * @return An instance of HandyRenderer
+	 */
+	public HandyRenderer getHandyRenderer(){
+		return this.handyRenderer;
 	}
 	
 	// ----------------------- Overridden Processing Draw Methods ------------------------- 
