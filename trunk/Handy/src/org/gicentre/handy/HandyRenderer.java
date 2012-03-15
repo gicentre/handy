@@ -16,7 +16,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0, 6th February, 2012.
+ *  @version 1.0.2, 15th March, 2012.
  */ 
 // *****************************************************************************************
 
@@ -58,9 +58,12 @@ public class HandyRenderer
 	private float fillWeight, fillGap;			// Hachure filling characteristics.
 	private float strokeWeight;					// Stroke weight for lines.
 	private float roughness;					// Scaling for random perturbations.
+	private float bowing;						// Scaling of the 'bowing' of lines at their midpoint.
 
 	private int numEllipseSteps;
 	private float ellipseInc;					// Incremental steps along an ellipse.
+	
+	private static final float MIN_ROUGHNESS = 0.1f;	// Roughess less than this value will be consisidered 0.
 
 	// ----------------------------------- Constructor -----------------------------------
 
@@ -247,6 +250,19 @@ public class HandyRenderer
 		this.roughness = Math.max(0,Math.min(roughness, 10));
 	}
 	
+	/** Sets the amount of 'bowing' of lines (contols the degree to which a straigh line appears as an 'I' or 'C'). Applies to
+	 *  all straight lines such as rectangle boundaries, hachuring and the segments of a polygon boundary. A value of 0 means 
+	 *  there is no systematic displacement away from the straight line path between the two endpoints in a line. A value of 1
+	 *  gives a small random bowing, 10 an extremely bowed appearance. Note that bowing is independent of other random variations
+	 *  in line geometry.Values are capped at 10.
+	 *  @param bowing The degree of bowing in the rendering if straight lines. The larger the number the more 'loopy' lines appear.
+	 */
+	public void setBowing(float bowing)
+	{
+		// Cap roughness between 0 and 10.
+		this.bowing = Math.max(0,Math.min(bowing, 10));
+	}
+	
 	/** Resets the sketchy styles to default values.
 	 */
 	public void resetStyles()
@@ -254,6 +270,7 @@ public class HandyRenderer
 		isAlternating = false;
 		anglePerturbation = 0;
 		roughness = 1;
+		bowing = 1;
 		rand = new Random(12345);
 		setStrokeColour(graphics.strokeColor);
 		setFillColour(graphics.fillColor);
@@ -486,8 +503,16 @@ public class HandyRenderer
 		if ((oIsStroke) || (overrideStrokeColour))
 		{
 			graphics.noFill();
-			buildEllipse(cx,cy,rx,ry,1,ellipseInc*getOffset(0.1f,getOffset(0.4f, 1f)));
-			buildEllipse(cx,cy,rx,ry,1.5f,0);
+			if (roughness < MIN_ROUGHNESS)
+			{
+				graphics.ellipse(cx,cy,2*rx,2*ry);
+				graphics.ellipse(cx,cy,2*rx,2*ry);
+			}
+			else
+			{
+				buildEllipse(cx,cy,rx,ry,1,ellipseInc*getOffset(0.1f,getOffset(0.4f, 1f)));
+				buildEllipse(cx,cy,rx,ry,1.5f,0);
+			}
 		}
 		
 		// Restore original style settings.
@@ -943,24 +968,6 @@ public class HandyRenderer
 		}
 	}
 	
-	/** Breaks shape that was started with a call to <code>beginShape()</code> 
-	 *  or one of its variants.
-	 *  @param x x coordinate of vertex to add.
-	 *  @param y y coordinate of vertex to add.
-	 */
-	public void breakShape()
-	{
-		if (isHandy == false)
-		{
-			graphics.breakShape();
-		}
-		else
-		{
-			vertices.add(new float[] {Float.NaN,Float.NaN});
-		}
-	}
-	
-	
 	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
 	 *  @param x x coordinate of vertex to add.
@@ -1043,10 +1050,7 @@ public class HandyRenderer
 			graphics.beginShape();
 			for (int i=0; i<xCoords.length; i++)
 			{
-				if (xCoords[i]==Float.NaN)
-					graphics.breakShape();
-				else
-					graphics.vertex(xCoords[i],yCoords[i]);
+				graphics.vertex(xCoords[i],yCoords[i]);
 			}
 			if (closeShape)
 			{
@@ -1353,6 +1357,7 @@ public class HandyRenderer
 				graphics.line(x1,y1,x2,y2);
 				return;
 			}
+			
 			// Ensure random perturbation is no more than 10% of line length.
 			float lenSq = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
 			float offset = maxOffset;
@@ -1377,11 +1382,12 @@ public class HandyRenderer
 			
 		
 			// This is the midpoint displacement value to give slightly bowed lines.
-			float midDispX = maxOffset*(y2-y1)/200;
-			float midDispY = maxOffset*(x1-x2)/200;
+			float midDispX = bowing*maxOffset*(y2-y1)/200;
+			float midDispY = bowing*maxOffset*(x1-x2)/200;
+
 			midDispX = getOffset(-midDispX,midDispX);
 			midDispY = getOffset(-midDispY,midDispY);
-
+			
 			graphics.beginShape();
 			graphics.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
 			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
@@ -1399,7 +1405,7 @@ public class HandyRenderer
 			graphics.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			graphics.endShape();
-
+			
 			graphics.fill(oFill);
 		
 		}
