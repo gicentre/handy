@@ -22,7 +22,7 @@ import processing.core.PStyle;
  *  Alternative implementation
  *  
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 28th January, 2012.
+ *  @version 1.0, 6th February, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -90,14 +90,6 @@ public class HandyDraw2 extends PGraphics{
 		else{
 			System.err.println("Handy already stopped - did you startHandy()?");
 		}
-	}
-
-	/** give access to the renderer so that its methods can be used to customise
-	 * the display
-	 * @return An instance of HandyRenderer
-	 */
-	public HandyRenderer getHandyRenderer(){
-		return this.handyRenderer;
 	}
 	
 	// ----------------------- Overridden Processing Draw Methods ------------------------- 
@@ -220,7 +212,23 @@ public class HandyDraw2 extends PGraphics{
 	{
 		handyRenderer.endShape(mode);
 	}
+	
+	@Override
+	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
+	 *  started with a call to <code>beginShape()</code> without any parameter.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 */
+	public void curveVertex(float x, float y) {
+		handyRenderer.curveVertex(x, y);
+	}
 
+	// -------------------------------- End of customised methods  --------------------------------
+
+	
+	
+	
+	
 	@Override
 	public void ambient(float x, float y, float z) {
 		canvas.ambient(x, y, z);
@@ -278,7 +286,7 @@ public class HandyDraw2 extends PGraphics{
 
 	@Override
 	public void arc(float a, float b, float c, float d, float start, float stop) {
-		handyRenderer.arc(a, b, c, d, start, stop);
+		canvas.arc(a, b, c, d, start, stop);
 	}
 
 	@Override
@@ -397,7 +405,7 @@ public class HandyDraw2 extends PGraphics{
 
 	@Override
 	public void breakShape() {
-		handyRenderer.breakShape();
+		canvas.breakShape();
 	}
 
 	@Override
@@ -474,10 +482,7 @@ public class HandyDraw2 extends PGraphics{
 		canvas.curveVertex(x, y, z);
 	}
 
-	@Override
-	public void curveVertex(float x, float y) {
-		handyRenderer.curveVertex(x, y);
-	}
+	
 
 
 	@Override
