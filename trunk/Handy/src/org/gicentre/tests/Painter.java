@@ -2,6 +2,7 @@ package org.gicentre.tests;
 
 import java.util.ArrayList;
 
+import org.gicentre.handy.HandyPresets;
 import org.gicentre.handy.HandyRenderer;
 import org.gicentre.handy.Simplifier;
 
@@ -47,7 +48,7 @@ public class Painter extends PApplet
 	private HandyRenderer h;
 	private ArrayList<Mark> marks;
 	private Mark currentMark;
-
+	private float roughness;
 
 	// ---------------------------- Processing methods -----------------------------
 
@@ -55,9 +56,12 @@ public class Painter extends PApplet
 	{
 		size(1200,800);
 		smooth();
-		h = new HandyRenderer(this);
+		//h = new HandyRenderer(this);
+		h = HandyPresets.createPencil(this);
 		marks = new ArrayList<Mark>();	
 		currentMark = new Mark(h);
+		roughness = 1;
+		h.setRoughness(roughness);
 	}
 
 	// ------------------------ Processing draw -------------------------
@@ -97,8 +101,9 @@ public class Painter extends PApplet
 		loop();
 	}
 
+	@Override
 	public void keyPressed()
-	{
+	{		
 		if (key==CODED)
 		{
 			if (keyCode == SHIFT)
@@ -106,9 +111,26 @@ public class Painter extends PApplet
 				currentMark.setIsPolygon(true);
 				loop();
 			}
+
+			else if (keyCode == LEFT)
+			{
+				roughness *=0.9f;
+				h.setRoughness(roughness);
+				println("Roughness down to "+roughness);
+				loop();
+			}
+			else if (keyCode == RIGHT)
+			{
+				roughness *=1.1f;
+				h.setRoughness(roughness);
+
+				println("Roughness up to "+roughness);
+				loop();
+			}
 		}
 	}
 
+	@Override
 	public void keyReleased()
 	{
 		if (key==CODED)
@@ -133,7 +155,7 @@ public class Painter extends PApplet
 		private int fillColour;
 		private boolean isPolygon;
 		private HandyRenderer handy;
-		
+
 
 		public Mark(HandyRenderer h)
 		{

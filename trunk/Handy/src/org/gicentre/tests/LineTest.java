@@ -1,15 +1,16 @@
 package org.gicentre.tests;
 
 import org.gicentre.handy.HandyRenderer;
-import org.gicentre.utils.move.ZoomPan;
+import org.gicentre.utils.move.*;				// For zooming.
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PVector;
 
 //*****************************************************************************************
-/** Simple sketch to test handy circle and ellipse drawing.
+/** Simple sketch to test handy line drawing.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 31st January, 2012
+ *  @version 1.0, 10th February, 2012
  */ 
 // *****************************************************************************************
 
@@ -28,7 +29,7 @@ import processing.core.PConstants;
  */
 
 @SuppressWarnings("serial")
-public class CircleTest extends PApplet 
+public class LineTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -37,69 +38,68 @@ public class CircleTest extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.CircleTest"});
+		PApplet.main(new String[] {"org.gicentre.tests.LineTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
 
 	private HandyRenderer h;
-	
-	private ZoomPan zoomer;
-	
-	private float angle;
 	private boolean isHandy;
+	private ZoomPan zoomer;
 	private float roughness;
-	
+		
 	// ---------------------------- Processing methods -----------------------------
 
 	/** Sets up the sketch.
 	 */
 	public void setup()
 	{   
-		size(800,800);
+		size(600,200);
 		smooth();
 		zoomer = new ZoomPan(this);
-		angle = -45;
-		roughness = 1;
+		
 		isHandy = true;
 		h = new HandyRenderer(this);
-		h.setHachureAngle(angle);
-		h.setHachurePerturbationAngle(5);
 		h.setIsHandy(isHandy);
+		roughness = 1;
 		h.setRoughness(roughness);
 	}
 	
 	
-	/** Draws some sketchy lines.
+	/** Draws a single line
 	 */
 	public void draw()
 	{
 		background(255);
 		zoomer.transform();
-		stroke(80);
-		strokeWeight(1f);
-		noFill();
-		//h.setSeed(1234);
-
-		randomSeed(1245);
-
-		for (int i=0; i<20; i++)
-		{
-			fill(random(100,200),random(60,200), random(100,200));
-			float diameter = random(50,200);
-			h.ellipse(random(40,width-40),random(40,height-40),diameter,random(100,200));
-		}
 		
-		// Test very small circles (should be invisible).
-		for (int i=0; i<20; i++)
-		{
-			h.ellipse(random(40,width-40),random(40,height-40),0,0.1f);
-		}
+		PVector p1 = new PVector(100,100);
+		PVector p2 = new PVector(width-100,height-100);
+
+		
+		
+		// Draw guides.
+		pushStyle();
+		strokeWeight(0.3f);
+		stroke(150,0,0);
+		float radius = 4*roughness;
+		
+		ellipse(p1.x,p1.y,radius,radius);
+		ellipse(p2.x,p2.y,radius,radius);
+		line(p1.x,p1.y,p2.x,p2.y);
+		
+		popStyle();
+		
+		h.line(p1.x,p1.y,p2.x,p2.y);
+
+		
 		
 		noLoop();
 	}
 		
 	@Override
+	/** Changes the roughness in response to the left and right arrow keys.
+	 */
 	public void keyPressed()
 	{
 		if (key =='h')
@@ -117,34 +117,22 @@ public class CircleTest extends PApplet
 		{
 			if (keyCode == PConstants.LEFT)
 			{
-				angle--;
-				h.setHachureAngle(angle);
+				roughness *= 0.9f;
+				h.setRoughness(roughness);
 				loop();
 			}
 			else if (keyCode == PConstants.RIGHT)
 			{
-				angle++;
-				h.setHachureAngle(angle);
-				loop();
-			}
-			else if (keyCode == PConstants.UP)
-			{
-				roughness *= 1.1;
-				h.setRoughness(roughness);
-				loop();
-			}
-			else if (keyCode == PConstants.DOWN)
-			{
-				roughness *= 0.9;
+				roughness *= 1.1f;
 				h.setRoughness(roughness);
 				loop();
 			}
 		}
 	}
 	
-	/** Redraws when mouse is dragged to allow zooming and panning.
-	 */
 	@Override
+	/** Ensure sketch is redrawn when the mouse is dragged for zooming/panning.
+	 */
 	public void mouseDragged()
 	{
 		loop();

@@ -12,7 +12,7 @@ import processing.core.PGraphicsJava2D;
  *  drawing code between calls to <code>startHandy()</code> and <code>stopHandy()</code> in
  *  a sketch.
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 28th January, 2012.
+ *  @version 1.0, 6th February, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -239,6 +239,23 @@ public class HandyDraw extends PGraphicsJava2D{
 		else{
 			useSuper=true;
 			handyRenderer.vertex(x,y);
+			useSuper=false;
+		}
+	}
+	
+	@Override
+	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
+	 *  started with a call to <code>beginShape()</code> without any parameter.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 */
+	public void curveVertex(float x, float y){
+		if (useSuper){
+			super.curveVertex(x,y);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.curveVertex(x,y);
 			useSuper=false;
 		}
 	}
