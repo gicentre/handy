@@ -12,7 +12,7 @@ import processing.core.PGraphicsJava2D;
  *  drawing code between calls to <code>startHandy()</code> and <code>stopHandy()</code> in
  *  a sketch.
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 6th February, 2012.
+ *  @version 1.0, 17th March, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -130,6 +130,27 @@ public class HandyDraw extends PGraphicsJava2D{
 		else{
 			useSuper=true;
 			handyRenderer.ellipse(x, y, w, h);
+			useSuper=false;
+		}
+	}
+	
+	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
+	 *  This version allows the maximum random offset of the arc to be set explicitly.
+	 *  @param x x coordinate of the ellipse's position around which this arc is defined.
+	 *  @param y y coordinate of the ellipse's position around which this arc is defined
+	 *  @param w Width of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
+	 *  @param h Height of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
+	 *  @param start Angle to start the arc in radians.
+	 *  @param stop Angle to stop the arc in radians.
+	 */
+	@Override
+	public void arc(float x, float y,float w, float h, float start, float stop){
+		if (useSuper){
+			super.arc(x,y,w,h,start,stop);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.arc(x, y, w, h, start,stop);
 			useSuper=false;
 		}
 	}

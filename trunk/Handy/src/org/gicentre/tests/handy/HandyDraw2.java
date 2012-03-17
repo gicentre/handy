@@ -5,7 +5,6 @@ import org.gicentre.handy.HandyRenderer;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PGraphics;
-import processing.core.PGraphicsJava2D;
 import processing.core.PImage;
 import processing.core.PMatrix;
 import processing.core.PMatrix2D;
@@ -22,7 +21,7 @@ import processing.core.PStyle;
  *  Alternative implementation
  *  
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 6th February, 2012.
+ *  @version 1.0, 17th March, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -222,6 +221,20 @@ public class HandyDraw2 extends PGraphics{
 	public void curveVertex(float x, float y) {
 		handyRenderer.curveVertex(x, y);
 	}
+	
+	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
+	 *  This version allows the maximum random offset of the arc to be set explicitly.
+	 *  @param x x coordinate of the ellipse's position around which this arc is defined.
+	 *  @param y y coordinate of the ellipse's position around which this arc is defined
+	 *  @param w Width of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
+	 *  @param h Height of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
+	 *  @param start Angle to start the arc in radians.
+	 *  @param stop Angle to stop the arc in radians.
+	 */
+	@Override
+	public void arc(float a, float b, float c, float d, float start, float stop) {
+		handyRenderer.arc(a, b, c, d, start, stop);
+	}
 
 	// -------------------------------- End of customised methods  --------------------------------
 
@@ -282,11 +295,6 @@ public class HandyDraw2 extends PGraphics{
 	@Override
 	public void applyMatrix(PMatrix3D source) {
 		canvas.applyMatrix(source);
-	}
-
-	@Override
-	public void arc(float a, float b, float c, float d, float start, float stop) {
-		canvas.arc(a, b, c, d, start, stop);
 	}
 
 	@Override

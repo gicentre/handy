@@ -3,7 +3,7 @@ package org.gicentre.handy;
 // *****************************************************************************************
 /** Stores version information about the Handy sketchy drawing package.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 11th February, 2012.
+ *  @version 1.0.2, 17th March, 2012.
  */ 
 // *****************************************************************************************
 
@@ -23,8 +23,8 @@ package org.gicentre.handy;
 
 public class Version 
 {
-	private static final float  VERSION = 1.01f;
-	private static final String VERSION_TEXT = "Handy sketchy drawing package V1.0.1, 15th March, 2012";
+	private static final float  VERSION = 1.02f;
+	private static final String VERSION_TEXT = "Handy sketchy drawing package V1.0.2, 17th March, 2012";
 
 	/** Reports the current version of the handy package.
 	 *  @return Text describing the current version of this package.
