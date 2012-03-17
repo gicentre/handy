@@ -978,8 +978,8 @@ public class HandyRenderer
 		}	
 				
 		// Add small proportionate perturbation to dimensions of ellipse
-		rx += getOffset(-rx*0.05f, rx*0.05f);
-		ry += getOffset(-ry*0.05f, ry*0.05f);
+		rx += getOffset(-rx*0.01f, rx*0.01f);
+		ry += getOffset(-ry*0.01f, ry*0.01f);
 		
 		// Ensure start and stop angles are positive and sensible.
 		float strt = start;
@@ -997,7 +997,7 @@ public class HandyRenderer
 	      stp = PConstants.TWO_PI;
 	    }
 	    
-	    float arcInc = Math.min(ellipseInc,(stp-strt)/2);
+	    float arcInc = Math.min(ellipseInc/2,(stp-strt)/2);
 	   
 	    // Create a curved polygon to represent the sector.
 	    boolean oIsStroke = graphics.stroke;
@@ -1010,7 +1010,7 @@ public class HandyRenderer
 	    beginShape();
 		curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
 		
-		for (float theta=strt; theta<stp; theta+=arcInc)
+		for (float theta=strt; theta<=stp; theta+=arcInc)
 		{
 			curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
 		}
@@ -1018,6 +1018,7 @@ public class HandyRenderer
 		// Last control point should be duplicate the last point of the arc.	
 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+		vertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
 
 	    vertex(cx,cy);
 	    endShape();
@@ -1032,7 +1033,7 @@ public class HandyRenderer
 	    	beginShape();
 	 		curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
 	 		
-	 		for (float theta=strt; theta<stp; theta+=arcInc)
+	 		for (float theta=strt; theta<=stp; theta+=arcInc)
 	 		{
 	 			curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
 	 		}
