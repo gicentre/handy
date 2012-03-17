@@ -1828,61 +1828,7 @@ public class HandyRenderer
 
 		graphics.endShape();
 	}
-	
-	
-	/** Adds the curved vertices to build an arc of an ellipse.
-	 *  @param cx x coordinate of the centre of the ellipse around which the arc is constructed.
-	 *  @param cy y coordinate of the centre of the ellipse around which the arc is constructed.
-	 *  @param rx Radius in the x direction of the ellipse around which the arc is constructed.
-	 *  @param ry Radius in the y direction of the ellipse around which the arc is constructed.
-	 *  @param start Angle to start the arc in radians.
-	 *  @param stop Angle to stop the arc in radians.
-	 */
-	private void buildArc(float cx, float cy, float rx, float ry, float offset, float overlap, float start, float stop)
-	{
-		float strt = start;
-		float stp  = stop;
-
-		// Ensure start and stop angles are positive and sensible.
-	    while (strt < 0)
-	    {
-	      strt += PConstants.TWO_PI;
-	      stp += PConstants.TWO_PI;
-	    }
-
-	    if (stp - strt > PConstants.TWO_PI) 
-	    {
-	      strt = 0;
-	      stp = PConstants.TWO_PI;
-	    }
-
-		float arcInc = Math.min(ellipseInc,(stp-strt)/2);
 		
-		line(cx,cy,cx+rx*(float)Math.cos(strt),cy+ry*(float)Math.sin(strt));
-		line(cx,cy,cx+rx*(float)Math.cos(stp),cy+ry*(float)Math.sin(stp));
-		
-		graphics.beginShape();
-
-		// First control point should be duplicate the first point of the arc.	
-		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(strt),
-							 getOffset(-offset,offset)+cy+ry*(float)Math.sin(strt));
-
-		for (float theta=strt; theta<stp; theta+=arcInc)
-		{
-			graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(theta),
-								 getOffset(-offset,offset)+cy+ry*(float)Math.sin(theta));
-		}
-		
-		// Last control point should be duplicate the last point of the arc.	
-		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(stp),
-							 getOffset(-offset,offset)+cy+ry*(float)Math.sin(stp));
-		
-		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(stp),
-				 getOffset(-offset,offset)+cy+ry*(float)Math.sin(stp));
-
-		graphics.endShape();
-	}
-	
 	/** Applies a combined affine transformation that translates (cx,cy) to origin, rotates it, scales it
 	 *  according to the given aspect ratio and then translates back to (cx,cy)
 	 *  @param x x coordinate of the point to transform.
