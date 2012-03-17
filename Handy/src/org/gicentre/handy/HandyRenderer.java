@@ -16,7 +16,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0.2, 15th March, 2012.
+ *  @version 1.0.2, 17th March, 2012.
  */ 
 // *****************************************************************************************
 
@@ -912,17 +912,147 @@ public class HandyRenderer
 		shape(new float[] {x1,x2,x3,x4}, new float[] {y1,y2,y3,y4}, true);
 	}
 	
-	/** Draws an arc along the outer edge of an ellipse defined by the x,y, width and height parameters.
-	 *  @param x x coordinate of the start of the line.
-	 *  @param y y coordinate of the start of the line.
-	 *  @param width x coordinate of the end of the line.
-	 *  @param height y coordinate of the end of the line.
+	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
+	 *  This version allows the maximum random offset of the arc to be set explicitly.
+	 *  @param x x coordinate of the ellipse's position around which this arc is defined.
+	 *  @param y y coordinate of the ellipse's position around which this arc is defined
+	 *  @param w Width of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
+	 *  @param h Height of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
 	 *  @param start Angle to start the arc in radians.
 	 *  @param stop Angle to stop the arc in radians.
 	 */
-	public void arc(float x, float y, float width, float height, float start, float stop)
+	public void arc(float x, float y, float w, float h, float start, float stop)
 	{
-		arc(x,y,width,height,start,stop,2);
+		if (isHandy == false)
+		{
+			graphics.arc(x,y,w,h,start,stop);
+			return;
+		}
+		
+		// Default is to use 'CENTER' mode for defining ellipse
+		float cx = x;
+		float cy = y;
+		float rx = Math.abs(w/2);
+		float ry = Math.abs(h/2);
+
+		// Adjust bounds for other ellipse modes.
+		if (graphics.ellipseMode == PConstants.CORNER)
+		{
+			float left   = Math.min(x,x+w);
+			float top    = Math.min(y,y+h);
+			float right  = Math.max(x,x+w);
+			float bottom = Math.max(y,y+h);
+			rx = (right-left)/2;
+			ry = (bottom-top)/2;
+			cx = left + rx;
+			cy = top  + ry;
+
+		}
+		if (graphics.ellipseMode == PConstants.CORNERS)
+		{
+			float left   = Math.min(x,w);
+			float top    = Math.min(y,h);
+			float right  = Math.max(x,w);
+			float bottom = Math.max(y,h);
+			rx = (right-left)/2;
+			ry = (bottom-top)/2;
+			cx = left + rx;
+			cy = top  + ry;
+		}
+		else if (graphics.ellipseMode == PConstants.RADIUS)
+		{
+			rx = Math.abs(w);
+			ry = Math.abs(h);
+		}
+		
+		if ((rx == 0) && (ry == 0))
+		{
+			// Never draw circles of radius 0.
+			return;
+		}
+				
+		if ((rx < roughness/4) || (ry < roughness/4))
+		{
+			// Don't draw anything with a radius less than a quarter of the roughness value
+			return;
+		}	
+				
+		// Add small proportionate perturbation to dimensions of ellipse
+		rx += getOffset(-rx*0.05f, rx*0.05f);
+		ry += getOffset(-ry*0.05f, ry*0.05f);
+		
+		// Ensure start and stop angles are positive and sensible.
+		float strt = start;
+		float stp = stop;
+		
+	    while (strt < 0)
+	    {
+	      strt += PConstants.TWO_PI;
+	      stp += PConstants.TWO_PI;
+	    }
+
+	    if (stp - strt > PConstants.TWO_PI) 
+	    {
+	      strt = 0;
+	      stp = PConstants.TWO_PI;
+	    }
+	    
+	    float arcInc = Math.min(ellipseInc,(stp-strt)/2);
+	   
+	    // Create a curved polygon to represent the sector.
+	    boolean oIsStroke = graphics.stroke;
+	    boolean oIsFill  = graphics.fill;
+	    int oStroke = graphics.strokeColor;
+		int oFill   = graphics.fillColor;
+	    
+	    graphics.noStroke();
+	    
+	    beginShape();
+		curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
+		
+		for (float theta=strt; theta<stp; theta+=arcInc)
+		{
+			curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
+		}
+		
+		// Last control point should be duplicate the last point of the arc.	
+		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+
+	    vertex(cx,cy);
+	    endShape();
+	 
+	    
+	    // Draw outside edge of arc if we have a stroke.
+	    if (oIsStroke)
+	    {
+	    	graphics.stroke(oStroke);
+	    	graphics.noFill();
+
+	    	beginShape();
+	 		curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
+	 		
+	 		for (float theta=strt; theta<stp; theta+=arcInc)
+	 		{
+	 			curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
+	 		}
+	 		
+	 		// Last control point should be duplicate the last point of the arc.	
+	 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+	 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+	 		
+	 		endShape();
+	    }
+	    
+	    // Restore original stroke and fill settings.
+	    graphics.strokeColor = oStroke;
+	    graphics.stroke = oIsStroke;
+	    graphics.fillColor = oFill;
+	    graphics.fill = oIsFill;
+	    
+	    
+	    
+	    
 	}
 	
 	/** Starts a new shape of type <code>POLYGON</code>. This must be paired with a call to 
@@ -1411,30 +1541,6 @@ public class HandyRenderer
 		}
 	}
 	
-	/** Draws an arc along the outer edge of an ellipse defined by the x,y, width and height parameters.
-	 *  This version allows the maximum random offset of the arc to be set explicitly.
-	 *  @param x x coordinate of the start of the line.
-	 *  @param y y coordinate of the start of the line.
-	 *  @param width x coordinate of the end of the line.
-	 *  @param height y coordinate of the end of the line.
-	 *  @param start Angle to start the arc in radians.
-	 *  @param stop Angle to stop the arc in radians.
-	 *  @param maxOffset Maximum random offset in pixel coordinates.
-	 */
-	private void arc(float x, float y, float width, float height, float start, float stop, float maxOffset)
-	{
-		if (graphics.stroke)
-		{
-			if (isHandy == false)
-			{
-				graphics.arc(x,y,width,height,start,stop);
-				return;
-			}
-			
-			// TODO: Replace with sketchy arc code
-			graphics.arc(x,y,width,height,start,stop);
-		}
-	}
 	
 	/** Draws a shape after it has been finished with <code>endShape()</code>.
 	 *  @param closeShape True if the shape is to be closed.
@@ -1577,7 +1683,7 @@ public class HandyRenderer
 				}
 			}
 
-			// Convert coordinates into array and sent to shape to fill.
+			// Convert coordinates into array and send to shape to fill.
 			float[] xs=new float[coords.size()];
 			float[] ys=new float[coords.size()];
 			int i=0;
@@ -1718,6 +1824,60 @@ public class HandyRenderer
 		
 		graphics.curveVertex(getOffset(-offset,offset)+cx+0.9f*rx*(float)Math.cos(radialOffset+overlap*0.5),
 				getOffset(-offset,offset)+cy+0.9f*ry*(float)Math.sin(radialOffset+overlap*0.5));
+
+		graphics.endShape();
+	}
+	
+	
+	/** Adds the curved vertices to build an arc of an ellipse.
+	 *  @param cx x coordinate of the centre of the ellipse around which the arc is constructed.
+	 *  @param cy y coordinate of the centre of the ellipse around which the arc is constructed.
+	 *  @param rx Radius in the x direction of the ellipse around which the arc is constructed.
+	 *  @param ry Radius in the y direction of the ellipse around which the arc is constructed.
+	 *  @param start Angle to start the arc in radians.
+	 *  @param stop Angle to stop the arc in radians.
+	 */
+	private void buildArc(float cx, float cy, float rx, float ry, float offset, float overlap, float start, float stop)
+	{
+		float strt = start;
+		float stp  = stop;
+
+		// Ensure start and stop angles are positive and sensible.
+	    while (strt < 0)
+	    {
+	      strt += PConstants.TWO_PI;
+	      stp += PConstants.TWO_PI;
+	    }
+
+	    if (stp - strt > PConstants.TWO_PI) 
+	    {
+	      strt = 0;
+	      stp = PConstants.TWO_PI;
+	    }
+
+		float arcInc = Math.min(ellipseInc,(stp-strt)/2);
+		
+		line(cx,cy,cx+rx*(float)Math.cos(strt),cy+ry*(float)Math.sin(strt));
+		line(cx,cy,cx+rx*(float)Math.cos(stp),cy+ry*(float)Math.sin(stp));
+		
+		graphics.beginShape();
+
+		// First control point should be duplicate the first point of the arc.	
+		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(strt),
+							 getOffset(-offset,offset)+cy+ry*(float)Math.sin(strt));
+
+		for (float theta=strt; theta<stp; theta+=arcInc)
+		{
+			graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(theta),
+								 getOffset(-offset,offset)+cy+ry*(float)Math.sin(theta));
+		}
+		
+		// Last control point should be duplicate the last point of the arc.	
+		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(stp),
+							 getOffset(-offset,offset)+cy+ry*(float)Math.sin(stp));
+		
+		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(stp),
+				 getOffset(-offset,offset)+cy+ry*(float)Math.sin(stp));
 
 		graphics.endShape();
 	}
