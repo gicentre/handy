@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PVector;
 
 // *****************************************************************************************
 /** The renderer that draws graphic primitives in a sketchy style. The style of sketchiness
@@ -16,7 +17,7 @@ import processing.core.PGraphics;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.0.2, 17th March, 2012.
+ *  @version 1.1, 4th April, 2012.
  */ 
 // *****************************************************************************************
 
@@ -1454,6 +1455,42 @@ public class HandyRenderer
 		}
 	}
 	
+	/** Draws a 3D line between the given coordinate triplets. 
+	 *  @param x1 x coordinate of the start of the line.
+	 *  @param y1 y coordinate of the start of the line.
+	 *  @param z1 z coordinate of the start of the line.
+	 *  @param x2 x coordinate of the end of the line.
+	 *  @param y2 y coordinate of the end of the line.
+	 *  @param z2 z coordinate of the end of the line.
+	 */
+	public void line(float x1, float y1, float z1, float x2, float y2, float z2)
+	{	
+		if ((graphics.stroke) || (overrideStrokeColour))
+		{
+			if (isHandy == false)
+			{
+				graphics.line(x1,y1,z1,x2,y2,z2);
+				return;
+			}
+			
+			graphics.pushStyle();
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			
+			line(x1,y1,z1,x2,y2,z2,2);
+
+			// Restore original stroke settings.
+			graphics.popStyle();
+		}
+	}
+	
 	/** Converts an array list of numeric values into a floating point array.
 	 *  Useful for methods that require primitive arrays of floats based on a dynamic collection.
 	 *  @param list List of numbers to convert.
@@ -1538,10 +1575,91 @@ public class HandyRenderer
 			graphics.endShape();
 			
 			graphics.fill(oFill);
-		
 		}
 	}
 	
+	
+	/** Draws a 3D line between the given coordinate triplet. This version allows the random offset of the 
+	 *  two end points to be set explicitly.
+	 *  @param x1 x coordinate of the start of the line.
+	 *  @param y1 y coordinate of the start of the line.
+	 *  @param z1 z coordinate of the start of the line.
+	 *  @param x2 x coordinate of the end of the line.
+	 *  @param y2 y coordinate of the end of the line.
+	 *  @param z2 z coordinate of the end of the line.
+	 *  @param maxOffset Maximum random offset in pixel coordinates.
+	 */
+	private void line(float x1, float y1, float z1, float x2, float y2, float z2, float maxOffset)
+	{
+		if (graphics.stroke)
+		{
+			if (isHandy == false)
+			{
+				graphics.line(x1,y1,z2,x2,y2,z2);
+				return;
+			}
+			
+			PVector v1 = new PVector(x2-x1,y2-y1,z2-z1);
+			PVector vn = new PVector(x2-x1,y2-y1,z2-z1);
+			vn.normalize();
+						
+			
+			// Ensure random perturbation is no more than 10% of line length.
+			float lenSq = v1.x*v1.x + v1.y*v1.y + v1.z*v1.z;
+			float offset = maxOffset;
+
+			if (maxOffset*maxOffset*100 > lenSq)
+			{
+				offset = (float)Math.sqrt(lenSq)/10;
+			}
+
+			float halfOffset = offset/2;
+			float divergePoint = 0.2f + rand.nextFloat()*0.2f;
+
+			int oFill = graphics.fillColor;
+			if (useSecondary)
+			{
+				graphics.fill(secondaryColour);
+			}
+			else
+			{
+				graphics.noFill();
+			}
+					
+			// This is the midpoint displacement value to give slightly bowed lines.
+			PVector v2 = new PVector(1,1,1);
+			PVector vCross = vn.cross(v2);
+			float v1Len = v1.mag();
+			
+			float midDispX = v1Len*vCross.x/200;
+			float midDispY = v1Len*vCross.y/200;
+			float midDispZ = v1Len*vCross.z/200;
+			
+			midDispX = getOffset(-midDispX,midDispX);
+			midDispY = getOffset(-midDispY,midDispY);
+			midDispZ = getOffset(-midDispZ,midDispZ);
+			
+			graphics.beginShape();
+			graphics.vertex(x1 + getOffset(-offset,offset),      y1 +getOffset(-offset,offset), z1+getOffset(-offset,offset));
+			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset), z1+getOffset(-offset,offset));
+			graphics.curveVertex(midDispX+x1 + v1.x*divergePoint + getOffset(-offset,offset),  midDispY+y1 + v1.y*divergePoint +getOffset(-offset,offset),   midDispZ+z1 + v1.z*divergePoint +getOffset(-offset,offset));
+			graphics.curveVertex(midDispX+x1 +2*v1.x*divergePoint + getOffset(-offset,offset), midDispY+y1+ 2*v1.y*divergePoint +getOffset(-offset,offset),  midDispZ+z1+ 2*v1.z*divergePoint +getOffset(-offset,offset)); 
+			graphics.curveVertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset), z2 +getOffset(-offset,offset));
+			graphics.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset), z2 +getOffset(-offset,offset));
+			graphics.endShape();  
+
+			graphics.beginShape();
+			graphics.vertex(x1 + getOffset(-halfOffset,halfOffset),      y1 +getOffset(-halfOffset,halfOffset), z1 +getOffset(-halfOffset,halfOffset));
+			graphics.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset), z1 +getOffset(-halfOffset,halfOffset));
+			graphics.curveVertex(midDispX+x1+v1.x*divergePoint + getOffset(-halfOffset,halfOffset),   midDispY+y1 + v1.y*divergePoint +getOffset(-halfOffset,halfOffset),   midDispZ+z1 + v1.z*divergePoint +getOffset(-halfOffset,halfOffset));
+			graphics.curveVertex(midDispX+x1+2*v1.x*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1+ 2*v1.y*divergePoint +getOffset(-halfOffset,halfOffset),  midDispZ+z1+ 2*v1.z*divergePoint +getOffset(-halfOffset,halfOffset)); 
+			graphics.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset), z2 +getOffset(-halfOffset,halfOffset));
+			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset), z2 +getOffset(-halfOffset,halfOffset));
+			graphics.endShape();
+			
+			graphics.fill(oFill);
+		}
+	}
 	
 	/** Draws a shape after it has been finished with <code>endShape()</code>.
 	 *  @param closeShape True if the shape is to be closed.
