@@ -2241,8 +2241,8 @@ public class HandyRenderer
 		{
 			for (int i=0; i<xCoords.length; i++)
 			{
-				float u = PApplet.map(xCoords[i],left,right,0,500);
-				float v = PApplet.map(yCoords[i],bottom,top,0,500);
+				float u = PApplet.map(xCoords[i],left,right,0,right-left);
+				float v = PApplet.map(yCoords[i],bottom,top,0,top-bottom);
 				graphics.vertex(xCoords[i],yCoords[i],zCoords[i],u,v);
 			}
 		}
@@ -2250,8 +2250,8 @@ public class HandyRenderer
 		{
 			for (int i=0; i<xCoords.length; i++)
 			{
-				float u = PApplet.map(zCoords[i],left,right,500,0);
-				float v = PApplet.map(xCoords[i],bottom,top,0,500);
+				float u = PApplet.map(xCoords[i],left,right,right-left,0);
+				float v = PApplet.map(zCoords[i],bottom,top,0,top-bottom);
 				graphics.vertex(xCoords[i],yCoords[i],zCoords[i],u,v);
 			}
 		}
@@ -2259,8 +2259,8 @@ public class HandyRenderer
 		{
 			for (int i=0; i<xCoords.length; i++)
 			{
-				float u = PApplet.map(zCoords[i],left,right,500,0);
-				float v = PApplet.map(yCoords[i],bottom,top,0,500);
+				float u = PApplet.map(yCoords[i],left,right,right-left,0);
+				float v = PApplet.map(zCoords[i],bottom,top,0,top-bottom);
 				graphics.vertex(xCoords[i],yCoords[i],zCoords[i],u,v);
 			}
 		}

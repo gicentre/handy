@@ -77,7 +77,7 @@ public class Vertex3DTest extends PApplet
 		timer.displayFrameRate();
 		h.setSeed(1969);
 		float lengthA = 100;
-		float lengthB = 50;
+		float lengthB = 60;
 		
 		// 2D rectangle to check styles are consistent.		
 		h.rect(5, 5, 50, 30);
@@ -136,6 +136,7 @@ public class Vertex3DTest extends PApplet
 		  h.vertex( lengthA, -lengthA, -lengthB);
 		  h.vertex( lengthA, -lengthA,  lengthB);
 		  h.vertex(-lengthA, -lengthA,  lengthB);
+
 
 		  h.endShape();
 
