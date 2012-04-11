@@ -96,6 +96,39 @@ public class HandyDraw extends PGraphicsJava2D{
 	
 	// ----------------------- Overridden Processing Draw Methods ------------------------- 
 	
+	/** Draws a 2D point at the given location. 
+	 *  @param x x coordinate of the point.
+	 *  @param y y coordinate of the point.
+	 */
+	@Override
+	public void point(float x, float y){
+		if (useSuper){
+			super.point(x, y);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.point(x, y);
+			useSuper=false;
+		}
+	}
+	
+	/** Draws a 3D point at the given location. 
+	 *  @param x x coordinate of the point.
+	 *  @param y y coordinate of the point.
+	 *  @param z z coordinate of the point.
+	 */
+	@Override
+	public void point(float x, float y, float z){
+		if (useSuper){
+			super.point(x, y, z);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.point(x, y, z);
+			useSuper=false;
+		}
+	}
+	
 	/** Draws a 2D line between the given coordinate pairs. 
 	 *  @param x1 x coordinate of the start of the line.
 	 *  @param y1 y coordinate of the start of the line.
@@ -110,6 +143,26 @@ public class HandyDraw extends PGraphicsJava2D{
 		else{
 			useSuper=true;
 			handyRenderer.line(x1, y1, x2, y2);
+			useSuper=false;
+		}
+	}
+	
+	/** Draws a 3D line between the given coordinate pairs. 
+	 *  @param x1 x coordinate of the start of the line.
+	 *  @param y1 y coordinate of the start of the line.
+	 *  @param z1 z coordinate of the start of the line.
+	 *  @param x2 x coordinate of the end of the line.
+	 *  @param y2 y coordinate of the end of the line.
+	 *  @param z2 z coordinate of the end of the line.
+	 */
+	@Override
+	public void line(float x1, float y1, float z1, float x2, float y2, float z2){
+		if (useSuper){
+			super.line(x1, y1, z1, x2, y2, z2);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.line(x1, y1, z1, x2, y2, z2);
 			useSuper=false;
 		}
 	}
@@ -201,7 +254,6 @@ public class HandyDraw extends PGraphicsJava2D{
 		}
 	}
 
-
 	/** Draws a triangle through the three pairs of coordinates.
 	 *  @param x1 x coordinate of the first triangle vertex.
 	 *  @param y1 y coordinate of the first triangle vertex.
@@ -218,6 +270,39 @@ public class HandyDraw extends PGraphicsJava2D{
 		else{
 			useSuper=true;
 			handyRenderer.triangle(x1,y1,x2,y2,x3,y3);
+			useSuper=false;
+		}
+	}
+	
+	
+	/** Draws 3D cube with the given unit dimension.
+	 *  @param bSize Size of each dimension of the cube.
+	 */
+	@Override
+	public void box(float bSize) {
+		if (useSuper){
+			super.box(bSize);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.box(bSize);
+			useSuper=false;
+		}
+	}
+	
+	/** Draws 3D box with the given dimensions.
+	 *  @param bWidth Width of the box.
+	 *  @param bHeight Height of the box.
+	 *  @param bDepth Depth of the box.
+	 */
+	@Override
+	public void box(float bWidth, float bHeight, float bDepth) {
+		if (useSuper){
+			super.box(bWidth, bHeight, bDepth);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.box(bWidth, bHeight, bDepth);
 			useSuper=false;
 		}
 	}

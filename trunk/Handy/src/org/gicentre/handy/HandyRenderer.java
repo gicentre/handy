@@ -1267,6 +1267,26 @@ public class HandyRenderer
 		curveIndices.clear();
 	}
 	
+	
+	
+	/** Draws 3D cube with the given unit dimension.
+	 *  @param bSize Size of each dimension of the cube.
+	 */
+	public void box(float bSize)
+	{
+		graphics.box(bSize);
+	}
+	
+	/** Draws 3D box with the given dimensions.
+	 *  @param bWidth Width of the box.
+	 *  @param bHeight Height of the box.
+	 *  @param bDepth Depth of the box.
+	 */
+	public void box(float bWidth, float bHeight, float bDepth)
+	{
+		graphics.box(bWidth,bHeight,bDepth);
+	}
+	
 	/** Draws a closed 2d polygon based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.

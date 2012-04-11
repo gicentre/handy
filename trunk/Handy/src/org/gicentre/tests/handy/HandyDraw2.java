@@ -93,6 +93,25 @@ public class HandyDraw2 extends PGraphics{
 	
 	// ----------------------- Overridden Processing Draw Methods ------------------------- 
 	
+	/** Draws a 2D point at the given location.
+	 *  @param x x coordinate of the point to draw.
+	 *  @param y y coordinate of the point to draw.
+	 */
+	@Override
+	public void point(float x, float y) {
+		handyRenderer.point(x, y);
+	}
+	
+	/** Draws a 3D point at the given location.
+	 *  @param x x coordinate of the point to draw.
+	 *  @param y y coordinate of the point to draw.
+	 *  @param z z coordinate of the point to draw.
+	 */
+	@Override
+	public void point(float x, float y, float z) {
+		handyRenderer.point(x, y, z);
+	}
+	
 	/** Draws a 2D line between the given coordinate pairs. 
 	 *  @param x1 x coordinate of the start of the line.
 	 *  @param y1 y coordinate of the start of the line.
@@ -102,6 +121,19 @@ public class HandyDraw2 extends PGraphics{
 	@Override
 	public void line(float x1, float y1, float x2, float y2){
 		handyRenderer.line(x1, y1, x2, y2);
+	}
+	
+	/** Draws a 3D line between the given coordinate triplets. 
+	 *  @param x1 x coordinate of the start of the line.
+	 *  @param y1 y coordinate of the start of the line.
+	 *  @param z1 z coordinate of the start of the line.
+	 *  @param x2 x coordinate of the end of the line.
+	 *  @param y2 y coordinate of the end of the line.
+	 *  @param z2 z coordinate of the end of the line.
+	 */
+	@Override
+	public void line(float x1, float y1, float z1, float x2, float y2, float z2){
+		handyRenderer.line(x1, y1, z1, x2, y2, z2);
 	}
 	
 	/** Draws an ellipse using the given location and dimensions. By default the x,y coordinates
@@ -245,7 +277,6 @@ public class HandyDraw2 extends PGraphics{
 	}
 	
 	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
-	 *  This version allows the maximum random offset of the arc to be set explicitly.
 	 *  @param x x coordinate of the ellipse's position around which this arc is defined.
 	 *  @param y y coordinate of the ellipse's position around which this arc is defined
 	 *  @param w Width of the ellipse around which this arc is defined (but see modifications possible with ellipseMode())
@@ -254,15 +285,29 @@ public class HandyDraw2 extends PGraphics{
 	 *  @param stop Angle to stop the arc in radians.
 	 */
 	@Override
-	public void arc(float a, float b, float c, float d, float start, float stop) {
-		handyRenderer.arc(a, b, c, d, start, stop);
+	public void arc(float x, float y, float w, float h, float start, float stop) {
+		handyRenderer.arc(x, y, w, h, start, stop);
+	}
+	
+	/** Draws 3D cube with the given unit dimension.
+	 *  @param bSize Size of each dimension of the cube.
+	 */
+	@Override
+	public void box(float bSize) {
+		handyRenderer.box(bSize);
+	}
+	
+	/** Draws 3D box with the given dimensions.
+	 *  @param bWidth Width of the box.
+	 *  @param bHeight Height of the box.
+	 *  @param bDepth Depth of the box.
+	 */
+	@Override
+	public void box(float bWidth, float bHeight, float bDepth) {
+		canvas.box(bWidth, bHeight, bDepth);
 	}
 
 	// -------------------------------- End of customised methods  --------------------------------
-
-	
-	
-	
 	
 	@Override
 	public void ambient(float x, float y, float z) {
@@ -355,8 +400,8 @@ public class HandyDraw2 extends PGraphics{
 	}
 
 	@Override
-	public void background(PImage image) {
-		canvas.background(image);
+	public void background(PImage img) {
+		canvas.background(img);
 	}
 
 	@Override
@@ -421,16 +466,6 @@ public class HandyDraw2 extends PGraphics{
 	public void bezierVertex(float x2, float y2, float x3, float y3, float x4,
 			float y4) {
 		canvas.bezierVertex(x2, y2, x3, y3, x4, y4);
-	}
-
-	@Override
-	public void box(float w, float h, float d) {
-		canvas.box(w, h, d);
-	}
-
-	@Override
-	public void box(float size) {
-		canvas.box(size);
 	}
 
 	@Override
@@ -524,8 +559,8 @@ public class HandyDraw2 extends PGraphics{
 	}
 
 	@Override
-	public void edge(boolean edge) {
-		canvas.edge(edge);
+	public void edge(boolean e) {
+		canvas.edge(e);
 	}
 
 	@Override
@@ -650,19 +685,19 @@ public class HandyDraw2 extends PGraphics{
 	}
 
 	@Override
-	public void image(PImage image, float a, float b, float c, float d, int u1,
+	public void image(PImage img, float a, float b, float c, float d, int u1,
 			int v1, int u2, int v2) {
-		canvas.image(image, a, b, c, d, u1, v1, u2, v2);
+		canvas.image(img, a, b, c, d, u1, v1, u2, v2);
 	}
 
 	@Override
-	public void image(PImage image, float x, float y, float c, float d) {
-		canvas.image(image, x, y, c, d);
+	public void image(PImage img, float x, float y, float c, float d) {
+		canvas.image(img, x, y, c, d);
 	}
 
 	@Override
-	public void image(PImage image, float x, float y) {
-		canvas.image(image, x, y);
+	public void image(PImage img, float x, float y) {
+		canvas.image(img, x, y);
 	}
 
 	@Override
@@ -703,11 +738,6 @@ public class HandyDraw2 extends PGraphics{
 	@Override
 	public void lights() {
 		canvas.lights();
-	}
-
-	@Override
-	public void line(float x1, float y1, float z1, float x2, float y2, float z2) {
-		canvas.line(x1, y1, z1, x2, y2, z2);
 	}
 
 	@Override
@@ -794,16 +824,6 @@ public class HandyDraw2 extends PGraphics{
 	@Override
 	public void perspective(float fovy, float aspect, float zNear, float zFar) {
 		canvas.perspective(fovy, aspect, zNear, zFar);
-	}
-
-	@Override
-	public void point(float x, float y, float z) {
-		canvas.point(x, y, z);
-	}
-
-	@Override
-	public void point(float x, float y) {
-		canvas.point(x, y);
 	}
 
 	@Override
@@ -985,18 +1005,18 @@ public class HandyDraw2 extends PGraphics{
 	}
 
 	@Override
-	public void shape(PShape shape, float x, float y, float c, float d) {
-		canvas.shape(shape, x, y, c, d);
+	public void shape(PShape shp, float x, float y, float c, float d) {
+		canvas.shape(shp, x, y, c, d);
 	}
 
 	@Override
-	public void shape(PShape shape, float x, float y) {
-		canvas.shape(shape, x, y);
+	public void shape(PShape shp, float x, float y) {
+		canvas.shape(shp, x, y);
 	}
 
 	@Override
-	public void shape(PShape shape) {
-		canvas.shape(shape);
+	public void shape(PShape shp) {
+		canvas.shape(shp);
 	}
 
 	@Override
@@ -1254,8 +1274,8 @@ public class HandyDraw2 extends PGraphics{
 	}
 
 	@Override
-	public void texture(PImage image) {
-		canvas.texture(image);
+	public void texture(PImage img) {
+		canvas.texture(img);
 	}
 
 	@Override
