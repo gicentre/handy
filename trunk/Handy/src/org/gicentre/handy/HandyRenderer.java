@@ -17,7 +17,7 @@ import processing.core.PVector;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.1, 4th April, 2012.
+ *  @version 1.1, 11th April, 2012.
  */ 
 // *****************************************************************************************
 
@@ -39,13 +39,17 @@ public class HandyRenderer
 {
 	// -------------------------------- Object Variables ---------------------------------  
 
+	private PApplet parent;						// Parent class invoking the renderer.
 	private PGraphics graphics;					// Graphics context in which this class is to render.
 	private Random rand;						// Random number generator for random but repeatable offsets.
 	private float cosAngle,sinAngle,tanAngle;	// Lookups for quick calculations.
 	private List<float[]> vertices;				// Temporary store of shape or polyline vertices.
 	private HashSet<Integer>curveIndices;		// Pointer to vertices that refer to curves
 	private int shapeMode;						// Type of setting for shape drawing.
-
+	private boolean is3DShape;					// Indicates if shape defined with vertices is 2d or 3d.
+	
+	private enum Plane2d {XY, XZ, YZ}			// Used to identify plane onto which textures may be mapped for 3d faces.
+	
 	// Configuration settings
 	private boolean isHandy;					// Determines if normal or hand-drawn appearance is used.
 	private int fillColour, strokeColour;		// Main fill and stroke colours. 
@@ -65,6 +69,7 @@ public class HandyRenderer
 	private float ellipseInc;					// Incremental steps along an ellipse.
 	
 	private static final float MIN_ROUGHNESS = 0.1f;	// Roughess less than this value will be consisidered 0.
+	
 
 	// ----------------------------------- Constructor -----------------------------------
 
@@ -74,12 +79,14 @@ public class HandyRenderer
 	 */
 	public HandyRenderer(PApplet parent)
 	{
+		this.parent = parent;
 		this.graphics = parent.g;
-		
+				
 		numEllipseSteps = 9;
 		ellipseInc = PConstants.TWO_PI/numEllipseSteps;
 		vertices = new ArrayList<float[]>();
 		curveIndices = new HashSet<Integer>();
+		is3DShape = false;
 				
 		// Set initial configuration options.
 		setIsHandy(true);
@@ -88,13 +95,38 @@ public class HandyRenderer
 
 	// ------------------------------------- Methods ------------------------------------- 
 
-	/** Sets the the graphics context into which all output is directed. This method allows
+	/** Sets the graphics context into which all output is directed. This method allows
 	 *  output to be redirected to print output, offscreen buffers etc.
 	 *  @param graphics New graphics context in which to render.
 	 */
 	public void setGraphics(PGraphics graphics)
 	{
 		this.graphics = graphics;
+	}
+	
+	/** Copies the settings from one graphics context to another. This can be useful when creating an offscreen
+	 *  buffer that needs to have the same appearance settings as the current context.
+	 *  @param gSrc Source graphics context.
+	 *  @param gDst Destination graphics context.
+	 */
+	public static void copyGraphics(PGraphics gSrc, PGraphics gDst)
+	{
+		gDst.bezierDetail    = gSrc.bezierDetail;
+		gDst.backgroundColor = gSrc.backgroundColor;
+		gDst.colorMode       = gSrc.colorMode;
+		gDst.curveTightness  = gSrc.curveTightness;
+		gDst.ellipseMode     = gSrc.ellipseMode;
+		gDst.fill            = gSrc.fill;
+		gDst.fillColor       = gSrc.fillColor;
+		gDst.imageMode       = gSrc.imageMode;
+		gDst.rectMode        = gSrc.rectMode;
+		gDst.shapeMode       = gSrc.shapeMode;
+		gDst.smooth          = gSrc.smooth;
+		gDst.stroke          = gSrc.stroke;
+		gDst.strokeCap       = gSrc.strokeCap;
+		gDst.strokeJoin      = gSrc.strokeJoin;
+		gDst.strokeColor     = gSrc.strokeColor;
+		gDst.strokeWeight    = gSrc.strokeWeight;		
 	}
 
 	/** Sets the seed used for random offsets when drawing. This should be called if repeated calls
@@ -289,7 +321,7 @@ public class HandyRenderer
 
 	// -------------------------------------- Drawing methods --------------------------------------
 
-	/** Draws point at the given location. Currently this draws the point in the same style as the
+	/** Draws 2D point at the given location. Currently this draws the point in the same style as the
 	 *  default Processing renderer.
 	 *  @param x x coordinate of the point.
 	 *  @param y y coordinate of the point.
@@ -297,6 +329,17 @@ public class HandyRenderer
 	public void point(float x, float y)
 	{
 		graphics.point(x, y);
+	}
+	
+	/** Draws 3D point at the given location. Currently this draws the point in the same style as the
+	 *  default Processing renderer.
+	 *  @param x x coordinate of the point.
+	 *  @param y y coordinate of the point.
+	 *  @param z z coordinate of the point.
+	 */
+	public void point(float x, float y, float z)
+	{
+		graphics.point(x, y, z);
 	}
 	
 	/** Draws an ellipse using the given location and dimensions. By default the x,y coordinates
@@ -392,85 +435,89 @@ public class HandyRenderer
 				graphics.noFill();
 			}
 			
-			if (fillGap == 0)
+			// Only fill interior if the fill colour is distinct from the background.
+			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
-				// Fill with solid colour
-				if (overrideFillColour)
+				if (fillGap == 0)
 				{
-					graphics.fill(fillColour);
-				}
-				int oEllipseMode = graphics.ellipseMode;
-				graphics.ellipseMode(PConstants.RADIUS);
-				graphics.noStroke();
-				graphics.ellipse(cx,cy,rx,ry);
-				graphics.ellipseMode(oEllipseMode);
-				graphics.noFill();
-			}
-			else
-			{
-				// We will be using strokes to fill, so change stroke to fill colour.
-				if (overrideFillColour)
-				{
-					graphics.stroke(fillColour);
+					// Fill with solid colour
+					if (overrideFillColour)
+					{
+						graphics.fill(fillColour);
+					}
+					int oEllipseMode = graphics.ellipseMode;
+					graphics.ellipseMode(PConstants.RADIUS);
+					graphics.noStroke();
+					graphics.ellipse(cx,cy,rx,ry);
+					graphics.ellipseMode(oEllipseMode);
+					graphics.noFill();
 				}
 				else
 				{
-					graphics.stroke(oFill);
-				}
-				
-				// Perturb hachure angle if requested.
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
-				}
-				
-				if (fillWeight <=0)
-				{
-					graphics.strokeWeight(oWeight/2f);
-				}
-				else
-				{
-					graphics.strokeWeight(fillWeight);
-				}
+					// We will be using strokes to fill, so change stroke to fill colour.
+					if (overrideFillColour)
+					{
+						graphics.stroke(fillColour);
+					}
+					else
+					{
+						graphics.stroke(oFill);
+					}
 
-				double aspectRatio = ry/rx;
-				double hyp = (float)Math.sqrt(aspectRatio*tanAngle*aspectRatio*tanAngle+1);
-				double sinAnglePrime = aspectRatio*tanAngle / hyp;
-				double cosAnglePrime = 1 / hyp;
-				
-				float gap = fillGap;	// Gap between adjacent lines.
-				if (gap < 0)
-				{
-					gap = oWeight*4;					
-				}
-				if (isAlternating)
-				{
-					// If zig-zag filling, increase gap to give approximately similar density.
-					gap *= 1.41f;
-				}
-				double gapPrime = gap/((rx*ry/Math.sqrt((ry*cosAnglePrime)*(ry*cosAnglePrime) + (rx*sinAnglePrime)*(rx*sinAnglePrime)))/rx);
-				double halfLen = (float)Math.sqrt((rx*rx) - (cx-rx+gapPrime)*(cx-rx+gapPrime));
-				float[] prevP2 = affine(cx-rx+gapPrime,cy+halfLen,cx,cy,sinAnglePrime,cosAnglePrime,aspectRatio);
-				
-				for (double xPos=cx-rx+gapPrime; xPos<cx+rx; xPos+=gapPrime)
-				{
-					halfLen = (float)Math.sqrt((rx*rx) - (cx-xPos)*(cx-xPos));
-					float[] p1 = affine(xPos,cy-halfLen,cx,cy,sinAnglePrime,cosAnglePrime,aspectRatio);
-					float[] p2 = affine(xPos,cy+halfLen,cx,cy,sinAnglePrime,cosAnglePrime,aspectRatio);
-					
+					// Perturb hachure angle if requested.
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
+					}
+
+					if (fillWeight <=0)
+					{
+						graphics.strokeWeight(oWeight/2f);
+					}
+					else
+					{
+						graphics.strokeWeight(fillWeight);
+					}
+
+					double aspectRatio = ry/rx;
+					double hyp = (float)Math.sqrt(aspectRatio*tanAngle*aspectRatio*tanAngle+1);
+					double sinAnglePrime = aspectRatio*tanAngle / hyp;
+					double cosAnglePrime = 1 / hyp;
+
+					float gap = fillGap;	// Gap between adjacent lines.
+					if (gap < 0)
+					{
+						gap = oWeight*4;					
+					}
 					if (isAlternating)
 					{
-						line(prevP2[0],prevP2[1],p1[0],p1[1],2);	
+						// If zig-zag filling, increase gap to give approximately similar density.
+						gap *= 1.41f;
 					}
-					line(p1[0],p1[1],p2[0],p2[1],2);
-					
-					prevP2 = p2;
-				}
-				
-				// Perturb hachure angle if requested.
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle);
+					double gapPrime = gap/((rx*ry/Math.sqrt((ry*cosAnglePrime)*(ry*cosAnglePrime) + (rx*sinAnglePrime)*(rx*sinAnglePrime)))/rx);
+					double halfLen = (float)Math.sqrt((rx*rx) - (cx-rx+gapPrime)*(cx-rx+gapPrime));
+					float[] prevP2 = affine(cx-rx+gapPrime,cy+halfLen,cx,cy,sinAnglePrime,cosAnglePrime,aspectRatio);
+
+					for (double xPos=cx-rx+gapPrime; xPos<cx+rx; xPos+=gapPrime)
+					{
+						halfLen = (float)Math.sqrt((rx*rx) - (cx-xPos)*(cx-xPos));
+						float[] p1 = affine(xPos,cy-halfLen,cx,cy,sinAnglePrime,cosAnglePrime,aspectRatio);
+						float[] p2 = affine(xPos,cy+halfLen,cx,cy,sinAnglePrime,cosAnglePrime,aspectRatio);
+
+						if (isAlternating)
+						{
+							line(prevP2[0],prevP2[1],p1[0],p1[1],2);	
+						}
+						line(p1[0],p1[1],p2[0],p2[1],2);
+
+						prevP2 = p2;
+					}
+
+					// Perturb hachure angle if requested.
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle);
+					}
 				}
 			}
 		}
@@ -589,82 +636,86 @@ public class HandyRenderer
 				graphics.noFill();
 			}
 			
-			if (fillGap == 0)
+			// Only fill interior if the fill colour is distinct from the background.
+			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
-				// Fill with solid colour
-				if (overrideFillColour)
+				if (fillGap == 0)
 				{
-					graphics.fill(fillColour);
-				}
-				int oRectMode = graphics.rectMode;
-				graphics.rectMode(PConstants.CORNERS);
-				graphics.noStroke();
-				graphics.rect(left,top,right,bottom);
-				graphics.rectMode(oRectMode);
-				graphics.noFill();
-			}
-			else
-			{
-				// We will be using strokes to fill, so change stroke to fill colour.
-				if (overrideFillColour)
-				{
-					graphics.stroke(fillColour);
-				}
-				else
-				{
-					graphics.stroke(oFill);
-				}
-				
-				// Perturb hachure angle if requested.
-				float originalAngle = PApplet.degrees(hachureAngle);
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
-				}
-				
-				if (fillWeight <=0)
-				{
-					graphics.strokeWeight(oWeight/2f);
-				}
-				else
-				{
-					graphics.strokeWeight(fillWeight);
-				}
-				
-				float gap = fillGap;	// Gap between adjacent lines.
-				if (gap < 0)
-				{
-					gap = oWeight*4;					
-				}
-				if (isAlternating)
-				{
-					// If zig-zag filling, increase gap to give approximately similar density.
-					gap *= 1.41f;
-				}
-				
-				HachureIterator i = new HachureIterator(top, bottom, left, right, gap, sinAngle, cosAngle, tanAngle);
-				float[] coords;
-				float[] prevCoords = i.getNextLine();
-				
-				if (prevCoords != null)
-				{
-					line(prevCoords[0],prevCoords[1],prevCoords[2],prevCoords[3],2);
-					
-					while ((coords=i.getNextLine()) != null)
+					// Fill with solid colour
+					if (overrideFillColour)
 					{
-						if (isAlternating)
-						{
-							line(prevCoords[2],prevCoords[3],coords[0],coords[1],2);
-						}
-						line(coords[0],coords[1],coords[2],coords[3],2);
-						prevCoords = coords;
+						graphics.fill(fillColour);
 					}
+					int oRectMode = graphics.rectMode;
+					graphics.rectMode(PConstants.CORNERS);
+					graphics.noStroke();
+					graphics.rect(left,top,right,bottom);
+					graphics.rectMode(oRectMode);
+					graphics.noFill();
 				}
-				
-				// Restore original hachure angle if requested.
-				if (anglePerturbation > 0)
+				else
 				{
-					setHachureAngle(originalAngle);
+					// We will be using strokes to fill, so change stroke to fill colour.
+					if (overrideFillColour)
+					{
+						graphics.stroke(fillColour);
+					}
+					else
+					{
+						graphics.stroke(oFill);
+					}
+
+					// Perturb hachure angle if requested.
+					float originalAngle = PApplet.degrees(hachureAngle);
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
+					}
+
+					if (fillWeight <=0)
+					{
+						graphics.strokeWeight(oWeight/2f);
+					}
+					else
+					{
+						graphics.strokeWeight(fillWeight);
+					}
+
+					float gap = fillGap;	// Gap between adjacent lines.
+					if (gap < 0)
+					{
+						gap = oWeight*4;					
+					}
+					if (isAlternating)
+					{
+						// If zig-zag filling, increase gap to give approximately similar density.
+						gap *= 1.41f;
+					}
+
+					HachureIterator i = new HachureIterator(top, bottom, left, right, gap, sinAngle, cosAngle, tanAngle);
+					float[] coords;
+					float[] prevCoords = i.getNextLine();
+
+					if (prevCoords != null)
+					{
+						line(prevCoords[0],prevCoords[1],prevCoords[2],prevCoords[3],2);
+
+						while ((coords=i.getNextLine()) != null)
+						{
+							if (isAlternating)
+							{
+								line(prevCoords[2],prevCoords[3],coords[0],coords[1],2);
+							}
+							line(coords[0],coords[1],coords[2],coords[3],2);
+							prevCoords = coords;
+						}
+					}
+
+					// Restore original hachure angle if requested.
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle);
+					}
 				}
 			}
 
@@ -750,117 +801,121 @@ public class HandyRenderer
 				graphics.noFill();
 			}
 			
-			if (fillGap == 0)
+			// Only fill interior if the fill colour is distinct from the background.
+			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
-				// Fill with solid colour
-				if (overrideFillColour)
+				if (fillGap == 0)
 				{
-					graphics.fill(fillColour);
-				}
-				graphics.noStroke();
-				graphics.triangle(x1,y1,x2,y2,x3,y3);
-				graphics.noFill();
-			}
-			else
-			{
-				// We will be using strokes to fill, so change stroke to fill colour.
-				if (overrideFillColour)
-				{
-					graphics.stroke(fillColour);
+					// Fill with solid colour
+					if (overrideFillColour)
+					{
+						graphics.fill(fillColour);
+					}
+					graphics.noStroke();
+					graphics.triangle(x1,y1,x2,y2,x3,y3);
+					graphics.noFill();
 				}
 				else
 				{
-					graphics.stroke(oFill);
-				}
-				
-				// Perturb hachure angle if requested.
-				float originalAngle = PApplet.degrees(hachureAngle);
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
-				}
-				
-				if (fillWeight <=0)
-				{
-					graphics.strokeWeight(oWeight/2f);
-				}
-				else
-				{
-					graphics.strokeWeight(fillWeight);
-				}
-				
-				float gap = fillGap;	// Gap between adjacent lines.
-				if (gap < 0)
-				{
-					gap = oWeight*4;					
-				}
-				
-				if (isAlternating)
-				{
-					// If zig-zag filling, increase gap to give approximately similar density.
-					gap *= 1.41f;
-				}
-				
-				float[] prevCoords=null;
-				
-				HachureIterator i = new HachureIterator(top-1, bottom+1, left-1, right+1, gap, sinAngle, cosAngle, tanAngle);
-				float[] rectCoords;
-				while ((rectCoords=i.getNextLine()) != null)
-				{
-					// line within rectangle can only intersect triangle two times at most.
-					float[] triCoords = new float[4];
-					int nextPoint = 0;
-					
-					Segment s = new Segment(rectCoords[0],rectCoords[1],rectCoords[2],rectCoords[3]);
-					if (s.compare(new Segment(x1,y1,x2,y2)) == Segment.Relation.INTERSECTS)
+					// We will be using strokes to fill, so change stroke to fill colour.
+					if (overrideFillColour)
 					{
-						triCoords[nextPoint] = s.getIntersectionX();
-						triCoords[nextPoint+1] = s.getIntersectionY();
-						nextPoint+=2;
+						graphics.stroke(fillColour);
 					}
-					if (s.compare(new Segment(x2,y2,x3,y3)) == Segment.Relation.INTERSECTS)
+					else
 					{
-						triCoords[nextPoint] = s.getIntersectionX();
-						triCoords[nextPoint+1] = s.getIntersectionY();
-						nextPoint+=2;
+						graphics.stroke(oFill);
 					}
-					if ((nextPoint <=2) && (s.compare(new Segment(x3,y3,x1,y1)) == Segment.Relation.INTERSECTS))
-					{
-						triCoords[nextPoint] = s.getIntersectionX();
-						triCoords[nextPoint+1] = s.getIntersectionY();
-						nextPoint+=2;
-					}
-										
-					if (nextPoint == 4)
-					{
-						if (isAlternating) 
-						{
-							// Ensure coordinates are ordered consistently
-							if (distSq(triCoords[0],triCoords[1],rectCoords[0],rectCoords[1]) > 
-								distSq(triCoords[2],triCoords[3],rectCoords[0],rectCoords[1]))
-							{
-								float tempX = triCoords[2];
-								float tempY = triCoords[3];
-								triCoords[2] = triCoords[0];
-								triCoords[3] = triCoords[1];
-								triCoords[0] = tempX;
-								triCoords[1] = tempY;
-							}
 
-							if (prevCoords != null)
-							{
-								line(prevCoords[0],prevCoords[1],triCoords[0],triCoords[1],2);
-							}
-							prevCoords = new float[] {triCoords[2],triCoords[3]};
-						}
-						line(triCoords[0],triCoords[1],triCoords[2],triCoords[3],2);
+					// Perturb hachure angle if requested.
+					float originalAngle = PApplet.degrees(hachureAngle);
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
 					}
-				}
-				
-				// Restore original hachure angle if requested.
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle);
+
+					if (fillWeight <=0)
+					{
+						graphics.strokeWeight(oWeight/2f);
+					}
+					else
+					{
+						graphics.strokeWeight(fillWeight);
+					}
+
+					float gap = fillGap;	// Gap between adjacent lines.
+					if (gap < 0)
+					{
+						gap = oWeight*4;					
+					}
+
+					if (isAlternating)
+					{
+						// If zig-zag filling, increase gap to give approximately similar density.
+						gap *= 1.41f;
+					}
+
+					float[] prevCoords=null;
+
+					HachureIterator i = new HachureIterator(top-1, bottom+1, left-1, right+1, gap, sinAngle, cosAngle, tanAngle);
+					float[] rectCoords;
+					while ((rectCoords=i.getNextLine()) != null)
+					{
+						// line within rectangle can only intersect triangle two times at most.
+						float[] triCoords = new float[4];
+						int nextPoint = 0;
+
+						Segment s = new Segment(rectCoords[0],rectCoords[1],rectCoords[2],rectCoords[3]);
+						if (s.compare(new Segment(x1,y1,x2,y2)) == Segment.Relation.INTERSECTS)
+						{
+							triCoords[nextPoint] = s.getIntersectionX();
+							triCoords[nextPoint+1] = s.getIntersectionY();
+							nextPoint+=2;
+						}
+						if (s.compare(new Segment(x2,y2,x3,y3)) == Segment.Relation.INTERSECTS)
+						{
+							triCoords[nextPoint] = s.getIntersectionX();
+							triCoords[nextPoint+1] = s.getIntersectionY();
+							nextPoint+=2;
+						}
+						if ((nextPoint <=2) && (s.compare(new Segment(x3,y3,x1,y1)) == Segment.Relation.INTERSECTS))
+						{
+							triCoords[nextPoint] = s.getIntersectionX();
+							triCoords[nextPoint+1] = s.getIntersectionY();
+							nextPoint+=2;
+						}
+
+						if (nextPoint == 4)
+						{
+							if (isAlternating) 
+							{
+								// Ensure coordinates are ordered consistently
+								if (distSq(triCoords[0],triCoords[1],rectCoords[0],rectCoords[1]) > 
+								distSq(triCoords[2],triCoords[3],rectCoords[0],rectCoords[1]))
+								{
+									float tempX = triCoords[2];
+									float tempY = triCoords[3];
+									triCoords[2] = triCoords[0];
+									triCoords[3] = triCoords[1];
+									triCoords[0] = tempX;
+									triCoords[1] = tempY;
+								}
+
+								if (prevCoords != null)
+								{
+									line(prevCoords[0],prevCoords[1],triCoords[0],triCoords[1],2);
+								}
+								prevCoords = new float[] {triCoords[2],triCoords[3]};
+							}
+							line(triCoords[0],triCoords[1],triCoords[2],triCoords[3],2);
+						}
+					}
+
+					// Restore original hachure angle if requested.
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle);
+					}
 				}
 			}
 
@@ -1051,10 +1106,6 @@ public class HandyRenderer
 	    graphics.stroke = oIsStroke;
 	    graphics.fillColor = oFill;
 	    graphics.fill = oIsFill;
-	    
-	    
-	    
-	    
 	}
 	
 	/** Starts a new shape of type <code>POLYGON</code>. This must be paired with a call to 
@@ -1080,10 +1131,11 @@ public class HandyRenderer
 			this.shapeMode=mode;
 			vertices.clear();
 			curveIndices.clear();
+			is3DShape = false;
 		}
 	}
 	
-	/** Adds a vertex to a shape that was started with a call to <code>beginShape()</code> 
+	/** Adds a 2d vertex to a shape that was started with a call to <code>beginShape()</code> 
 	 *  or one of its variants.
 	 *  @param x x coordinate of vertex to add.
 	 *  @param y y coordinate of vertex to add.
@@ -1100,7 +1152,26 @@ public class HandyRenderer
 		}
 	}
 	
-	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
+	/** Adds a 3d vertex to a shape that was started with a call to <code>beginShape()</code> 
+	 *  or one of its variants.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 *  @param z z coordinate of vertex to add.
+	 */
+	public void vertex(float x, float y, float z)
+	{
+		is3DShape = true;
+		if (isHandy == false)
+		{
+			graphics.vertex(x,y,z);
+		}
+		else
+		{
+			vertices.add(new float[] {x,y,z});
+		}
+	}
+	
+	/** Adds a 2d vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
 	 *  @param x x coordinate of vertex to add.
 	 *  @param y y coordinate of vertex to add.
@@ -1121,6 +1192,29 @@ public class HandyRenderer
 		}
 	}
 	
+	/** Adds a 3d vertex to a shape or line that has curved edges. That shape should have been
+	 *  started with a call to <code>beginShape()</code> without any parameter.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 *  @param z z coordinate of vertex to add.
+	 */
+	public void curveVertex(float x, float y, float z)
+	{
+		is3DShape = true;
+		if (isHandy == false)
+		{
+			graphics.curveVertex(x,y,z);
+		}
+		else
+		{
+			// Log this position in the vertex list as being a curve
+			curveIndices.add(new Integer(vertices.size()));
+			
+			// Store the vertex geometry.
+			vertices.add(new float[] {x,y,z});			
+		}
+	}
+	
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code>
 	 *  or one of its variants. Note that this version will not close the shape if the last vertex does 
 	 *  not match the first one.
@@ -1133,7 +1227,16 @@ public class HandyRenderer
 		}
 		else
 		{
-			drawShape(false);
+			if (is3DShape)
+			{
+				drawShape3d(false);
+				is3DShape = false;
+			}
+			else
+			{
+				drawShape2d(false);
+			}
+			
 			vertices.clear();
 			curveIndices.clear();
 		}
@@ -1150,11 +1253,21 @@ public class HandyRenderer
 		}
 		else
 		{
-			drawShape(mode==PConstants.CLOSE);
+			if (is3DShape)
+			{
+				drawShape3d(mode==PConstants.CLOSE);
+				is3DShape = false;
+			}
+			else
+			{
+				drawShape2d(mode==PConstants.CLOSE);
+			}
 		}
+		vertices.clear();
+		curveIndices.clear();
 	}
 	
-	/** Draws a closed polygon shape based on the given arrays of vertices.
+	/** Draws a closed 2d polygon based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
 	 */
@@ -1163,7 +1276,17 @@ public class HandyRenderer
 		shape(xCoords,yCoords,true);
 	}
 	
-	/** Draws a polygon shape based on the given arrays of vertices. This version can 
+	/** Draws a closed 3d polygon based on the given arrays of vertices.
+	 *  @param xCoords x coordinates of the shape.
+	 *  @param yCoords y coordinates of the shape.
+	 *  @param zCoords z coordinates of the shape.
+	 */
+	public void shape(float[] xCoords, float[] yCoords, float[] zCoords)
+	{
+		shape(xCoords,yCoords,zCoords,true);
+	}
+	
+	/** Draws a 3d polygon based on the given arrays of vertices. This version can 
 	 *  draw either open or closed shapes.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
@@ -1232,98 +1355,102 @@ public class HandyRenderer
 				graphics.noFill();
 			}
 			
-			if (fillGap == 0)
+			// Only fill interior if the fill colour is distinct from the background.
+			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
-				// Fill with solid colour
-				if (overrideFillColour)
+				if (fillGap == 0)
 				{
-					graphics.fill(fillColour);
-				}
-				graphics.noStroke();
-				graphics.beginShape();
-				for (int i=0; i<xCoords.length; i++)
-				{
-					graphics.vertex(xCoords[i],yCoords[i]);
-				}
-				graphics.endShape(PConstants.CLOSE);
-				graphics.noFill();
-			}
-			else
-			{
-				// We will be using strokes to fill, so change stroke to fill colour.
-				if (overrideFillColour)
-				{
-					graphics.stroke(fillColour);
-				}
-				else
-				{
-					graphics.stroke(oFill);
-				}
-				
-				// Perturb hachure angle if requested.
-				float originalAngle = PApplet.degrees(hachureAngle);
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
-				}
-				
-				if (fillWeight <=0)
-				{
-					graphics.strokeWeight(oWeight/2f);
-				}
-				else
-				{
-					graphics.strokeWeight(fillWeight);
-				}
-				
-				float gap = fillGap;	// Gap between adjacent lines.
-				if (gap < 0)
-				{
-					gap = oWeight*4;					
-				}
-				
-				// TODO: Implement alternating shading for arbitrary shapes.
-//				if (isAlternating)
-//				{
-//					// If zig-zag filling, increase gap to give approximately similar density.
-//					gap *= 1.41f;
-//				}
-				
-//				ArrayList<float[]> prevCoords= new ArrayList<float[]>();
-
-				// Iterate through each line that could intersect with the shape.
-				HachureIterator it = new HachureIterator(top-1, bottom+1, left-1, right+1, gap, sinAngle, cosAngle, tanAngle);
-				
-				float[] rectCoords = null;
-			
-				while ((rectCoords=it.getNextLine()) != null)
-				{
-					ArrayList<float[]> lines = getIntersectingLines(rectCoords,xCoords,yCoords);
-					
-					for (int i=0; i<lines.size(); i+=2)
+					// Fill with solid colour
+					if (overrideFillColour)
 					{
-						if (i < lines.size()-1)
+						graphics.fill(fillColour);
+					}
+					graphics.noStroke();
+					graphics.beginShape();
+					for (int i=0; i<xCoords.length; i++)
+					{
+						graphics.vertex(xCoords[i],yCoords[i]);
+					}
+					graphics.endShape(PConstants.CLOSE);
+					graphics.noFill();
+				}
+				else
+				{
+					// We will be using strokes to fill, so change stroke to fill colour.
+					if (overrideFillColour)
+					{
+						graphics.stroke(fillColour);
+					}
+					else
+					{
+						graphics.stroke(oFill);
+					}
+
+					// Perturb hachure angle if requested.
+					float originalAngle = PApplet.degrees(hachureAngle);
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
+					}
+
+					if (fillWeight <=0)
+					{
+						graphics.strokeWeight(oWeight/2f);
+					}
+					else
+					{
+						graphics.strokeWeight(fillWeight);
+					}
+
+					float gap = fillGap;	// Gap between adjacent lines.
+					if (gap < 0)
+					{
+						gap = oWeight*4;					
+					}
+
+					// TODO: Implement alternating shading for arbitrary shapes.
+					//				if (isAlternating)
+					//				{
+					//					// If zig-zag filling, increase gap to give approximately similar density.
+					//					gap *= 1.41f;
+					//				}
+
+					//				ArrayList<float[]> prevCoords= new ArrayList<float[]>();
+
+					// Iterate through each line that could intersect with the shape.
+					HachureIterator it = new HachureIterator(top-1, bottom+1, left-1, right+1, gap, sinAngle, cosAngle, tanAngle);
+
+					float[] rectCoords = null;
+
+					while ((rectCoords=it.getNextLine()) != null)
+					{
+						ArrayList<float[]> lines = getIntersectingLines(rectCoords,xCoords,yCoords);
+
+						for (int i=0; i<lines.size(); i+=2)
 						{
-							float[] p1 = lines.get(i);
-							float[] p2 = lines.get(i+1);
-							line(p1[0],p1[1],p2[0],p2[1],2);
-							
-//							if (isAlternating)
-//							{
-//								if (prevCoords.size() == lines.size())
-//								{
-//									line(prevCoords.get(i/2)[0],prevCoords.get(i/2)[1],p1[0],p1[1],2);
-//								}
-//								prevCoords.add(new float[] {p2[0],p2[1]});
-//							}
+							if (i < lines.size()-1)
+							{
+								float[] p1 = lines.get(i);
+								float[] p2 = lines.get(i+1);
+								line(p1[0],p1[1],p2[0],p2[1],2);
+
+								//							if (isAlternating)
+								//							{
+								//								if (prevCoords.size() == lines.size())
+								//								{
+								//									line(prevCoords.get(i/2)[0],prevCoords.get(i/2)[1],p1[0],p1[1],2);
+								//								}
+								//								prevCoords.add(new float[] {p2[0],p2[1]});
+								//							}
+							}
 						}
 					}
-				}
-				
-				// Restore hachure angle if requested.
-				if (anglePerturbation > 0)
-				{
-					setHachureAngle(originalAngle);
+
+					// Restore hachure angle if requested.
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle);
+					}
 				}
 			}
 
@@ -1360,6 +1487,185 @@ public class HandyRenderer
 			if (closeShape)
 			{
 				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],xCoords[0],yCoords[0],2);
+			}
+		}
+		
+		// Restore styles.
+		graphics.popStyle();
+	}
+	
+	
+	
+	/** Draws a 3d polygon based on the given arrays of vertices. This version can 
+	 *  draw either open or closed shapes.
+	 *  @param xCoords x coordinates of the shape.
+	 *  @param yCoords y coordinates of the shape.
+	 *  @param zCoords z coordinates of the shape.
+	 *  @param closeShape Boundary of shape will be closed if true.
+	 */
+	public void shape(float[] xCoords, float[] yCoords, float[] zCoords, boolean closeShape)
+	{
+		if ((xCoords == null) || (yCoords == null) || (zCoords == null) || (xCoords.length ==0) || (yCoords.length == 0) || (zCoords.length == 0))
+		{
+			System.err.println("No coordinates provided to shape().");
+			return;
+		}			
+				
+		if (isHandy == false)
+		{
+			graphics.beginShape();
+			for (int i=0; i<xCoords.length; i++)
+			{
+				graphics.vertex(xCoords[i],yCoords[i],zCoords[i]);
+			}
+			if (closeShape)
+			{
+				graphics.endShape(PConstants.CLOSE);
+			}
+			else
+			{
+				graphics.endShape();
+			}
+			return;
+		}
+
+		graphics.pushStyle();
+		
+
+		// Store the original stroke and fill colours.
+		int oStroke = graphics.strokeColor;
+		int oFill   = graphics.fillColor;
+		float oWeight = graphics.strokeWeight;
+		boolean oIsStroke = graphics.stroke;
+		
+		if (graphics.fill)
+		{
+			// Erase interior of shape if background colour is not completely transparent.
+			if ((fillGap != 0) && (graphics.alpha(bgColour) > 0))
+			{
+				graphics.fill(bgColour);
+				graphics.noStroke();
+				graphics.beginShape();
+				for (int i=0; i<xCoords.length; i++)
+				{
+					graphics.vertex(xCoords[i],yCoords[i],zCoords[i]);
+				}
+				graphics.endShape(PConstants.CLOSE);				
+				graphics.noFill();
+			}
+			
+			// Only fill interior if the fill colour is distinct from the background.
+			if (bgColour != (overrideFillColour?fillColour:oFill))
+			{
+				if (fillGap == 0)
+				{
+					// Fill with solid colour
+					if (overrideFillColour)
+					{
+						graphics.fill(fillColour);
+					}
+					graphics.noStroke();
+					graphics.beginShape();
+					for (int i=0; i<xCoords.length; i++)
+					{
+						graphics.vertex(xCoords[i],yCoords[i],zCoords[i]);
+					}
+					graphics.endShape(PConstants.CLOSE);
+					graphics.noFill();
+				}
+				else
+				{				
+					// We will be using strokes to fill, so change stroke to fill colour.
+					if (overrideFillColour)
+					{
+						graphics.stroke(fillColour);
+					}
+					else
+					{
+						graphics.stroke(oFill);
+					}
+
+					if (fillWeight <=0)
+					{
+						graphics.strokeWeight(oWeight/2f);
+					}
+					else
+					{
+						graphics.strokeWeight(fillWeight);
+					}
+
+					// Perturb hachure angle if requested.
+					float originalAngle = PApplet.degrees(hachureAngle);
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle + (2*rand.nextFloat()-1)*anglePerturbation);
+					}
+
+					if (fillWeight <=0)
+					{
+						graphics.strokeWeight(oWeight/2f);
+					}
+					else
+					{
+						graphics.strokeWeight(fillWeight);
+					}
+
+					float gap = fillGap;	// Gap between adjacent lines.
+					if (gap < 0)
+					{
+						gap = oWeight*4;					
+					}
+					if (isAlternating)
+					{
+						// If zig-zag filling, increase gap to give approximately similar density.
+						gap *= 1.41f;
+					}
+
+					// Do the drawing.
+					drawHachuredFace(xCoords, yCoords, zCoords, gap);
+
+					// Restore hachure angle if requested.
+					if (anglePerturbation > 0)
+					{
+						setHachureAngle(originalAngle);
+					}
+				}
+			}
+
+			// Restore original fill and stroke weight settings.
+			graphics.fill(oFill);
+			graphics.strokeWeight(oWeight);
+			
+		}
+
+		// Draw boundary of the shape.
+		if ((oIsStroke) || (overrideStrokeColour))
+		{
+			if (overrideStrokeColour)
+			{
+				graphics.stroke(strokeColour);
+			}
+			else
+			{
+				graphics.stroke(oStroke);	
+			}
+
+			if (strokeWeight > 0)
+			{
+				graphics.strokeWeight(strokeWeight);
+			}
+			else
+			{
+				graphics.strokeWeight(oWeight);
+			}
+
+			for (int i=0; i<xCoords.length-1; i++)
+			{
+				line(xCoords[i],yCoords[i],zCoords[i],xCoords[i+1],yCoords[i+1],zCoords[i+1],2);
+			}
+			if (closeShape)
+			{
+				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],zCoords[xCoords.length-1],xCoords[0],yCoords[0],zCoords[0],2);
 			}
 		}
 		
@@ -1517,7 +1823,7 @@ public class HandyRenderer
 	 *  @param maxOffset Maximum random offset in pixel coordinates.
 	 */
 	private void line(float x1, float y1, float x2, float y2, float maxOffset)
-	{
+	{				
 		if (graphics.stroke)
 		{
 			if (isHandy == false)
@@ -1525,7 +1831,8 @@ public class HandyRenderer
 				graphics.line(x1,y1,x2,y2);
 				return;
 			}
-			
+			graphics.pushStyle();
+					
 			// Ensure random perturbation is no more than 10% of line length.
 			float lenSq = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
 			float offset = maxOffset;
@@ -1538,7 +1845,7 @@ public class HandyRenderer
 			float halfOffset = offset/2;
 			float divergePoint = 0.2f + rand.nextFloat()*0.2f;
 
-			int oFill = graphics.fillColor;
+			
 			if (useSecondary)
 			{
 				graphics.fill(secondaryColour);
@@ -1548,14 +1855,13 @@ public class HandyRenderer
 				graphics.noFill();
 			}
 			
-		
 			// This is the midpoint displacement value to give slightly bowed lines.
 			float midDispX = bowing*maxOffset*(y2-y1)/200;
 			float midDispY = bowing*maxOffset*(x1-x2)/200;
 
 			midDispX = getOffset(-midDispX,midDispX);
 			midDispY = getOffset(-midDispY,midDispY);
-			
+	
 			graphics.beginShape();
 			graphics.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
 			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
@@ -1574,7 +1880,7 @@ public class HandyRenderer
 			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			graphics.endShape();
 			
-			graphics.fill(oFill);
+			graphics.popStyle();
 		}
 	}
 	
@@ -1590,7 +1896,7 @@ public class HandyRenderer
 	 *  @param maxOffset Maximum random offset in pixel coordinates.
 	 */
 	private void line(float x1, float y1, float z1, float x2, float y2, float z2, float maxOffset)
-	{
+	{		
 		if (graphics.stroke)
 		{
 			if (isHandy == false)
@@ -1616,7 +1922,8 @@ public class HandyRenderer
 			float halfOffset = offset/2;
 			float divergePoint = 0.2f + rand.nextFloat()*0.2f;
 
-			int oFill = graphics.fillColor;
+			graphics.pushStyle();
+			
 			if (useSecondary)
 			{
 				graphics.fill(secondaryColour);
@@ -1657,14 +1964,14 @@ public class HandyRenderer
 			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset), z2 +getOffset(-halfOffset,halfOffset));
 			graphics.endShape();
 			
-			graphics.fill(oFill);
+			graphics.popStyle();
 		}
 	}
 	
-	/** Draws a shape after it has been finished with <code>endShape()</code>.
+	/** Draws a 2D shape after it has been finished with <code>endShape()</code>.
 	 *  @param closeShape True if the shape is to be closed.
 	 */
-	private void drawShape(boolean closeShape)
+	private void drawShape2d(boolean closeShape)
 	{
 		// Shapes with at least one curve vertex are a special case.
 		if (curveIndices.size() > 0)
@@ -1672,9 +1979,10 @@ public class HandyRenderer
 			curvedShape();
 			return;
 		}
-				
+
 		float[] xs=new float[vertices.size()];
 		float[] ys=new float[vertices.size()];
+		
 		int i=0;
 		for (float[] coords : vertices)
 		{
@@ -1740,6 +2048,223 @@ public class HandyRenderer
 				shape(quadXs,quadYs);
 			}
 		}
+	}
+	
+	
+	/** Draws a 3D shape after it has been finished with <code>endShape()</code>.
+	 *  @param closeShape True if the shape is to be closed.
+	 */
+	private void drawShape3d(boolean closeShape)
+	{
+		// Shapes with at least one curve vertex are a special case.
+		if (curveIndices.size() > 0)
+		{
+			curvedShape();
+			return;
+		}
+
+		float[] xs=new float[vertices.size()];
+		float[] ys=new float[vertices.size()];
+		float[] zs=new float[vertices.size()];
+		
+		int i=0;
+		for (float[] coords : vertices)
+		{
+			xs[i]=coords[0];
+			ys[i]=coords[1];
+			zs[i]=coords[2];
+			i++;
+		}
+		
+		if (this.shapeMode==PConstants.POLYGON)
+		{
+			shape(xs,ys,zs,closeShape);
+		}
+		else if (this.shapeMode==PConstants.LINES)
+		{
+			for (i=0;i<xs.length-1;i+=2)
+			{
+				line(xs[i],ys[i],zs[i],xs[i+1],ys[i+1],zs[i+1]);
+			}
+		}
+		else if (this.shapeMode==PConstants.POINTS)
+		{
+			for (i=0;i<xs.length;i++)
+			{
+				point(xs[i],ys[i],zs[i]);
+			}
+		}
+		else if (this.shapeMode==PConstants.TRIANGLES)
+		{
+			// TODO: 3D triangle mode.
+			System.err.println("3D triangle mode not yet implemented");
+			for (i=0;i<xs.length-2;i+=3)
+			{
+				triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+			}
+		}
+		else if (this.shapeMode==PConstants.TRIANGLE_STRIP)
+		{
+			// TODO: 3D triangle strip mode.
+			System.err.println("3D triangle strip mode not yet implemented");
+			
+			for (i=0;i<xs.length-2;i++)
+			{
+				triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+			}
+		}
+		else if (this.shapeMode==PConstants.TRIANGLE_FAN)
+		{
+			// TODO: 3D triangle fan mode.
+			System.err.println("3D triangle fan mode not yet implemented");
+			
+			for (i=1;i<xs.length-1;i++)
+			{
+				triangle(xs[0],ys[0],xs[i],ys[i],xs[i+1],ys[i+1]);
+			}
+		}
+		else if (this.shapeMode==PConstants.QUADS)
+		{
+			for (i=0;i<xs.length-3;i+=4)
+			{
+				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+2],xs[i+3]};
+				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+2],ys[i+3]};
+				float[] quadZs=new float[]{zs[i],zs[i+1],zs[i+2],zs[i+3]};
+				shape(quadXs,quadYs,quadZs);
+			}
+		}
+		else if (this.shapeMode==PConstants.QUAD_STRIP)
+		{
+			for (i=0;i<xs.length-3;i+=2)
+			{
+				float[] quadXs=new float[]{xs[i],xs[i+1],xs[i+3],xs[i+2]};
+				float[] quadYs=new float[]{ys[i],ys[i+1],ys[i+3],ys[i+2]};
+				float[] quadZs=new float[]{zs[i],zs[i+1],zs[i+3],zs[i+2]};
+				shape(quadXs,quadYs,quadZs);
+			}
+		}
+	}
+	
+	
+	/** Fills the face implied by the given 3d geometry with a hachured texture.
+	 *  @param xCoords x Coordinates of the face to fill.
+	 *  @param yCoords y Coordinates of the face to fill.
+	 *  @param zCoords z Coordinates of the face to fill.
+	 *  @param gap Gap between hachures.
+	 */
+	private void drawHachuredFace(float[] xCoords, float[] yCoords, float[] zCoords, float gap)
+	{
+		// Bounding rectangle of the shape. For the 3d case, we use a fudge that attempts to find the 
+		// axis plane with most variation. This will work well for sides of a cuboid for example where each
+		// face is 2 dimensional and parallel to two axes. If a face varies in 3 dimensions, results may be distorted.
+		float minX = xCoords[0];
+		float maxX = xCoords[0];
+		float minY = yCoords[0];
+		float maxY = yCoords[0];
+		float minZ = zCoords[0];
+		float maxZ = zCoords[0];
+		
+		for (int i=1; i<xCoords.length; i++)
+		{
+			minX = Math.min(minX, xCoords[i]);
+			maxX = Math.max(maxX, xCoords[i]);
+			minY = Math.min(minY, yCoords[i]);
+			maxY = Math.max(maxY, yCoords[i]);
+			minZ = Math.min(minZ, zCoords[i]);
+			maxZ = Math.max(maxZ, zCoords[i]);
+		}
+		
+		float xRange = maxX-minX;
+		float yRange = maxY-minY;
+		float zRange = maxZ-minZ;
+		
+		float left = minX;
+		float right = maxX;
+		float top = maxY;
+		float bottom = minY;
+		Plane2d projectedPlane = Plane2d.XY;
+		
+		if ((yRange < zRange) && (yRange < xRange))
+		{
+			top = maxZ;
+			bottom = minZ;
+			projectedPlane = Plane2d.XZ;
+		}
+		else if ((xRange < zRange) && (xRange < yRange))
+		{
+			top = maxZ;
+			bottom = minZ;
+			left = minY;
+			right = maxY;
+			projectedPlane = Plane2d.YZ;
+		}
+		
+		// Create hachured image and map it as a texture onto the shape.
+		HachureIterator hi = new HachureIterator(0, top-bottom, 0, right-left, gap, sinAngle, cosAngle, tanAngle);
+		
+		float[] coords;
+		float[] prevCoords = hi.getNextLine();
+		PGraphics origGraphics = graphics;
+					
+		PGraphics textureImg = parent.createGraphics((int)(right-left), (int)(top-bottom), PConstants.JAVA2D);	
+		
+		textureImg.beginDraw();				
+		copyGraphics(graphics,textureImg);
+		textureImg.smooth();			// Needed because 3D renderers may not allow smoothing.
+		setGraphics(textureImg);
+		graphics.fill(graphics.strokeColor);
+													
+		if (prevCoords != null)
+		{
+			line(prevCoords[0],prevCoords[1],prevCoords[2],prevCoords[3],2);		
+								
+			while ((coords=hi.getNextLine()) != null)
+			{
+				if (isAlternating)
+				{
+					line(prevCoords[2],prevCoords[3],coords[0],coords[1],2);
+				}
+				line(coords[0],coords[1],coords[2],coords[3],2);
+				prevCoords = coords;
+			}
+		}
+					
+		textureImg.endDraw();		
+		setGraphics(origGraphics);
+							
+		graphics.noFill();
+		graphics.noStroke();
+		graphics.beginShape();
+		graphics.texture(textureImg);
+
+		if (projectedPlane == Plane2d.XY)
+		{
+			for (int i=0; i<xCoords.length; i++)
+			{
+				float u = PApplet.map(xCoords[i],left,right,0,500);
+				float v = PApplet.map(yCoords[i],bottom,top,0,500);
+				graphics.vertex(xCoords[i],yCoords[i],zCoords[i],u,v);
+			}
+		}
+		else if (projectedPlane == Plane2d.XZ)
+		{
+			for (int i=0; i<xCoords.length; i++)
+			{
+				float u = PApplet.map(zCoords[i],left,right,500,0);
+				float v = PApplet.map(xCoords[i],bottom,top,0,500);
+				graphics.vertex(xCoords[i],yCoords[i],zCoords[i],u,v);
+			}
+		}
+		else if (projectedPlane == Plane2d.YZ)
+		{
+			for (int i=0; i<xCoords.length; i++)
+			{
+				float u = PApplet.map(zCoords[i],left,right,500,0);
+				float v = PApplet.map(yCoords[i],bottom,top,0,500);
+				graphics.vertex(xCoords[i],yCoords[i],zCoords[i],u,v);
+			}
+		}
+		graphics.endShape(PConstants.CLOSE);
 	}
 	
 	

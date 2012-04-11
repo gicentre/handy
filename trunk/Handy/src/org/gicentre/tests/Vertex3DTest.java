@@ -1,12 +1,15 @@
 package org.gicentre.tests;
 
+import org.gicentre.handy.HandyPresets;
 import org.gicentre.handy.HandyRenderer;
+import org.gicentre.utils.FrameTimer;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
+
 // *****************************************************************************************
-/** Simple sketch to test handy 3d line drawing.
+/** Simple sketch to test handy 3d shape building.
  *  @author Jo Wood, giCentre, City University London.
  *  @version 1.0, 4th April, 2012
  */ 
@@ -27,7 +30,7 @@ import processing.core.PConstants;
  */
 
 @SuppressWarnings("serial")
-public class Line3DTest extends PApplet 
+public class Vertex3DTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -36,12 +39,13 @@ public class Line3DTest extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.Line3DTest"});
+		PApplet.main(new String[] {"org.gicentre.tests.Vertex3DTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
 
 	private HandyRenderer h;
+	private FrameTimer timer;
 
 	private float angle;
 	private boolean isHandy;
@@ -55,20 +59,28 @@ public class Line3DTest extends PApplet
 	 */
 	public void setup()
 	{   
-		size(640, 360,P3D); 
-		noStroke(); 
-		roughness = 1;
-		h = new HandyRenderer(this);
+		size(640, 360,OPENGL); 
+		timer = new FrameTimer();
+		roughness = 1.5f;
+		//h = new HandyRenderer(this);
+		h = HandyPresets.createMarker(this);
 		h.setRoughness(roughness);
+		//h.setBackgroundColour(color(255,128));
+		fill(180,80,80);		
 	}
 
 	/** Draws some sketchy lines.
 	 */
 	public void draw()
 	{
-		background(255);
+		background(235,215,182);
+		timer.displayFrameRate();
 		h.setSeed(1969);
-		float unitLen = 100;
+		float lengthA = 100;
+		float lengthB = 50;
+		
+		// 2D rectangle to check styles are consistent.		
+		h.rect(5, 5, 50, 30);
 
 		pushMatrix(); 
 
@@ -91,45 +103,41 @@ public class Line3DTest extends PApplet
 
 		rotateX(-ymag); 
 		rotateY(-xmag); 
-
-
-		stroke(200,50,50,180);
-		strokeWeight(1);
+		
 				
-		line(-unitLen,  unitLen,  unitLen, unitLen,  unitLen,  unitLen);
-		line( unitLen,  unitLen,  unitLen, unitLen, -unitLen,  unitLen);
-		line( unitLen, -unitLen,  unitLen,-unitLen, -unitLen,  unitLen);
-		line(-unitLen, -unitLen,  unitLen,-unitLen,  unitLen,  unitLen);
+		 h.beginShape(QUADS);
+		 
+		  h.vertex(-lengthA,  lengthA,  lengthB);
+		  h.vertex( lengthA,  lengthA,  lengthB);
+		  h.vertex( lengthA, -lengthA,  lengthB);
+		  h.vertex(-lengthA, -lengthA,  lengthB);
 
-		line( unitLen,  unitLen,  unitLen, unitLen,  unitLen, -unitLen);
-		line( unitLen,  unitLen, -unitLen, unitLen, -unitLen, -unitLen);
-		line( unitLen, -unitLen, -unitLen, unitLen, -unitLen,  unitLen);
+		  h.vertex( lengthA,  lengthA,  lengthB);
+		  h.vertex( lengthA,  lengthA, -lengthB);
+		  h.vertex( lengthA, -lengthA, -lengthB);
+		  h.vertex( lengthA, -lengthA,  lengthB);
+		  
+		  h.vertex( lengthA,  lengthA, -lengthB);
+		  h.vertex(-lengthA,  lengthA, -lengthB);
+		  h.vertex(-lengthA, -lengthA, -lengthB);
+		  h.vertex( lengthA, -lengthA, -lengthB);
+		  
+		  h.vertex(-lengthA,  lengthA, -lengthB);
+		  h.vertex(-lengthA,  lengthA,  lengthB);
+		  h.vertex(-lengthA, -lengthA,  lengthB);
+		  h.vertex(-lengthA, -lengthA, -lengthB);
 
-		line( unitLen,  unitLen, -unitLen,-unitLen,  unitLen, -unitLen);
-		line(-unitLen,  unitLen, -unitLen,-unitLen, -unitLen, -unitLen);
-		line(-unitLen, -unitLen, -unitLen, unitLen, -unitLen, -unitLen);
+		  h.vertex(-lengthA,  lengthA, -lengthB);
+		  h.vertex( lengthA,  lengthA, -lengthB);
+		  h.vertex( lengthA,  lengthA,  lengthB);
+		  h.vertex(-lengthA,  lengthA,  lengthB);
+		  
+		  h.vertex(-lengthA, -lengthA, -lengthB);
+		  h.vertex( lengthA, -lengthA, -lengthB);
+		  h.vertex( lengthA, -lengthA,  lengthB);
+		  h.vertex(-lengthA, -lengthA,  lengthB);
 
-		line(-unitLen,  unitLen, -unitLen,-unitLen,  unitLen,  unitLen);
-		line(-unitLen, -unitLen,  unitLen,-unitLen, -unitLen, -unitLen);
-		
-		stroke(0);
-		strokeWeight(2);
-		
-		h.line(-unitLen,  unitLen,  unitLen, unitLen,  unitLen,  unitLen);
-		h.line( unitLen,  unitLen,  unitLen, unitLen, -unitLen,  unitLen);
-		h.line( unitLen, -unitLen,  unitLen,-unitLen, -unitLen,  unitLen);
-		h.line(-unitLen, -unitLen,  unitLen,-unitLen,  unitLen,  unitLen);
-
-		h.line( unitLen,  unitLen,  unitLen, unitLen,  unitLen, -unitLen);
-		h.line( unitLen,  unitLen, -unitLen, unitLen, -unitLen, -unitLen);
-		h.line( unitLen, -unitLen, -unitLen, unitLen, -unitLen,  unitLen);
-
-		h.line( unitLen,  unitLen, -unitLen,-unitLen,  unitLen, -unitLen);
-		h.line(-unitLen,  unitLen, -unitLen,-unitLen, -unitLen, -unitLen);
-		h.line(-unitLen, -unitLen, -unitLen, unitLen, -unitLen, -unitLen);
-
-		h.line(-unitLen,  unitLen, -unitLen,-unitLen,  unitLen,  unitLen);
-		h.line(-unitLen, -unitLen,  unitLen,-unitLen, -unitLen, -unitLen);
+		  h.endShape();
 
 		popMatrix(); 
 	}
