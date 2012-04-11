@@ -11,7 +11,7 @@ import processing.core.PConstants;
 // *****************************************************************************************
 /** Simple sketch to test handy 3d shape building.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 4th April, 2012
+ *  @version 1.1, 11th April, 2012
  */ 
 // *****************************************************************************************
 
