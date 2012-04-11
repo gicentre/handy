@@ -21,7 +21,7 @@ import processing.core.PStyle;
  *  Alternative implementation
  *  
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 17th March, 2012.
+ *  @version 1.1, 11th April, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -182,13 +182,24 @@ public class HandyDraw2 extends PGraphics{
 
 	
 	@Override
-	/** Adds a vertex to a shape that was started with a call to <code>beginShape()</code> 
+	/** Adds a 2d vertex to a shape that was started with a call to <code>beginShape()</code> 
 	 *  or one of its variants.
 	 *  @param x x coordinate of vertex to add.
 	 *  @param y y coordinate of vertex to add.
 	 */
 	public void vertex(float x, float y){
 		handyRenderer.vertex(x,y);
+	}
+	
+	@Override
+	/** Adds a 3d vertex to a shape that was started with a call to <code>beginShape()</code> 
+	 *  or one of its variants.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 *  @param z z coordinate of vertex to add.
+	 */
+	public void vertex(float x, float y, float z){
+		handyRenderer.vertex(x,y,z);
 	}
 	
 	
@@ -213,13 +224,24 @@ public class HandyDraw2 extends PGraphics{
 	}
 	
 	@Override
-	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
+	/** Adds a 2d vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
 	 *  @param x x coordinate of vertex to add.
 	 *  @param y y coordinate of vertex to add.
 	 */
 	public void curveVertex(float x, float y) {
 		handyRenderer.curveVertex(x, y);
+	}
+	
+	@Override
+	/** Adds a 3d vertex to a shape or line that has curved edges. That shape should have been
+	 *  started with a call to <code>beginShape()</code> without any parameter.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 *  @param z z coordinate of vertex to add.
+	 */
+	public void curveVertex(float x, float y, float z) {
+		handyRenderer.curveVertex(x, y, z);
 	}
 	
 	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
@@ -484,14 +506,6 @@ public class HandyDraw2 extends PGraphics{
 	public void curveTightness(float tightness) {
 		canvas.curveTightness(tightness);
 	}
-
-	@Override
-	public void curveVertex(float x, float y, float z) {
-		canvas.curveVertex(x, y, z);
-	}
-
-	
-
 
 	@Override
 	public void directionalLight(float red, float green, float blue, float nx,
@@ -1302,11 +1316,6 @@ public class HandyDraw2 extends PGraphics{
 	@Override
 	public void vertex(float x, float y, float u, float v) {
 		canvas.vertex(x, y, u, v);
-	}
-
-	@Override
-	public void vertex(float x, float y, float z) {
-		canvas.vertex(x, y, z);
 	}
 
 	@Override

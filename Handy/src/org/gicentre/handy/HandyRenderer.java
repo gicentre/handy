@@ -1494,8 +1494,6 @@ public class HandyRenderer
 		graphics.popStyle();
 	}
 	
-	
-	
 	/** Draws a 3d polygon based on the given arrays of vertices. This version can 
 	 *  draw either open or closed shapes.
 	 *  @param xCoords x coordinates of the shape.
@@ -2096,31 +2094,32 @@ public class HandyRenderer
 		}
 		else if (this.shapeMode==PConstants.TRIANGLES)
 		{
-			// TODO: 3D triangle mode.
-			System.err.println("3D triangle mode not yet implemented");
 			for (i=0;i<xs.length-2;i+=3)
 			{
-				triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+				float[] triXs = new float[] {xs[i],xs[i+1],xs[i+2]};
+				float[] triYs = new float[] {ys[i],ys[i+1],ys[i+2]};
+				float[] triZs = new float[] {zs[i],zs[i+1],zs[i+2]};
+				shape(triXs,triYs,triZs);
 			}
 		}
 		else if (this.shapeMode==PConstants.TRIANGLE_STRIP)
 		{
-			// TODO: 3D triangle strip mode.
-			System.err.println("3D triangle strip mode not yet implemented");
-			
 			for (i=0;i<xs.length-2;i++)
 			{
-				triangle(xs[i],ys[i],xs[i+1],ys[i+1],xs[i+2],ys[i+2]);
+				float[] triXs = new float[] {xs[i],xs[i+1],xs[i+2]};
+				float[] triYs = new float[] {ys[i],ys[i+1],ys[i+2]};
+				float[] triZs = new float[] {zs[i],zs[i+1],zs[i+2]};
+				shape(triXs,triYs,triZs);
 			}
 		}
 		else if (this.shapeMode==PConstants.TRIANGLE_FAN)
 		{
-			// TODO: 3D triangle fan mode.
-			System.err.println("3D triangle fan mode not yet implemented");
-			
 			for (i=1;i<xs.length-1;i++)
 			{
-				triangle(xs[0],ys[0],xs[i],ys[i],xs[i+1],ys[i+1]);
+				float[] triXs = new float[] {xs[0],xs[i],xs[i+1]};
+				float[] triYs = new float[] {ys[0],ys[i],ys[i+1]};
+				float[] triZs = new float[] {zs[0],zs[i],zs[i+1]};
+				shape(triXs,triYs,triZs);
 			}
 		}
 		else if (this.shapeMode==PConstants.QUADS)
@@ -2144,8 +2143,7 @@ public class HandyRenderer
 			}
 		}
 	}
-	
-	
+		
 	/** Fills the face implied by the given 3d geometry with a hachured texture.
 	 *  @param xCoords x Coordinates of the face to fill.
 	 *  @param yCoords y Coordinates of the face to fill.

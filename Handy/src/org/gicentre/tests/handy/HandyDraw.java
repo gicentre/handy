@@ -12,7 +12,7 @@ import processing.core.PGraphicsJava2D;
  *  drawing code between calls to <code>startHandy()</code> and <code>stopHandy()</code> in
  *  a sketch.
  *  @author Aidan Slingsby and Jo Wood, giCentre, City University London.
- *  @version 1.0, 17th March, 2012.
+ *  @version 1.1, 11th April, 2012.
  */ 
 //  ****************************************************************************************
 
@@ -248,7 +248,7 @@ public class HandyDraw extends PGraphicsJava2D{
 
 	
 	@Override
-	/** Adds a vertex to a shape that was started with a call to <code>beginShape()</code> 
+	/** Adds a 2d vertex to a shape that was started with a call to <code>beginShape()</code> 
 	 *  or one of its variants.
 	 *  @param x x coordinate of vertex to add.
 	 *  @param y y coordinate of vertex to add.
@@ -265,7 +265,25 @@ public class HandyDraw extends PGraphicsJava2D{
 	}
 	
 	@Override
-	/** Adds a vertex to a shape or line that has curved edges. That shape should have been
+	/** Adds a 3d vertex to a shape that was started with a call to <code>beginShape()</code> 
+	 *  or one of its variants.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 *  @param z z coordinate of vertex to add.
+	 */
+	public void vertex(float x, float y, float z){
+		if (useSuper){
+			super.vertex(x,y,z);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.vertex(x,y,z);
+			useSuper=false;
+		}
+	}
+	
+	@Override
+	/** Adds a 2d vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
 	 *  @param x x coordinate of vertex to add.
 	 *  @param y y coordinate of vertex to add.
@@ -281,6 +299,23 @@ public class HandyDraw extends PGraphicsJava2D{
 		}
 	}
 	
+	@Override
+	/** Adds a 3d vertex to a shape or line that has curved edges. That shape should have been
+	 *  started with a call to <code>beginShape()</code> without any parameter.
+	 *  @param x x coordinate of vertex to add.
+	 *  @param y y coordinate of vertex to add.
+	 *  @param z z coordinate of vertex to add.
+	 */
+	public void curveVertex(float x, float y,float z){
+		if (useSuper){
+			super.curveVertex(x,y,z);
+		}
+		else{
+			useSuper=true;
+			handyRenderer.curveVertex(x,y,z);
+			useSuper=false;
+		}
+	}
 	
 	/** Ends a shape definition. This should have been paired with a call to 
 	 *  <code>beginShape()</code> or one of its variants. Note that this version

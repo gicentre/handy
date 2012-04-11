@@ -62,9 +62,12 @@ public class Vertex3DTest extends PApplet
 		size(640, 360,OPENGL); 
 		timer = new FrameTimer();
 		roughness = 1.5f;
+		angle = 45;
 		//h = new HandyRenderer(this);
 		h = HandyPresets.createMarker(this);
 		h.setRoughness(roughness);
+		h.setHachureAngle(angle);
+		h.setHachurePerturbationAngle(0);
 		//h.setBackgroundColour(color(255,128));
 		fill(180,80,80);		
 	}
