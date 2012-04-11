@@ -47,9 +47,9 @@ public class HandyRenderer
 	private HashSet<Integer>curveIndices;		// Pointer to vertices that refer to curves
 	private int shapeMode;						// Type of setting for shape drawing.
 	private boolean is3DShape;					// Indicates if shape defined with vertices is 2d or 3d.
-	
+
 	private enum Plane2d {XY, XZ, YZ}			// Used to identify plane onto which textures may be mapped for 3d faces.
-	
+
 	// Configuration settings
 	private boolean isHandy;					// Determines if normal or hand-drawn appearance is used.
 	private int fillColour, strokeColour;		// Main fill and stroke colours. 
@@ -67,9 +67,9 @@ public class HandyRenderer
 
 	private int numEllipseSteps;
 	private float ellipseInc;					// Incremental steps along an ellipse.
-	
+
 	private static final float MIN_ROUGHNESS = 0.1f;	// Roughess less than this value will be consisidered 0.
-	
+
 
 	// ----------------------------------- Constructor -----------------------------------
 
@@ -81,13 +81,13 @@ public class HandyRenderer
 	{
 		this.parent = parent;
 		this.graphics = parent.g;
-				
+
 		numEllipseSteps = 9;
 		ellipseInc = PConstants.TWO_PI/numEllipseSteps;
 		vertices = new ArrayList<float[]>();
 		curveIndices = new HashSet<Integer>();
 		is3DShape = false;
-				
+
 		// Set initial configuration options.
 		setIsHandy(true);
 		resetStyles();		
@@ -103,7 +103,7 @@ public class HandyRenderer
 	{
 		this.graphics = graphics;
 	}
-	
+
 	/** Copies the settings from one graphics context to another. This can be useful when creating an offscreen
 	 *  buffer that needs to have the same appearance settings as the current context.
 	 *  @param gSrc Source graphics context.
@@ -162,7 +162,7 @@ public class HandyRenderer
 		sinAngle = (float)Math.sin(hachureAngle);
 		tanAngle = (float)Math.tan(hachureAngle);
 	}
-	
+
 	/** Sets the maximum random perturbation in hachure angle per object. This allows a hachure angle to
 	 *  vary between different shapes, but maintain approximate parallel hachure angle within a shape.
 	 *  @param degrees Maximum hachure perturbation angle.
@@ -171,7 +171,7 @@ public class HandyRenderer
 	{
 		this.anglePerturbation = degrees;
 	}
-	
+
 	/** Sets the background colour for closed shapes. 
 	 *  @param colour Background colour.
 	 */
@@ -179,7 +179,7 @@ public class HandyRenderer
 	{
 		this.bgColour = colour;
 	}
-	
+
 	/** Sets the fill colour for closed shapes. Note this will only have an effect if
 	 *  <code>setOverrideFillColour()</code> is true. 
 	 *  @param colour Fill colour to use.
@@ -199,7 +199,7 @@ public class HandyRenderer
 	{
 		this.overrideFillColour = override;
 	}
-	
+
 	/** Sets the stroke colour for rendering features. Note this will only have an effect if
 	 *  <code>setOverrideStrokeColour()</code> is true. 
 	 *  @param colour Stroke colour to use.
@@ -219,7 +219,7 @@ public class HandyRenderer
 	{
 		this.overrideStrokeColour = override;
 	}
-	
+
 	/** Determines whether or not a secondary colour is used for filling lines.
 	 *  @param useSecondary If true a secondary colour is used.
 	 */
@@ -236,7 +236,7 @@ public class HandyRenderer
 	{
 		this.secondaryColour = colour;
 	}
-	
+
 	/** Determines the thickness of fill lines. If zero or negative, the thickness is
 	 *  proportional to the sketch's current strokeWeight.
 	 *  @param weight Fill weight in pixel units. If zero or negative, fill weight is based on the sketch's strokeWeight setting. 
@@ -245,7 +245,7 @@ public class HandyRenderer
 	{
 		this.fillWeight = weight;
 	}
-	
+
 	/** Determines the thickness of outer lines. If zero or negative, the thickness is
 	 *  proportional to the sketch's current strokeWeight.
 	 *  @param weight Stroke weight in pixel units. If zero or negative, stroke weight is based on the sketch's strokeWeight setting. 
@@ -254,7 +254,7 @@ public class HandyRenderer
 	{
 		this.strokeWeight = weight;
 	}
-	
+
 	/** Determines the gap between fill lines. If zero, standard solid fill is used. If negative,
 	 *  the gap is proportional to the sketch's current strokeWeight.
 	 *  @param gap Gap between fill lines in pixel units. If zero, solid fill used; if negative, gap based on strokeWeight setting.
@@ -263,7 +263,7 @@ public class HandyRenderer
 	{
 		this.fillGap = gap;
 	}
-	
+
 	/** Determines whether or not an alternating fill stroke is used to shade shapes. If true, shading appears
 	 *  as one long zig-zag stroke rather than many approximately parallel lines.
 	 *  @param alternate Zig-zag filling used if true, parallel lines if not.
@@ -272,7 +272,7 @@ public class HandyRenderer
 	{
 		this.isAlternating = alternate;
 	}
-	
+
 	/** Sets the general roughness of the sketch. 1 is a typically neat sketchiness, 0 is very precise, 5 
 	 *  is very sketchy. Values are capped at 10.
 	 *  @param roughness The sketchiness of the rendering. The larger the number the more sketchy the rendering.
@@ -282,7 +282,7 @@ public class HandyRenderer
 		// Cap roughness between 0 and 10.
 		this.roughness = Math.max(0,Math.min(roughness, 10));
 	}
-	
+
 	/** Sets the amount of 'bowing' of lines (contols the degree to which a straigh line appears as an 'I' or 'C'). Applies to
 	 *  all straight lines such as rectangle boundaries, hachuring and the segments of a polygon boundary. A value of 0 means 
 	 *  there is no systematic displacement away from the straight line path between the two endpoints in a line. A value of 1
@@ -295,7 +295,7 @@ public class HandyRenderer
 		// Cap roughness between 0 and 10.
 		this.bowing = Math.max(0,Math.min(bowing, 10));
 	}
-	
+
 	/** Resets the sketchy styles to default values.
 	 */
 	public void resetStyles()
@@ -330,7 +330,7 @@ public class HandyRenderer
 	{
 		graphics.point(x, y);
 	}
-	
+
 	/** Draws 3D point at the given location. Currently this draws the point in the same style as the
 	 *  default Processing renderer.
 	 *  @param x x coordinate of the point.
@@ -341,7 +341,7 @@ public class HandyRenderer
 	{
 		graphics.point(x, y, z);
 	}
-	
+
 	/** Draws an ellipse using the given location and dimensions. By default the x,y coordinates
 	 *  will be centre of the ellipse, but the meanings of these parameters can be changed with
 	 *  Processing's ellipseMode() command.
@@ -357,9 +357,9 @@ public class HandyRenderer
 			graphics.ellipse(x,y,w,h);
 			return;
 		}
-		
+
 		graphics.pushStyle();
-		
+
 		// Default is to use 'CENTER' mode for defining ellipse
 		float cx = x;
 		float cy = y;
@@ -395,25 +395,25 @@ public class HandyRenderer
 			rx = Math.abs(w);
 			ry = Math.abs(h);
 		}
-		
+
 		if ((rx == 0) && (ry == 0))
 		{
 			// Never draw circles of radius 0.
 			return;
 		}
-				
+
 		if ((rx < roughness/4) || (ry < roughness/4))
 		{
 			// Don't draw anything with a radius less than a quarter of the roughness value
 			return;
 		}	
-				
+
 		// Add small proportionate perturbation to dimensions of ellipse
 		rx += getOffset(-rx*0.05f, rx*0.05f);
 		ry += getOffset(-ry*0.05f, ry*0.05f);
 
 		// Store the original stroke and fill colours.
-		
+
 		int oStroke = graphics.strokeColor;
 		int oFill   = graphics.fillColor;
 		float oWeight = graphics.strokeWeight;
@@ -434,7 +434,7 @@ public class HandyRenderer
 				graphics.ellipseMode(oEllipseMode);
 				graphics.noFill();
 			}
-			
+
 			// Only fill interior if the fill colour is distinct from the background.
 			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
@@ -546,7 +546,7 @@ public class HandyRenderer
 		{
 			graphics.noStroke();
 		}
-		
+
 		// Draw outline if requested
 		if ((oIsStroke) || (overrideStrokeColour))
 		{
@@ -562,11 +562,11 @@ public class HandyRenderer
 				buildEllipse(cx,cy,rx,ry,1.5f,0);
 			}
 		}
-		
+
 		// Restore original style settings.
 		graphics.popStyle();
 	}
-	
+
 	/** Draws a rectangle using the given location and dimensions. By default the x,y coordinates
 	 *  will be the top left of the rectangle, but the meanings of these parameters can be 
 	 *  changed with Processing's rectMode() command.
@@ -635,7 +635,7 @@ public class HandyRenderer
 				graphics.rectMode(oRectMode);
 				graphics.noFill();
 			}
-			
+
 			// Only fill interior if the fill colour is distinct from the background.
 			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
@@ -730,7 +730,7 @@ public class HandyRenderer
 				{
 					graphics.stroke(oStroke);	
 				}
-				
+
 				if (strokeWeight > 0)
 				{
 					graphics.strokeWeight(strokeWeight);
@@ -744,7 +744,7 @@ public class HandyRenderer
 			{
 				graphics.noStroke();
 			}
-			
+
 			graphics.fill(oFill);
 		}
 
@@ -756,11 +756,11 @@ public class HandyRenderer
 			line(right,bottom,left,bottom,2);
 			line(left,bottom,left,top,2);
 		}
-		
+
 		// Restore original style settings.
 		graphics.popStyle();
 	}
-	
+
 	/** Draws a triangle through the three pairs of coordinates.
 	 *  @param x1 x coordinate of the first triangle vertex.
 	 *  @param y1 y coordinate of the first triangle vertex.
@@ -800,7 +800,7 @@ public class HandyRenderer
 				graphics.triangle(x1,y1,x2,y2,x3,y3);
 				graphics.noFill();
 			}
-			
+
 			// Only fill interior if the fill colour is distinct from the background.
 			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
@@ -934,7 +934,7 @@ public class HandyRenderer
 			{
 				graphics.stroke(oStroke);	
 			}
-			
+
 			if (strokeWeight > 0)
 			{
 				graphics.strokeWeight(strokeWeight);
@@ -947,11 +947,11 @@ public class HandyRenderer
 			line(x2,y2, x3,y3,2);
 			line(x3,y3, x1,y1,2);
 		}
-		
+
 		// Restore original stroke settings.
 		graphics.popStyle();
 	}
-	
+
 	/** Draws a quadrilateral shape. Similar to a rectangle but angles not constrained to 90 degrees.
 	 *  Coordinates can proceed in either a clockwise or anti-clockwise direction.
 	 *  @param x1 x coordinate of the first quadrilateral vertex.
@@ -967,7 +967,7 @@ public class HandyRenderer
 	{
 		shape(new float[] {x1,x2,x3,x4}, new float[] {y1,y2,y3,y4}, true);
 	}
-	
+
 	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
 	 *  This version allows the maximum random offset of the arc to be set explicitly.
 	 *  @param x x coordinate of the ellipse's position around which this arc is defined.
@@ -984,7 +984,7 @@ public class HandyRenderer
 			graphics.arc(x,y,w,h,start,stop);
 			return;
 		}
-		
+
 		// Default is to use 'CENTER' mode for defining ellipse
 		float cx = x;
 		float cy = y;
@@ -1020,94 +1020,94 @@ public class HandyRenderer
 			rx = Math.abs(w);
 			ry = Math.abs(h);
 		}
-		
+
 		if ((rx == 0) && (ry == 0))
 		{
 			// Never draw circles of radius 0.
 			return;
 		}
-				
+
 		if ((rx < roughness/4) || (ry < roughness/4))
 		{
 			// Don't draw anything with a radius less than a quarter of the roughness value
 			return;
 		}	
-				
+
 		// Add small proportionate perturbation to dimensions of ellipse
 		rx += getOffset(-rx*0.01f, rx*0.01f);
 		ry += getOffset(-ry*0.01f, ry*0.01f);
-		
+
 		// Ensure start and stop angles are positive and sensible.
 		float strt = start;
 		float stp = stop;
-		
-	    while (strt < 0)
-	    {
-	      strt += PConstants.TWO_PI;
-	      stp += PConstants.TWO_PI;
-	    }
 
-	    if (stp - strt > PConstants.TWO_PI) 
-	    {
-	      strt = 0;
-	      stp = PConstants.TWO_PI;
-	    }
-	    
-	    float arcInc = Math.min(ellipseInc/2,(stp-strt)/2);
-	   
-	    // Create a curved polygon to represent the sector.
-	    boolean oIsStroke = graphics.stroke;
-	    boolean oIsFill  = graphics.fill;
-	    int oStroke = graphics.strokeColor;
+		while (strt < 0)
+		{
+			strt += PConstants.TWO_PI;
+			stp += PConstants.TWO_PI;
+		}
+
+		if (stp - strt > PConstants.TWO_PI) 
+		{
+			strt = 0;
+			stp = PConstants.TWO_PI;
+		}
+
+		float arcInc = Math.min(ellipseInc/2,(stp-strt)/2);
+
+		// Create a curved polygon to represent the sector.
+		boolean oIsStroke = graphics.stroke;
+		boolean oIsFill  = graphics.fill;
+		int oStroke = graphics.strokeColor;
 		int oFill   = graphics.fillColor;
-	    
-	    graphics.noStroke();
-	    
-	    beginShape();
+
+		graphics.noStroke();
+
+		beginShape();
 		curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
-		
+
 		for (float theta=strt; theta<=stp; theta+=arcInc)
 		{
 			curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
 		}
-		
+
 		// Last control point should be duplicate the last point of the arc.	
 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
 		vertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
 
-	    vertex(cx,cy);
-	    endShape();
-	 
-	    
-	    // Draw outside edge of arc if we have a stroke.
-	    if (oIsStroke)
-	    {
-	    	graphics.stroke(oStroke);
-	    	graphics.noFill();
+		vertex(cx,cy);
+		endShape();
 
-	    	beginShape();
-	 		curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
-	 		
-	 		for (float theta=strt; theta<=stp; theta+=arcInc)
-	 		{
-	 			curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
-	 		}
-	 		
-	 		// Last control point should be duplicate the last point of the arc.	
-	 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
-	 		curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
-	 		
-	 		endShape();
-	    }
-	    
-	    // Restore original stroke and fill settings.
-	    graphics.strokeColor = oStroke;
-	    graphics.stroke = oIsStroke;
-	    graphics.fillColor = oFill;
-	    graphics.fill = oIsFill;
+
+		// Draw outside edge of arc if we have a stroke.
+		if (oIsStroke)
+		{
+			graphics.stroke(oStroke);
+			graphics.noFill();
+
+			beginShape();
+			curveVertex(cx+rx*(float)Math.cos(strt), cy+ry*(float)Math.sin(strt));
+
+			for (float theta=strt; theta<=stp; theta+=arcInc)
+			{
+				curveVertex(cx+rx*(float)Math.cos(theta), cy+ry*(float)Math.sin(theta));
+			}
+
+			// Last control point should be duplicate the last point of the arc.	
+			curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+			curveVertex(cx+rx*(float)Math.cos(stp), cy+ry*(float)Math.sin(stp));
+
+			endShape();
+		}
+
+		// Restore original stroke and fill settings.
+		graphics.strokeColor = oStroke;
+		graphics.stroke = oIsStroke;
+		graphics.fillColor = oFill;
+		graphics.fill = oIsFill;
 	}
-	
+
 	/** Starts a new shape of type <code>POLYGON</code>. This must be paired with a call to 
 	 *  <code>endShape()</code> or one of its variants.
 	 */
@@ -1134,7 +1134,7 @@ public class HandyRenderer
 			is3DShape = false;
 		}
 	}
-	
+
 	/** Adds a 2d vertex to a shape that was started with a call to <code>beginShape()</code> 
 	 *  or one of its variants.
 	 *  @param x x coordinate of vertex to add.
@@ -1151,7 +1151,7 @@ public class HandyRenderer
 			vertices.add(new float[] {x,y});
 		}
 	}
-	
+
 	/** Adds a 3d vertex to a shape that was started with a call to <code>beginShape()</code> 
 	 *  or one of its variants.
 	 *  @param x x coordinate of vertex to add.
@@ -1170,7 +1170,7 @@ public class HandyRenderer
 			vertices.add(new float[] {x,y,z});
 		}
 	}
-	
+
 	/** Adds a 2d vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
 	 *  @param x x coordinate of vertex to add.
@@ -1186,12 +1186,12 @@ public class HandyRenderer
 		{
 			// Log this position in the vertex list as being a curve
 			curveIndices.add(new Integer(vertices.size()));
-			
+
 			// Store the vertex geometry.
 			vertices.add(new float[] {x,y});			
 		}
 	}
-	
+
 	/** Adds a 3d vertex to a shape or line that has curved edges. That shape should have been
 	 *  started with a call to <code>beginShape()</code> without any parameter.
 	 *  @param x x coordinate of vertex to add.
@@ -1209,12 +1209,12 @@ public class HandyRenderer
 		{
 			// Log this position in the vertex list as being a curve
 			curveIndices.add(new Integer(vertices.size()));
-			
+
 			// Store the vertex geometry.
 			vertices.add(new float[] {x,y,z});			
 		}
 	}
-	
+
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code>
 	 *  or one of its variants. Note that this version will not close the shape if the last vertex does 
 	 *  not match the first one.
@@ -1236,12 +1236,12 @@ public class HandyRenderer
 			{
 				drawShape2d(false);
 			}
-			
+
 			vertices.clear();
 			curveIndices.clear();
 		}
 	}
-		
+
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code> 
 	 *  or one of its variants. If the mode parameter <code>CLOSE</code> the shape will be closed.
 	 */
@@ -1266,27 +1266,92 @@ public class HandyRenderer
 		vertices.clear();
 		curveIndices.clear();
 	}
-	
-	
-	
+
 	/** Draws 3D cube with the given unit dimension.
 	 *  @param bSize Size of each dimension of the cube.
 	 */
 	public void box(float bSize)
 	{
-		graphics.box(bSize);
+		box(bSize, bSize, bSize);
 	}
-	
+
 	/** Draws 3D box with the given dimensions.
-	 *  @param bWidth Width of the box.
-	 *  @param bHeight Height of the box.
-	 *  @param bDepth Depth of the box.
+	 *  @param bW Width of the box.
+	 *  @param hH Height of the box.
+	 *  @param bD Depth of the box.
 	 */
-	public void box(float bWidth, float bHeight, float bDepth)
+	public void box(float bWidth, float hHeight, float bDepth)
 	{
-		graphics.box(bWidth,bHeight,bDepth);
+		if (isHandy == false)
+		{
+			graphics.box(bWidth,hHeight,bDepth);
+		}
+		else
+		{
+			// Create a box without any strokes first.
+			float bW = bWidth/2f;
+			float bH = hHeight/2f;
+			float bD = bDepth/2f;
+			graphics.pushStyle();
+			boolean isStrokeOverridden = overrideStrokeColour;
+			setOverrideStrokeColour(false);
+			graphics.noStroke();
+			
+			beginShape(PConstants.QUADS);
+			  vertex(-bW,  bH,  bD);
+			  vertex( bW,  bH,  bD);
+			  vertex( bW, -bH,  bD);
+			  vertex(-bW, -bH,  bD);
+
+			  vertex( bW,  bH,  bD);
+			  vertex( bW,  bH, -bD);
+			  vertex( bW, -bH, -bD);
+			  vertex( bW, -bH,  bD);
+			  
+			  vertex( bW,  bH, -bD);
+			  vertex(-bW,  bH, -bD);
+			  vertex(-bW, -bH, -bD);
+			  vertex( bW, -bH, -bD);
+			  
+			  vertex(-bW,  bH, -bD);
+			  vertex(-bW,  bH,  bD);
+			  vertex(-bW, -bH,  bD);
+			  vertex(-bW, -bH, -bD);
+
+			  vertex(-bW,  bH, -bD);
+			  vertex( bW,  bH, -bD);
+			  vertex( bW,  bH,  bD);
+			  vertex(-bW,  bH,  bD);
+			  
+			  vertex(-bW, -bH, -bD);
+			  vertex( bW, -bH, -bD);
+			  vertex( bW, -bH,  bD);
+			  vertex(-bW, -bH,  bD);
+			 endShape();
+			 
+			 graphics.popStyle();
+			 setOverrideStrokeColour(isStrokeOverridden);
+			 
+			 // Finally draw lines along each of the box edges.
+			 line(-bW,  bH,  bD, bW,  bH,  bD);
+			 line( bW,  bH,  bD, bW, -bH,  bD);
+			 line( bW, -bH,  bD,-bW, -bH,  bD);
+			 line(-bW, -bH,  bD,-bW,  bH,  bD);
+
+			 line( bW,  bH,  bD, bW,  bH, -bD);
+			 line( bW,  bH, -bD, bW, -bH, -bD);
+			 line( bW, -bH, -bD, bW, -bH,  bD);
+
+			 line( bW,  bH, -bD,-bW,  bH, -bD);
+			 line(-bW,  bH, -bD,-bW, -bH, -bD);
+			 line(-bW, -bH, -bD, bW, -bH, -bD);
+
+			 line(-bW,  bH, -bD,-bW,  bH,  bD);
+			 line(-bW, -bH,  bD,-bW, -bH, -bD);
+		}
+
 	}
-	
+
 	/** Draws a closed 2d polygon based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
@@ -1295,7 +1360,7 @@ public class HandyRenderer
 	{
 		shape(xCoords,yCoords,true);
 	}
-	
+
 	/** Draws a closed 3d polygon based on the given arrays of vertices.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
@@ -1305,7 +1370,7 @@ public class HandyRenderer
 	{
 		shape(xCoords,yCoords,zCoords,true);
 	}
-	
+
 	/** Draws a 3d polygon based on the given arrays of vertices. This version can 
 	 *  draw either open or closed shapes.
 	 *  @param xCoords x coordinates of the shape.
@@ -1319,7 +1384,7 @@ public class HandyRenderer
 			System.err.println("No coordinates provided to shape().");
 			return;
 		}			
-				
+
 		if (isHandy == false)
 		{
 			graphics.beginShape();
@@ -1339,7 +1404,7 @@ public class HandyRenderer
 		}
 
 		graphics.pushStyle();
-		
+
 		// Bounding rectangle of the shape.
 		float left   = xCoords[0];
 		float right  = xCoords[0];
@@ -1374,7 +1439,7 @@ public class HandyRenderer
 				graphics.endShape(PConstants.CLOSE);				
 				graphics.noFill();
 			}
-			
+
 			// Only fill interior if the fill colour is distinct from the background.
 			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
@@ -1509,11 +1574,11 @@ public class HandyRenderer
 				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],xCoords[0],yCoords[0],2);
 			}
 		}
-		
+
 		// Restore styles.
 		graphics.popStyle();
 	}
-	
+
 	/** Draws a 3d polygon based on the given arrays of vertices. This version can 
 	 *  draw either open or closed shapes.
 	 *  @param xCoords x coordinates of the shape.
@@ -1528,7 +1593,7 @@ public class HandyRenderer
 			System.err.println("No coordinates provided to shape().");
 			return;
 		}			
-				
+
 		if (isHandy == false)
 		{
 			graphics.beginShape();
@@ -1548,14 +1613,14 @@ public class HandyRenderer
 		}
 
 		graphics.pushStyle();
-		
+
 
 		// Store the original stroke and fill colours.
 		int oStroke = graphics.strokeColor;
 		int oFill   = graphics.fillColor;
 		float oWeight = graphics.strokeWeight;
 		boolean oIsStroke = graphics.stroke;
-		
+
 		if (graphics.fill)
 		{
 			// Erase interior of shape if background colour is not completely transparent.
@@ -1571,7 +1636,7 @@ public class HandyRenderer
 				graphics.endShape(PConstants.CLOSE);				
 				graphics.noFill();
 			}
-			
+
 			// Only fill interior if the fill colour is distinct from the background.
 			if (bgColour != (overrideFillColour?fillColour:oFill))
 			{
@@ -1653,7 +1718,7 @@ public class HandyRenderer
 			// Restore original fill and stroke weight settings.
 			graphics.fill(oFill);
 			graphics.strokeWeight(oWeight);
-			
+
 		}
 
 		// Draw boundary of the shape.
@@ -1686,11 +1751,11 @@ public class HandyRenderer
 				line(xCoords[xCoords.length-1],yCoords[xCoords.length-1],zCoords[xCoords.length-1],xCoords[0],yCoords[0],zCoords[0],2);
 			}
 		}
-		
+
 		// Restore styles.
 		graphics.popStyle();
 	}
-	
+
 	/** Draws a complex line that links the given coordinates. 
 	 *  @param xCoords x coordinates of the line.
 	 *  @param yCoords y coordinates of the line.
@@ -1702,7 +1767,7 @@ public class HandyRenderer
 			System.err.println("No coordinates provided to polyLine().");
 			return;
 		}
-		
+
 		if ((graphics.stroke) || (overrideStrokeColour))
 		{
 			if (isHandy == false)
@@ -1718,10 +1783,10 @@ public class HandyRenderer
 				graphics.popStyle();
 				return;
 			}
-		
+
 			graphics.pushStyle();
 			int oStroke = graphics.strokeColor;
-						
+
 			if (overrideStrokeColour)
 			{
 				graphics.stroke(strokeColour);
@@ -1734,17 +1799,17 @@ public class HandyRenderer
 			{
 				graphics.strokeWeight(strokeWeight);
 			}
-			
+
 			for (int i=0; i<xCoords.length-1; i++)
 			{
 				line(xCoords[i],yCoords[i],xCoords[i+1],yCoords[i+1],2);
 			}
-			
+
 			// Restore style settings.
 			graphics.popStyle();
 		}
 	}
-	
+
 	/** Draws a 2D line between the given coordinate pairs. 
 	 *  @param x1 x coordinate of the start of the line.
 	 *  @param y1 y coordinate of the start of the line.
@@ -1760,25 +1825,25 @@ public class HandyRenderer
 				graphics.line(x1,y1,x2,y2);
 				return;
 			}
-			
+
 			graphics.pushStyle();
 			if (overrideStrokeColour)
 			{
 				graphics.stroke(strokeColour);
 			}
-			
+
 			if (strokeWeight > 0)
 			{
 				graphics.strokeWeight(strokeWeight);
 			}
-			
+
 			line(x1,y1,x2,y2,2);
 
 			// Restore original stroke settings.
 			graphics.popStyle();
 		}
 	}
-	
+
 	/** Draws a 3D line between the given coordinate triplets. 
 	 *  @param x1 x coordinate of the start of the line.
 	 *  @param y1 y coordinate of the start of the line.
@@ -1796,25 +1861,25 @@ public class HandyRenderer
 				graphics.line(x1,y1,z1,x2,y2,z2);
 				return;
 			}
-			
+
 			graphics.pushStyle();
 			if (overrideStrokeColour)
 			{
 				graphics.stroke(strokeColour);
 			}
-			
+
 			if (strokeWeight > 0)
 			{
 				graphics.strokeWeight(strokeWeight);
 			}
-			
+
 			line(x1,y1,z1,x2,y2,z2,2);
 
 			// Restore original stroke settings.
 			graphics.popStyle();
 		}
 	}
-	
+
 	/** Converts an array list of numeric values into a floating point array.
 	 *  Useful for methods that require primitive arrays of floats based on a dynamic collection.
 	 *  @param list List of numbers to convert.
@@ -1829,9 +1894,9 @@ public class HandyRenderer
 		}
 		return array;
 	}
-	
+
 	// --------------------------------- Private methods --------------------------------- 
-	
+
 	/** Draws a 2D line between the given coordinate pairs. This version allows the random offset of the 
 	 *  two end points to be set explicitly.
 	 *  @param x1 x coordinate of the start of the line.
@@ -1850,7 +1915,7 @@ public class HandyRenderer
 				return;
 			}
 			graphics.pushStyle();
-					
+
 			// Ensure random perturbation is no more than 10% of line length.
 			float lenSq = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
 			float offset = maxOffset;
@@ -1863,7 +1928,7 @@ public class HandyRenderer
 			float halfOffset = offset/2;
 			float divergePoint = 0.2f + rand.nextFloat()*0.2f;
 
-			
+
 			if (useSecondary)
 			{
 				graphics.fill(secondaryColour);
@@ -1872,14 +1937,14 @@ public class HandyRenderer
 			{
 				graphics.noFill();
 			}
-			
+
 			// This is the midpoint displacement value to give slightly bowed lines.
 			float midDispX = bowing*maxOffset*(y2-y1)/200;
 			float midDispY = bowing*maxOffset*(x1-x2)/200;
 
 			midDispX = getOffset(-midDispX,midDispX);
 			midDispY = getOffset(-midDispY,midDispY);
-	
+
 			graphics.beginShape();
 			graphics.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
 			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
@@ -1897,12 +1962,12 @@ public class HandyRenderer
 			graphics.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			graphics.endShape();
-			
+
 			graphics.popStyle();
 		}
 	}
-	
-	
+
+
 	/** Draws a 3D line between the given coordinate triplet. This version allows the random offset of the 
 	 *  two end points to be set explicitly.
 	 *  @param x1 x coordinate of the start of the line.
@@ -1922,12 +1987,12 @@ public class HandyRenderer
 				graphics.line(x1,y1,z2,x2,y2,z2);
 				return;
 			}
-			
+
 			PVector v1 = new PVector(x2-x1,y2-y1,z2-z1);
 			PVector vn = new PVector(x2-x1,y2-y1,z2-z1);
 			vn.normalize();
-						
-			
+
+
 			// Ensure random perturbation is no more than 10% of line length.
 			float lenSq = v1.x*v1.x + v1.y*v1.y + v1.z*v1.z;
 			float offset = maxOffset;
@@ -1941,7 +2006,7 @@ public class HandyRenderer
 			float divergePoint = 0.2f + rand.nextFloat()*0.2f;
 
 			graphics.pushStyle();
-			
+
 			if (useSecondary)
 			{
 				graphics.fill(secondaryColour);
@@ -1950,20 +2015,20 @@ public class HandyRenderer
 			{
 				graphics.noFill();
 			}
-					
+
 			// This is the midpoint displacement value to give slightly bowed lines.
 			PVector v2 = new PVector(1,1,1);
 			PVector vCross = vn.cross(v2);
 			float v1Len = v1.mag();
-			
+
 			float midDispX = v1Len*vCross.x/200;
 			float midDispY = v1Len*vCross.y/200;
 			float midDispZ = v1Len*vCross.z/200;
-			
+
 			midDispX = getOffset(-midDispX,midDispX);
 			midDispY = getOffset(-midDispY,midDispY);
 			midDispZ = getOffset(-midDispZ,midDispZ);
-			
+
 			graphics.beginShape();
 			graphics.vertex(x1 + getOffset(-offset,offset),      y1 +getOffset(-offset,offset), z1+getOffset(-offset,offset));
 			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset), z1+getOffset(-offset,offset));
@@ -1981,11 +2046,11 @@ public class HandyRenderer
 			graphics.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset), z2 +getOffset(-halfOffset,halfOffset));
 			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset), z2 +getOffset(-halfOffset,halfOffset));
 			graphics.endShape();
-			
+
 			graphics.popStyle();
 		}
 	}
-	
+
 	/** Draws a 2D shape after it has been finished with <code>endShape()</code>.
 	 *  @param closeShape True if the shape is to be closed.
 	 */
@@ -2000,7 +2065,7 @@ public class HandyRenderer
 
 		float[] xs=new float[vertices.size()];
 		float[] ys=new float[vertices.size()];
-		
+
 		int i=0;
 		for (float[] coords : vertices)
 		{
@@ -2008,7 +2073,7 @@ public class HandyRenderer
 			ys[i]=coords[1];
 			i++;
 		}
-		
+
 		if (this.shapeMode==PConstants.POLYGON)
 		{
 			shape(xs,ys,closeShape);
@@ -2067,8 +2132,8 @@ public class HandyRenderer
 			}
 		}
 	}
-	
-	
+
+
 	/** Draws a 3D shape after it has been finished with <code>endShape()</code>.
 	 *  @param closeShape True if the shape is to be closed.
 	 */
@@ -2084,7 +2149,7 @@ public class HandyRenderer
 		float[] xs=new float[vertices.size()];
 		float[] ys=new float[vertices.size()];
 		float[] zs=new float[vertices.size()];
-		
+
 		int i=0;
 		for (float[] coords : vertices)
 		{
@@ -2093,7 +2158,7 @@ public class HandyRenderer
 			zs[i]=coords[2];
 			i++;
 		}
-		
+
 		if (this.shapeMode==PConstants.POLYGON)
 		{
 			shape(xs,ys,zs,closeShape);
@@ -2163,7 +2228,7 @@ public class HandyRenderer
 			}
 		}
 	}
-		
+
 	/** Fills the face implied by the given 3d geometry with a hachured texture.
 	 *  @param xCoords x Coordinates of the face to fill.
 	 *  @param yCoords y Coordinates of the face to fill.
@@ -2181,7 +2246,7 @@ public class HandyRenderer
 		float maxY = yCoords[0];
 		float minZ = zCoords[0];
 		float maxZ = zCoords[0];
-		
+
 		for (int i=1; i<xCoords.length; i++)
 		{
 			minX = Math.min(minX, xCoords[i]);
@@ -2191,17 +2256,17 @@ public class HandyRenderer
 			minZ = Math.min(minZ, zCoords[i]);
 			maxZ = Math.max(maxZ, zCoords[i]);
 		}
-		
+
 		float xRange = maxX-minX;
 		float yRange = maxY-minY;
 		float zRange = maxZ-minZ;
-		
+
 		float left = minX;
 		float right = maxX;
 		float top = maxY;
 		float bottom = minY;
 		Plane2d projectedPlane = Plane2d.XY;
-		
+
 		if ((yRange < zRange) && (yRange < xRange))
 		{
 			top = maxZ;
@@ -2216,26 +2281,26 @@ public class HandyRenderer
 			right = maxY;
 			projectedPlane = Plane2d.YZ;
 		}
-		
+
 		// Create hachured image and map it as a texture onto the shape.
 		HachureIterator hi = new HachureIterator(0, top-bottom, 0, right-left, gap, sinAngle, cosAngle, tanAngle);
-		
+
 		float[] coords;
 		float[] prevCoords = hi.getNextLine();
 		PGraphics origGraphics = graphics;
-					
+
 		PGraphics textureImg = parent.createGraphics((int)(right-left), (int)(top-bottom), PConstants.JAVA2D);	
-		
+
 		textureImg.beginDraw();				
 		copyGraphics(graphics,textureImg);
 		textureImg.smooth();			// Needed because 3D renderers may not allow smoothing.
 		setGraphics(textureImg);
 		graphics.fill(graphics.strokeColor);
-													
+
 		if (prevCoords != null)
 		{
 			line(prevCoords[0],prevCoords[1],prevCoords[2],prevCoords[3],2);		
-								
+
 			while ((coords=hi.getNextLine()) != null)
 			{
 				if (isAlternating)
@@ -2246,10 +2311,10 @@ public class HandyRenderer
 				prevCoords = coords;
 			}
 		}
-					
+
 		textureImg.endDraw();		
 		setGraphics(origGraphics);
-							
+
 		graphics.noFill();
 		graphics.noStroke();
 		graphics.beginShape();
@@ -2284,8 +2349,8 @@ public class HandyRenderer
 		}
 		graphics.endShape(PConstants.CLOSE);
 	}
-	
-	
+
+
 	/** Draws a shape that includes curved edges.
 	 */
 	private void curvedShape()
@@ -2377,7 +2442,7 @@ public class HandyRenderer
 				graphics.stroke(oStroke);	
 			}
 		}
-		
+
 		// Draw the outlines as curved lines.
 		if ((graphics.stroke) || (overrideStrokeColour))
 		{
@@ -2437,14 +2502,14 @@ public class HandyRenderer
 					}
 				}
 			}
-			
+
 			overrideFillColour = oOverrideFill;
 		}
-		
+
 		// Restore styles.
 		graphics.popStyle();
 	}
-	
+
 
 	/** Generates a random offset scaled around the given range. Note that the offset can exceed
 	 *  the given maximum or minimum depending on the sketchiness of the renderer settings.
@@ -2455,7 +2520,7 @@ public class HandyRenderer
 	{
 		return roughness*(rand.nextFloat()*(maxVal-minVal)+minVal);
 	}
-	
+
 	/** Adds the curved vertices to build an ellipse.
 	 *  @param cx x coordinate of the centre of the ellipse.
 	 *  @param cy y coordinate of the centre of the ellipse.
@@ -2465,7 +2530,7 @@ public class HandyRenderer
 	private void buildEllipse(float cx, float cy, float rx, float ry, float offset, float overlap)
 	{
 		float radialOffset = getOffset(-0.5f,0.5f)-PConstants.HALF_PI;
-			
+
 		graphics.beginShape();
 
 		// First control point should be penultimate point on ellipse.	
@@ -2477,19 +2542,19 @@ public class HandyRenderer
 			graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(theta),
 					getOffset(-offset,offset)+cy+ry*(float)Math.sin(theta));
 		}
-		
+
 		graphics.curveVertex(getOffset(-offset,offset)+cx+rx*(float)Math.cos(radialOffset+PConstants.TWO_PI+overlap*0.5f),
 				getOffset(-offset,offset)+cy+ry*(float)Math.sin(radialOffset+PConstants.TWO_PI+overlap*0.5f));
-		
+
 		graphics.curveVertex(getOffset(-offset,offset)+cx+0.98f*rx*(float)Math.cos(radialOffset+overlap),
 				getOffset(-offset,offset)+cy+0.98f*ry*(float)Math.sin(radialOffset+overlap));
-		
+
 		graphics.curveVertex(getOffset(-offset,offset)+cx+0.9f*rx*(float)Math.cos(radialOffset+overlap*0.5),
 				getOffset(-offset,offset)+cy+0.9f*ry*(float)Math.sin(radialOffset+overlap*0.5));
 
 		graphics.endShape();
 	}
-		
+
 	/** Applies a combined affine transformation that translates (cx,cy) to origin, rotates it, scales it
 	 *  according to the given aspect ratio and then translates back to (cx,cy)
 	 *  @param x x coordinate of the point to transform.
@@ -2511,7 +2576,7 @@ public class HandyRenderer
 		double F = R*cosAnglePrime;
 		return new float[] {(float)(A+ C*x + D*y), (float)(B + E*x + F*y)};
 	}
-	
+
 	/** Provides a list of the coordinates of interior lines that represent the intersections
 	 *  of a given line with a given shape boundary. 
 	 * @param lineCoords The endpoints of the line to intersect.
@@ -2532,13 +2597,13 @@ public class HandyRenderer
 			if (s1.compare(s2) == Segment.Relation.INTERSECTS)
 			{
 				intersections.put(new Float(distSq(s1.getIntersectionX(), s1.getIntersectionY(), lineCoords[0],lineCoords[1])), 
-						          new float[] {s1.getIntersectionX(),s1.getIntersectionY()});
+						new float[] {s1.getIntersectionX(),s1.getIntersectionY()});
 			}
 		}
-			
+
 		return new ArrayList<float[]>(intersections.values());
 	}
-	
+
 	/** Calculates the squared distance between a given pair of points.
 	 * @param x1 x coordinate of first point.
 	 * @param y1 y coordinate of first point.
