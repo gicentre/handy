@@ -27,6 +27,8 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
+// TODO: Change to be compatible with Processing 3.x
+
 @SuppressWarnings("serial")
 public class ArcTest extends PApplet 
 {
