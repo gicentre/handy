@@ -9,9 +9,11 @@ import processing.core.PConstants;
 
 
 // *****************************************************************************************
-/** Simple sketch to test handy 3d box and sphere building.
+/** Simple sketch to test handy 3d box rendering. 'H' to toggle sketchy rendering.
+ *  Left and right arrows to change angle of hachures. Up and down arrows to change degree
+ *  of sketchiness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.1, 11th April, 2012
+ *  @version 2.0, 31st March, 2016.
  */ 
 // *****************************************************************************************
 
@@ -29,8 +31,7 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
-public class BoxAndSphereTest extends PApplet 
+public class BoxTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -39,27 +40,35 @@ public class BoxAndSphereTest extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.BoxAndSphereTest"});
+		PApplet.main(new String[] {"org.gicentre.tests.BoxTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	private FrameTimer timer;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private float angle;				// Hachure angle.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float roughness;			// Degree of sketchiness.
+	private FrameTimer timer;			// For rendering speed reporting.
 
-	private float angle;
-	private boolean isHandy;
-	private float roughness;
-	private float xmag, ymag = 0;
+	
+	private float xmag, ymag = 0;		// Rotation parameters
 	private float newXmag, newYmag = 0; 
 
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		size(640,640, P3D);					// Requires P3D for 3d rendering. 
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
 	public void setup()
 	{   
-		size(640, 640,OPENGL); 
 		timer = new FrameTimer();
 		roughness = 1.5f;
 		angle = 45;
@@ -71,7 +80,7 @@ public class BoxAndSphereTest extends PApplet
 		fill(180,80,80);		
 	}
 
-	/** Draws some sketchy lines.
+	/** Draws a 3d box and reference rectangle.
 	 */
 	public void draw()
 	{
@@ -83,7 +92,7 @@ public class BoxAndSphereTest extends PApplet
 		float lengthC = 100;
 		
 		// 2D rectangle to check styles are consistent.		
-		h.rect(5, 5, 50, 30);
+		h.rect(5, 5, 150, 100);
 
 		pushMatrix(); 
 
@@ -112,6 +121,8 @@ public class BoxAndSphereTest extends PApplet
 		popMatrix(); 
 	}
 
+	/** Responds to key presses to control appearance of shapes.
+	 */
 	@Override
 	public void keyPressed()
 	{

@@ -17,7 +17,7 @@ import processing.core.PVector;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 1.1, 11th April, 2012.
+ *  @version 2.0, 31st March, 2016.
  */ 
 // *****************************************************************************************
 
@@ -126,7 +126,8 @@ public class HandyRenderer
 		gDst.strokeCap       = gSrc.strokeCap;
 		gDst.strokeJoin      = gSrc.strokeJoin;
 		gDst.strokeColor     = gSrc.strokeColor;
-		gDst.strokeWeight    = gSrc.strokeWeight;		
+		gDst.strokeWeight    = gSrc.strokeWeight;	
+		gDst.pixelDensity    = gSrc.pixelDensity;
 	}
 
 	/** Sets the seed used for random offsets when drawing. This should be called if repeated calls
@@ -2289,7 +2290,8 @@ public class HandyRenderer
 		float[] prevCoords = hi.getNextLine();
 		PGraphics origGraphics = graphics;
 
-		PGraphics textureImg = parent.createGraphics((int)(right-left), (int)(top-bottom), PConstants.JAVA2D);	
+		PGraphics textureImg = parent.createGraphics((int)(right-left), (int)(top-bottom),PConstants.P3D);	
+				
 
 		textureImg.beginDraw();				
 		copyGraphics(graphics,textureImg);

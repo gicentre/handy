@@ -6,10 +6,15 @@ import org.gicentre.utils.move.ZoomPan;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-//*****************************************************************************************
+// *****************************************************************************************
 /** Simple sketch to test handy arc drawing.
+ *  Draws a set of randomly positioned arcs with sketchy shaded interiors. Can zoom and pan
+ *  by dragging mouse; 'R' to reset zoom/pan. 'H' to toggle sketchy rendering. Left and right
+ *  arrows to change angle of hachures. Up and down arrows to change degree of sketchiness.
+ *  A set of very small circles are drawn which should not be visible in the sketchy view
+ *  but present as points in the non-sketchy view. 
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 17th March, 2012
+ *  @version 2.0, 31st March, 2016
  */ 
 // *****************************************************************************************
 
@@ -27,9 +32,6 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-// TODO: Change to be compatible with Processing 3.x
-
-@SuppressWarnings("serial")
 public class ArcTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -44,22 +46,33 @@ public class ArcTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	
-	private ZoomPan zoomer;
-	
-	private float angle;
-	private boolean isHandy;
-	private float roughness;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private ZoomPan zoomer;				// For zooming and panning.
+	private float angle;				// Hachure angle.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float roughness;			// Degree of sketchiness.
 	
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		
+		size(800,800);
+		
+		// Should work with all Processing 3 renderers.
+		// size(800,800, P2D);
+		// size(800,800, P3D);
+		//size(800,800, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
 	public void setup()
 	{   
-		size(800,800);
-		smooth();
 		zoomer = new ZoomPan(this);
 		angle = -45;
 		roughness = 1;
@@ -71,7 +84,7 @@ public class ArcTest extends PApplet
 		h.setRoughness(roughness);
 	}
 		
-	/** Draws some sketchy lines.
+	/** Draws some sketchy arcs.
 	 */
 	public void draw()
 	{
@@ -79,11 +92,12 @@ public class ArcTest extends PApplet
 		zoomer.transform();
 		stroke(80);
 		strokeWeight(1f);
-		//h.setSeed(1234);
+		
+		int numArcs = 40;
+		h.setSeed(9876);		// Ensures sketchy perturbations do not change on redraw.
+		randomSeed(1245);		// Ensures arcs remain in same location on redraw.
 
-		randomSeed(1245);
-
-		for (int i=0; i<20; i++)
+		for (int i=0; i<numArcs; i++)
 		{
 			fill(random(100,200),random(60,200), random(100,200));
 			float diameter = random(50,200);
@@ -91,15 +105,17 @@ public class ArcTest extends PApplet
 			h.arc(random(40,width-40),random(40,height-40),diameter,random(100,200),strt,strt+PI*0.26f);
 		}
 		
-		// Test very small circles (should be invisible).
-		for (int i=0; i<20; i++)
+		// Test very small arcs (should be invisible in the sketchy view but dots in the normal view).
+		for (int i=0; i<numArcs; i++)
 		{
 			h.arc(random(40,width-40),random(40,height-40),0,0.1f,0,HALF_PI);
 		}
 		
 		noLoop();
 	}
-		
+	
+	/** Responds to key presses to control appearance of shapes.
+	 */
 	@Override
 	public void keyPressed()
 	{
@@ -107,6 +123,11 @@ public class ArcTest extends PApplet
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
+			loop();
+		}
+		else if (key == 'r')
+		{
+			zoomer.reset();
 			loop();
 		}
 		else if (key == ' ')
