@@ -7,7 +7,8 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 //*****************************************************************************************
-/** Simple sketch to test handy 3d cone building.
+/** Simple sketch to test handy 3d cone building. 'H' toggles sketchy rendering, up and 
+ *  down arrows control roughness.
  *  @author Jo Wood, giCentre, City University London.
  *  @version 1.1, 11th April, 2012
  */ 
@@ -27,12 +28,11 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class ConeTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
-	/** Creates a simple application to test handy line drawing.
+	/** Creates a simple application to test handy shape drawing.
 	 *  @param args Command line arguments (ignored). 
 	 */
 	public static void main(String[] args)
@@ -42,19 +42,26 @@ public class ConeTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	private FrameTimer timer;
-
-	private boolean isHandy;
-	private float roughness;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float roughness;			// Degree of sketchiness.
+	private FrameTimer timer;			// For rendering speed reporting.
 
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	@Override
+	public void settings()
+	{   
+		size(800,800, P3D);					// Requires P3D for 3d rendering. 
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
 	public void setup()
 	{   
-		size(800, 800, OPENGL);
 		roughness = 2;
 		h = new HandyRenderer(this);
 		h.setRoughness(roughness);
@@ -66,7 +73,7 @@ public class ConeTest extends PApplet
 		timer = new FrameTimer();
 	}
 
-	/** Draws some sketchy lines.
+	/** Draws a sketchy cone.
 	 */
 	public void draw()
 	{
@@ -83,6 +90,8 @@ public class ConeTest extends PApplet
 		drawCylinder(10, 180, 200, 16);
 	}
 
+	/** Responds to key presses to control appearance of the cone.
+	 */
 	@Override
 	public void keyPressed()
 	{

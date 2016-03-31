@@ -11,7 +11,9 @@ import processing.core.PConstants;
 import processing.core.PFont;
 
 //  ****************************************************************************************
-/** Tests chart drawing in a simple Processing sketch. 
+/** Tests chart drawing in a simple Processing sketch.  'H' to toggle sketchy rendering. 
+ *  Arrows to change bar gap. 'X' and 'Y' for toggling axes; 'T' for transposing axes.
+ *  'L' for toggling log scaling.
  *  @author Jo Wood, giCentre, City University London.
  *  @version 2.0, 31st March, 2016. 
  */ 
@@ -110,7 +112,7 @@ public class ChartTest extends PApplet
 		chart1.showCategoryAxis(showXAxis);
 		chart1.transposeAxes(transpose);
 		chart1.setBarColour(barData,ColourTable.getPresetColourTable(ColourTable.GREENS, -1000, 1000));
-		chart1.setBarLabels(new String[] {"Item 1","Item 2","Item 3","","Item 5","","Item 7","","Item 9","","Item 11","","Item 13", ""});
+		chart1.setBarLabels(new String[] {"Item 1","Item 2","Item 3","Item 4","Item 5","Item 6","Item 7","Item 8","Item 9","Item 10","Item 11","Item 12","Item 13", "Item 14"});
 		chart1.setBarGap(barGap);
 
 		// Line chart.
@@ -232,11 +234,5 @@ public class ChartTest extends PApplet
 				}
 			}
 		}
-	}
-
-	@Override
-	public void mouseDragged()
-	{
-		loop();
 	}
 }

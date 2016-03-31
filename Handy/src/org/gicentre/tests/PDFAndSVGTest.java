@@ -3,13 +3,13 @@ package org.gicentre.tests;
 import org.gicentre.handy.HandyRenderer;
 
 import processing.core.PApplet;
-import processing.pdf.*;
-
 
 // *****************************************************************************************
-/** Simple sketch to draw a single circle in a handy style that can be saved as a PDF image.
+/** Simple sketch to draw a single circle in a handy style that can be saved as a PDF image
+ *  by pressing the 'P' key or SVG file with the 'S' key. Spacebar re-renders with a different
+ *  random perturbation.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 26th March, 2012
+ *  @version 2.0, 31st March, 2016
  */ 
 // *****************************************************************************************
 
@@ -27,8 +27,7 @@ import processing.pdf.*;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
-public class CircleSimpleTest extends PApplet 
+public class PDFAndSVGTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -37,65 +36,94 @@ public class CircleSimpleTest extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.CircleSimpleTest"});
+		PApplet.main(new String[] {"org.gicentre.tests.PDFAndSVGTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
 
 	private HandyRenderer h;
-	private boolean savePDF;
+	private enum Output {SCREEN, PDF_FILE, SVG_FILE}
+	private Output outType;
 
 	// ---------------------------- Processing methods -----------------------------
+	
+	/** Initial window settings prior to setup().
+	 */
+	@Override
+	public void settings()
+	{   
+		size(500,500);
+		
+		// Should work with all Processing 3 renderers.
+		//size(500,500, P2D);
+		// size(500,500, P3D);
+		// size(500,500, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
 
 	/** Sets up the sketch.
 	 */
+	@Override
 	public void setup()
 	{   
-		//size(500,500, PDF, "circle.pdf");
-		size(500,500);
-		smooth();
-		savePDF = false;
-
+		outType = Output.SCREEN;
 		h = new HandyRenderer(this);
-		h.setRoughness(3);
-		strokeWeight(4);
+		h.setRoughness(2);
 	}
 
-
-	/** Draws some sketchy lines.
+	/** Draws a sketchy circle.
 	 */
+	@Override
 	public void draw()
 	{
-		if (savePDF)
+		if (outType == Output.SVG_FILE)
 		{
-			beginRecord(PDF, "frame-####.pdf");
+			beginRecord(SVG, "sketchyCircle.svg");
+			h.setGraphics(recorder);
 		}
-		
+		else if (outType == Output.PDF_FILE)
+		{
+			beginRecord(PDF, "sketchyCircle.pdf");
+			h.setGraphics(recorder);
+		}
+				
 		background(255);
-
+		strokeWeight(4);
+		stroke(0);
+		
 		h.ellipse(width/2,height/2,width/2,height/2);
 		
-		if (savePDF)
+		if (outType != Output.SCREEN)
 		{
 		    endRecord();
-			savePDF = false;
+			outType = Output.SCREEN;
+			h.setGraphics(this.g);
+			loop();
 		}
-
-		//exit();
-		noLoop();
+		else
+		{
+			noLoop();
+		}
 	}
 
+	/** Responds to a key press.
+	 */
 	@Override
 	public void keyPressed()
 	{
-
 		if (key == ' ')
 		{
 			loop();
 		}
 		else if (key == 'p')
 		{
-			savePDF = true;
+			outType = Output.PDF_FILE;
+			loop();
+		}
+		else if (key == 's')
+		{
+			outType = Output.SVG_FILE;
 			loop();
 		}
 	}

@@ -6,11 +6,11 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
 
-
 //*****************************************************************************************
-/** Simple sketch to show a hand-drawn bar graph.
+/** Simple sketch to show a hand-drawn bar graph. 'H' to toggle sketchy rendering. Keys 1-3
+ *  to change line thickness. 'S' to toggle secondary shading.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 26th November, 2011.
+ *  @version 2.0, 31st March, 2016.
  */ 
 // *****************************************************************************************
 
@@ -27,8 +27,6 @@ import processing.core.PFont;
  * source code (see COPYING.LESSER included with this source code). If not, see 
  * http://www.gnu.org/licenses/.
  */
-
-@SuppressWarnings("serial")
 public class GraphExample extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -44,43 +42,46 @@ public class GraphExample extends PApplet
 	// ----------------------------- Object variables ------------------------------
 
 	private HandyRenderer h;
-	private PFont titleFont, bodyFont;
+	private PFont sketchyTitleFont, sketchyBodyFont, normalTitleFont, normalBodyFont;
 	private float sWeight;
 	
-	private PFont hLargeFont, hMediumFont, nLargeFont, nMediumFont;
 	private boolean isHandy, useSecondary;
 	
 	private float[] data = new float[] {57,75,60,49,18,36,34,14,-40,17,-26,3,-15,-30,-50,-31,-86,-42,-64,-70,-67,-126,-66,0,-94,-221};
 		
 	// ---------------------------- Processing methods -----------------------------
 	
-
-	/** Sets up the sketch.
+	/** Initial window settings prior to setup().
 	 */
-	public void setup()
+	public void settings()
 	{   
 		size(440,800);
 		
-		//size(1000,400);
+		// Should work with all Processing 3 renderers.
+		// size(440, P2D);
+		// size(440,800, P3D);
+		// size(440,800, FX2D);
 		
-		smooth();
-				
-		hLargeFont  = loadFont("AmarelinhaBold-36.vlw");
-		hMediumFont = loadFont("Amarelinha-32.vlw");
-		//nLargeFont  = createFont("SansSerif",28);
-		//nMediumFont = createFont("SansSerif",22);
-		nLargeFont = hLargeFont;
-		nMediumFont = hMediumFont;
-		
-		titleFont = nLargeFont;
-		bodyFont = nMediumFont;
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+
+	/** Sets up the sketch.
+	 */
+	@Override
+	public void setup()
+	{   
+		sketchyTitleFont = loadFont("HumorSans-32.vlw");
+		sketchyBodyFont  = loadFont("HumorSans-18.vlw");
+		normalTitleFont  = createFont("sans-serif",32);
+		normalBodyFont   = createFont("sans-serif",18);
+
 		isHandy = true;
 		sWeight = 1;
 		useSecondary = false;
 		
 		h = new HandyRenderer(this);
 		h.setIsHandy(isHandy);
-		h.setSecondaryColour(color(0,10));
+		h.setSecondaryColour(color(0,100));
 		h.setUseSecondaryColour(useSecondary);	
 		h.setHachureAngle(-37);
 		h.setHachurePerturbationAngle(7);
@@ -88,47 +89,35 @@ public class GraphExample extends PApplet
 	}
 	
 	
-	/** Draws some sketchy lines.
+	/** Draws the sketchy bars.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);
-		stroke(80);
+		stroke(20);
 		strokeWeight(sWeight);
 		textAlign(PConstants.LEFT, PConstants.TOP);
 		
-		//h.rect(10, 10, 240, 55);
-		//h.rect(10, 10, 240, 55);
 		fill(80);
-		textFont(titleFont);
-		textSize(isHandy?48:28);
-		text("What's in a name?",20,10);
-		
-		
-		//textAlign(PConstants.CENTER, PConstants.TOP);
-		//text("What's in a name?",width/2,10);
-		
-		
+		textFont(isHandy? sketchyTitleFont: normalTitleFont);
+		textSize(isHandy?32:28);
+		text("What's in a name?",10,15);
+						
 		noFill();
-		//h.rect(10, 70, 220, 180);
-		textFont(bodyFont);
-		textSize(isHandy?32:22);
+		textFont(isHandy? sketchyBodyFont: normalBodyFont);
+		textSize(isHandy?18:16);
 		fill(40);
-		textLeading(isHandy?32:26);
-		text("Numbers of extra votes received as a bonus or deprived from a candidate depending on the first letter of their surname.",20,80,200,380);
+		textLeading(isHandy?18:16);
+		text("Numbers of extra votes received as a bonus or deprived from a candidate depending on the first letter of their surname.",10,50,200,380);
+					
 		
-		//textAlign(PConstants.LEFT, PConstants.TOP);
-		//text("Numbers of extra votes received as a bonus or deprived from a candidate depending on the first letter of their surname.",60,210,450,180);
-
-			
+		// Draw bars
+		stroke(80);
+		float barWidth = (height-50)/26f;
+		float cx = width*.7f;
 		textAlign(PConstants.CENTER,PConstants.CENTER);
 		
-		
-	
-		// Draw bars
-		
-		float barWidth = (height-50)/26f;
-		float cx = width*.66f;
 		for (int i=0; i<data.length; i++)
 		{
 			float barLength = data[i];
@@ -146,32 +135,6 @@ public class GraphExample extends PApplet
 			}
 		}
 		
-		
-		/* Draw bars
-		float cy = height*.31f;
-		float barWidth = (width-70)/26f;
-		textFont(titleFont);
-		fill(40);
-		for (int i=0; i<data.length; i++)
-		{
-			float barLength = data[i];
-			fill(162,187,243);
-			h.setHachureAngle(-37+random(-7,7));
-			h.rect(50+i*barWidth,cy,barWidth-4,-barLength);
-			
-			fill(100);
-			if (barLength>0)
-			{
-				text((char)('A'+i),50+(i+0.4f)*barWidth,cy+15);
-			}
-			else
-			{
-				text((char)('A'+i),50+(i+0.4f)*barWidth,cy-20);
-			}
-		}
-		*/
-		
-		
 		// Draw scale
 		stroke(180);
 		fill(80);
@@ -184,57 +147,34 @@ public class GraphExample extends PApplet
 			text(x,cx+x,height-15);
 			h.line(cx+x, height-10, cx+x, height-15);
 		}
-		
-		
-		/* Draw scale
-		stroke(180);
-		fill(80);
-		h.line(40,cy+250, 40,cy-100);
-		
-		textAlign(RIGHT,CENTER);
-		textSize(isHandy?20:14);
-		for (int y=-100; y<=250; y+=50)
-		{
-			text(-y,30,cy+y);
-			h.line(35,cy+y,40, cy+y);
-		}
-		*/
-		
+				
 		noLoop();
 	}
 	
 	@Override
+	/** Responds to key presses to alter appearance of sketch shapes.
+	 */
 	public void keyPressed()
 	{
 		if (key =='h')
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
-			if (isHandy)
-			{
-				titleFont = hLargeFont;
-				bodyFont = hMediumFont;
-			}
-			else
-			{
-				titleFont = nLargeFont;
-				bodyFont = nMediumFont;
-			}
 			loop();
 		}
 		else if (key == '1')
 		{
-			sWeight = 0.3f;
+			sWeight = 1f;
 			loop();
 		}
 		else if (key == '2')
 		{
-			sWeight = 1;
+			sWeight = 1.5f;
 			loop();
 		}
 		else if (key == '3')
 		{
-			sWeight = 3;
+			sWeight = 2.5f;
 			loop();
 		}
 		else if (key == 's')

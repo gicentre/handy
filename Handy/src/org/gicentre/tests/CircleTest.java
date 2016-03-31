@@ -7,9 +7,14 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 //*****************************************************************************************
-/** Simple sketch to test handy circle and ellipse drawing.
+/** Draws a set of randomly positioned ellipses with sketchy shaded interiors. Can zoom and
+ *  pan by dragging mouse; 'R' to reset zoom/pan. 'H' to toggle sketchy rendering. Left and
+ *  right arrows to change angle of hachures. Up and down arrows to change degree of 
+ *  sketchiness.
+ *  A set of very small circles are drawn which should not be visible in the sketchy view
+ *  but present as points in the non-sketchy view. 
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 31st January, 2012
+ *  @version 2.0, 31st March, 2013.
  */ 
 // *****************************************************************************************
 
@@ -27,7 +32,6 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class CircleTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -42,22 +46,32 @@ public class CircleTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	
-	private ZoomPan zoomer;
-	
-	private float angle;
-	private boolean isHandy;
-	private float roughness;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private ZoomPan zoomer;				// For zooming and panning.
+	private float angle;				// Hachure angle.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float roughness;			// Degree of sketchiness.
 	
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		size(800,800);
+		
+		// Should work with all Processing 3 renderers.
+		// size(800,800, P2D);
+		// size(800,800, P3D);
+		// size(800,800, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
 	public void setup()
 	{   
-		size(800,800);
-		smooth();
 		zoomer = new ZoomPan(this);
 		angle = -45;
 		roughness = 1;
@@ -70,7 +84,7 @@ public class CircleTest extends PApplet
 	}
 	
 	
-	/** Draws some sketchy lines.
+	/** Draws some sketchy circles.
 	 */
 	public void draw()
 	{
@@ -79,11 +93,12 @@ public class CircleTest extends PApplet
 		stroke(80);
 		strokeWeight(1f);
 		noFill();
-		//h.setSeed(1234);
-
+		
+		h.setSeed(1234);
 		randomSeed(1245);
-
-		for (int i=0; i<20; i++)
+		int numCircles = 40;
+		
+		for (int i=0; i<numCircles; i++)
 		{
 			fill(random(100,200),random(60,200), random(100,200));
 			float diameter = random(50,200);
@@ -91,7 +106,7 @@ public class CircleTest extends PApplet
 		}
 		
 		// Test very small circles (should be invisible).
-		for (int i=0; i<20; i++)
+		for (int i=0; i<numCircles; i++)
 		{
 			h.ellipse(random(40,width-40),random(40,height-40),0,0.1f);
 		}
@@ -99,6 +114,8 @@ public class CircleTest extends PApplet
 		noLoop();
 	}
 		
+	/** Responds to key presses to control appearance of shapes.
+	 */
 	@Override
 	public void keyPressed()
 	{

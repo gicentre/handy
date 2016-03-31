@@ -7,9 +7,10 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 //*****************************************************************************************
-/** Simple sketch to test handy curved line drawing.
+/** Simple sketch to test handy curved shape drawing. 'H' to toggle sketchy rendering, left
+ *  and right arrows to change curve tightness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 6th February, 2012
+ *  @version 2.0, 31st March, 2016.
  */ 
 // *****************************************************************************************
 
@@ -27,7 +28,6 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class CurvedLinesTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -42,19 +42,31 @@ public class CurvedLinesTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	private boolean isHandy;
-	private float tightness;		// Curve tightness.
-	private ZoomPan zoomer;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float tightness;			// Curve tightness.
+	private ZoomPan zoomer;				// For zooming and panning.
 		
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		size(300,300);
+		
+		// Should work with all Processing 3 renderers.
+		// size(800,800, P2D);
+		// size(800,800, P3D);
+		// size(800,800, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
 	public void setup()
 	{   
-		size(300,300);
-		smooth();
 		zoomer = new ZoomPan(this);
 		tightness = 0;
 		curveTightness(tightness);

@@ -59,6 +59,7 @@ public class BoxTest extends PApplet
 
 	/** Initial window settings prior to setup().
 	 */
+	@Override
 	public void settings()
 	{   
 		size(640,640, P3D);					// Requires P3D for 3d rendering. 
@@ -67,6 +68,7 @@ public class BoxTest extends PApplet
 	
 	/** Sets up the sketch.
 	 */
+	@Override
 	public void setup()
 	{   
 		timer = new FrameTimer();
@@ -82,6 +84,7 @@ public class BoxTest extends PApplet
 
 	/** Draws a 3d box and reference rectangle.
 	 */
+	@Override
 	public void draw()
 	{
 		background(235,215,182);

@@ -11,7 +11,7 @@ import processing.core.PConstants;
  *  Draws a set of randomly positioned arcs with sketchy shaded interiors. Can zoom and pan
  *  by dragging mouse; 'R' to reset zoom/pan. 'H' to toggle sketchy rendering. Left and right
  *  arrows to change angle of hachures. Up and down arrows to change degree of sketchiness.
- *  A set of very small circles are drawn which should not be visible in the sketchy view
+ *  A set of very small arcs are drawn which should not be visible in the sketchy view
  *  but present as points in the non-sketchy view. 
  *  @author Jo Wood, giCentre, City University London.
  *  @version 2.0, 31st March, 2016
@@ -64,7 +64,7 @@ public class ArcTest extends PApplet
 		// Should work with all Processing 3 renderers.
 		// size(800,800, P2D);
 		// size(800,800, P3D);
-		//size(800,800, FX2D);
+		// size(800,800, FX2D);
 		
 		pixelDensity(displayDensity());		// Use platform's maximum display density.
 	}
@@ -86,6 +86,7 @@ public class ArcTest extends PApplet
 		
 	/** Draws some sketchy arcs.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);
