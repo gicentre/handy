@@ -51,6 +51,7 @@ public class CurvedLinesTest extends PApplet
 
 	/** Initial window settings prior to setup().
 	 */
+	@Override
 	public void settings()
 	{   
 		size(300,300);
@@ -65,6 +66,7 @@ public class CurvedLinesTest extends PApplet
 	
 	/** Sets up the sketch.
 	 */
+	@Override
 	public void setup()
 	{   
 		zoomer = new ZoomPan(this);
@@ -79,6 +81,7 @@ public class CurvedLinesTest extends PApplet
 	
 	/** Draws a sketchy curve.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);
@@ -103,9 +106,9 @@ public class CurvedLinesTest extends PApplet
 		noLoop();
 	}
 		
-	@Override
 	/** Changes the curve tightness in response to the left and right arrow keys.
 	 */
+	@Override
 	public void keyPressed()
 	{
 		if (key =='h')

@@ -6,9 +6,11 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 // *****************************************************************************************
-/** Simple sketch to test handy 3d line drawing.
+/** Simple sketch to test handy 3d line drawing. 'H' to toggle sketchy rendering, up and 
+ *  down arrows to change degree of sketchiness. Left and right arrows to change curve 
+ *  vertex overshoot.Move mouse to rotate cube.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.1, 11th April, 2012
+ *  @version 2.0, 1st April, 2016
  */ 
 // *****************************************************************************************
 
@@ -26,7 +28,6 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class Line3DTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -41,28 +42,38 @@ public class Line3DTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-
-	private boolean isHandy;
-	private float roughness;
-	private float xmag, ymag = 0;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private boolean isHandy;			// Toggles sketchy rendering on and off
+	private float roughness;			// Degree of sketchiness.
+	private float overshoot;			// Degree of vertex overshoot.
+	private float xmag, ymag = 0;		// Rotation parameters.
 	private float newXmag, newYmag = 0; 
 
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		size(640,360,P3D);		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
+	@Override
 	public void setup()
 	{   
-		size(640, 360,P3D); 
 		noStroke(); 
 		roughness = 1;
+		overshoot = 1.1f;
 		h = new HandyRenderer(this);
 		h.setRoughness(roughness);
 	}
 
-	/** Draws some sketchy lines.
+	/** Draws some sketchy 3d lines.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);
@@ -92,7 +103,7 @@ public class Line3DTest extends PApplet
 		rotateY(-xmag); 
 
 
-		stroke(200,50,50,180);
+		stroke(50,50,200,180);
 		strokeWeight(1);
 				
 		line(-unitLen,  unitLen,  unitLen, unitLen,  unitLen,  unitLen);
@@ -114,25 +125,27 @@ public class Line3DTest extends PApplet
 		stroke(0);
 		strokeWeight(2);
 		
-		h.line(-unitLen,  unitLen,  unitLen, unitLen,  unitLen,  unitLen);
-		h.line( unitLen,  unitLen,  unitLen, unitLen, -unitLen,  unitLen);
-		h.line( unitLen, -unitLen,  unitLen,-unitLen, -unitLen,  unitLen);
-		h.line(-unitLen, -unitLen,  unitLen,-unitLen,  unitLen,  unitLen);
+		h.line(-unitLen*overshoot,  unitLen,  unitLen, unitLen*overshoot,  unitLen,  unitLen);
+		h.line( unitLen,  unitLen*overshoot,  unitLen, unitLen, -unitLen*overshoot,  unitLen);
+		h.line( unitLen*overshoot, -unitLen,  unitLen,-unitLen*overshoot, -unitLen,  unitLen);
+		h.line(-unitLen, -unitLen*overshoot,  unitLen,-unitLen,  unitLen*overshoot,  unitLen);
 
-		h.line( unitLen,  unitLen,  unitLen, unitLen,  unitLen, -unitLen);
-		h.line( unitLen,  unitLen, -unitLen, unitLen, -unitLen, -unitLen);
-		h.line( unitLen, -unitLen, -unitLen, unitLen, -unitLen,  unitLen);
+		h.line( unitLen,  unitLen,  unitLen*overshoot, unitLen,  unitLen, -unitLen*overshoot);
+		h.line( unitLen,  unitLen*overshoot, -unitLen, unitLen, -unitLen*overshoot, -unitLen);
+		h.line( unitLen, -unitLen, -unitLen*overshoot, unitLen, -unitLen,  unitLen*overshoot);
 
-		h.line( unitLen,  unitLen, -unitLen,-unitLen,  unitLen, -unitLen);
-		h.line(-unitLen,  unitLen, -unitLen,-unitLen, -unitLen, -unitLen);
-		h.line(-unitLen, -unitLen, -unitLen, unitLen, -unitLen, -unitLen);
+		h.line( unitLen*overshoot,  unitLen, -unitLen,-unitLen*overshoot,  unitLen, -unitLen);
+		h.line(-unitLen,  unitLen*overshoot, -unitLen,-unitLen, -unitLen*overshoot, -unitLen);
+		h.line(-unitLen*overshoot, -unitLen, -unitLen, unitLen*overshoot, -unitLen, -unitLen);
 
-		h.line(-unitLen,  unitLen, -unitLen,-unitLen,  unitLen,  unitLen);
-		h.line(-unitLen, -unitLen,  unitLen,-unitLen, -unitLen, -unitLen);
+		h.line(-unitLen,  unitLen, -unitLen*overshoot,-unitLen,  unitLen,  unitLen*overshoot);
+		h.line(-unitLen, -unitLen,  unitLen*overshoot,-unitLen, -unitLen, -unitLen*overshoot);
 
 		popMatrix(); 
 	}
 
+	/** Responds to key presses to alter appearance of sketch shapes.
+	 */
 	@Override
 	public void keyPressed()
 	{
@@ -153,6 +166,14 @@ public class Line3DTest extends PApplet
 			{
 				roughness *= 0.9;
 				h.setRoughness(roughness);
+			}
+			else if ((keyCode == PConstants.LEFT) && (overshoot > 1))
+			{
+				overshoot *= 0.99;
+			}
+			else if (keyCode == PConstants.RIGHT)
+			{
+				overshoot *= 1.01;
 			}
 		}
 	}

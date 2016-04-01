@@ -151,9 +151,9 @@ public class GraphExample extends PApplet
 		noLoop();
 	}
 	
-	@Override
 	/** Responds to key presses to alter appearance of sketch shapes.
 	 */
+	@Override
 	public void keyPressed()
 	{
 		if (key =='h')
