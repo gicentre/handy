@@ -8,9 +8,11 @@ import processing.core.PConstants;
 import processing.core.PVector;
 
 //*****************************************************************************************
-/** Simple sketch to test handy line drawing.
+/** Simple sketch to test handy line drawing by drawing a single sketchy line on top of a
+ *  non-sketchy line. H key toggles sketchy rendering on or off. Left and right arrow keys
+ *  control the degree of sketchiness. Zoom and pan by dragging the mouse.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 10th February, 2012
+ *  @version 2.0, 1st April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -28,7 +30,6 @@ import processing.core.PVector;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class LineTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -43,19 +44,33 @@ public class LineTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	private boolean isHandy;
-	private ZoomPan zoomer;
-	private float roughness;
-		
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private ZoomPan zoomer;				// For zooming and panning.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float roughness;			// Degree of sketchiness.
+			
 	// ---------------------------- Processing methods -----------------------------
 
-	/** Sets up the sketch.
+	/** Initial window settings prior to setup().
 	 */
-	public void setup()
+	@Override
+	public void settings()
 	{   
 		size(600,200);
-		smooth();
+		
+		// Should work with all Processing 3 renderers.
+		// size(600,200, P2D);
+		// size(600,200, P3D);
+		// size(600,200, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
+	/** Sets up the sketch.
+	 */
+	@Override
+	public void setup()
+	{   
 		zoomer = new ZoomPan(this);
 		
 		isHandy = true;
@@ -66,8 +81,9 @@ public class LineTest extends PApplet
 	}
 	
 	
-	/** Draws a single line
+	/** Draws a single line.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);
@@ -75,8 +91,6 @@ public class LineTest extends PApplet
 		
 		PVector p1 = new PVector(100,100);
 		PVector p2 = new PVector(width-100,height-100);
-
-		
 		
 		// Draw guides.
 		pushStyle();
@@ -92,14 +106,13 @@ public class LineTest extends PApplet
 		
 		h.line(p1.x,p1.y,p2.x,p2.y);
 
-		
-		
 		noLoop();
 	}
 		
-	@Override
+	
 	/** Changes the roughness in response to the left and right arrow keys.
 	 */
+	@Override
 	public void keyPressed()
 	{
 		if (key =='h')
@@ -130,9 +143,9 @@ public class LineTest extends PApplet
 		}
 	}
 	
-	@Override
 	/** Ensure sketch is redrawn when the mouse is dragged for zooming/panning.
 	 */
+	@Override
 	public void mouseDragged()
 	{
 		loop();

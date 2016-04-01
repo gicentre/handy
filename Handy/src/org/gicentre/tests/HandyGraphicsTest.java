@@ -1,18 +1,17 @@
 package org.gicentre.tests;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
-import org.gicentre.tests.handy.HandyDraw2;
-import org.gicentre.utils.move.ZoomPan;
+import org.gicentre.handy.HandyGraphics;
+import org.gicentre.handy.HandyRenderer;
 
 import processing.core.PApplet;
 
-//****************************************************************************************
-/** Test class for HandyDraw.
- *  @author Aidan Slingsby, giCentre, City University London.
- *  @version 1.0, 31st January, 2012.
+// *****************************************************************************************
+/** Tests the use of the HandyGraphics context to allow sketchy graphics without explicitly
+ *  calling methods in the HandyRenderer.
+ *  @author Jo Wood, giCentre, City University London.
+ *  @version 2.0, 1st April, 2016
  */ 
-//  ****************************************************************************************
+// *****************************************************************************************
 
 /* This file is part of Handy sketchy drawing library. Handy is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU Lesser General Public License
@@ -28,36 +27,69 @@ import processing.core.PApplet;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
-public class HandyDrawTest2 extends PApplet implements MouseWheelListener{
+public class HandyGraphicsTest extends PApplet 
+{
+	// ------------------------------ Starter method ------------------------------- 
 
-	HandyDraw2 handyDraw;
-	boolean useHandy=true;
-	
-	ZoomPan zoomer;
-
-	public void setup(){
-		this.addMouseWheelListener(this);
-		size(400,500);
-		handyDraw=new HandyDraw2(this);
-		smooth();
-		zoomer = new ZoomPan(this);
+	/** Creates a simple application to test handy line drawing.
+	 *  @param args Command line arguments (ignored). 
+	 */
+	public static void main(String[] args)
+	{   
+		PApplet.main(new String[] {"org.gicentre.tests.HandyGraphicsTest"});
 	}
 
-	public void draw(){
-		
-		background(255);
-		zoomer.transform();
-		
+	// ----------------------------- Object variables ------------------------------
 
-		fill(200,100,100); //styles are honoured by handyDraw even if set outside start/stopHandy
-		stroke(0,0,200);
-		if (useHandy){
-			handyDraw.startHandy();
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private HandyGraphics hg;			// Graphics context in which to render.
+	private boolean isHandy;			// Toggles handy rendering on and off.
+
+	// ---------------------------- Processing methods -----------------------------
+
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		size(800,800);
+
+		// Should work with all Processing 3 renderers.
+		// size(800,800, P2D);
+		// size(800,800, P3D);
+		// size(800,800, FX2D);
+
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+
+	/** Sets up the sketch.
+	 */
+	public void setup()
+	{   
+		h = new HandyRenderer(this);
+		h.setFillGap(2f);
+		hg = new HandyGraphics(h,this);
+		isHandy = true;
+	}
+
+	/** Draws a range of graphics objects using a HandyGraphics object.
+	 */
+	@Override
+	public void draw()
+	{
+		background(255);
+		
+		
+		h.setSeed(1224);
+				
+		
+		// Turn on Handy rendering at the start of each draw cycle.
+		if (isHandy)
+		{
+			beginRecord(hg);
 		}
 		
-		//background(255);
-		
+		scale(1.5f);
+		strokeWeight(2);
 		
 		line(10, 10, 200, 200);
 		ellipse(100,100,20,20);
@@ -77,7 +109,6 @@ public class HandyDrawTest2 extends PApplet implements MouseWheelListener{
 		vertex(200,40);
 		vertex(180,40);
 		endShape(CLOSE);
-		
 		
 		//examples from http://processing.org/reference/beginShape_.html
 		
@@ -192,42 +223,28 @@ public class HandyDrawTest2 extends PApplet implements MouseWheelListener{
 		endShape(CLOSE);
 
 		popMatrix();
-			
-		ellipse(zoomer.getMouseCoord().x,zoomer.getMouseCoord().y,40,40);
-
-		if (useHandy) {
-			handyDraw.stopHandy();
+		
+		
+		stroke(0);
+		fill(200,50,50,100);
+		ellipse(mouseX/1.5f,mouseY/1.5f,150,100);
+		
+		// Turn off handy rendering at the end of each draw cycle.
+		if (isHandy)
+		{
+			endRecord();
 		}
-		noLoop();
-	}
-
-	public void mouseMoved(){
-		loop();
 	}
 	
-	public void mouseDragged(){
-		loop();
-	}
-	
-	public void keyPressed(){
-		//toggle use handy
-		if (key=='h')
-			useHandy=!useHandy;
-		if (key=='s')
-			if (g.smooth)
-				noSmooth();
-			else
-				smooth();
-				
-		loop();
-	}
-
-	/** Responds to a mouse wheel movement by ensuring the screen is updated
-	 *  with new zoom level.
-	 *  @param e Mouse wheel movement event.
+	/** Responds to key presses to control appearance of shapes.
 	 */
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		loop();
+	@Override
+	public void keyPressed()
+	{
+		if (key =='h')
+		{
+			isHandy = !isHandy;
+			h.setIsHandy(isHandy);
+		}
 	}
-
 }

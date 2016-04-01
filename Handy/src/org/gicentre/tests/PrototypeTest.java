@@ -10,7 +10,7 @@ import processing.core.PFont;
 //*****************************************************************************************
 /** Sketch to illustrate the use of the HandyRenderer to build a digital prototype.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 29th January, 2012
+ *  @version 2.0, 1st April, 2016
  */ 
 // *****************************************************************************************
 
@@ -28,8 +28,7 @@ import processing.core.PFont;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
-public class PrototypeExample extends PApplet 
+public class PrototypeTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -38,7 +37,7 @@ public class PrototypeExample extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.PrototypeExample"});
+		PApplet.main(new String[] {"org.gicentre.tests.PrototypeTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
@@ -50,30 +49,41 @@ public class PrototypeExample extends PApplet
 		
 	// ---------------------------- Processing methods -----------------------------
 	
-
-	/** Sets up the sketch.
+	/** Initial window settings prior to setup().
 	 */
-	public void setup()
+	@Override
+	public void settings()
 	{   
 		size(930,630);
 		
-		largeFont = createFont("NanumBrush",48);
-		mediumFont = createFont("NanumBrush",24);
-		smallFont = createFont("NanumBrush",13);
+		// Should work with all Processing 3 renderers.
+		// size(930,630, P2D);
+		// size(930,630, P3D);
+		// size(930,630, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
+	/** Sets up the sketch.
+	 */
+	@Override
+	public void setup()
+	{   		
+		largeFont  = loadFont("HumorSans-32.vlw");
+		mediumFont = loadFont("HumorSans-18.vlw");
+		smallFont  = mediumFont;
 		mapColours = ColourTable.getPresetColourTable(ColourTable.PU_OR,0,1);
 		
 		h = new HandyRenderer(this);
-		smooth();
 	}
 	
-	
-	/** Draws some sketchy lines.
+	/** Draws the prototypes.
 	 */
+	@Override
 	public void draw()
 	{
-		background(234,215,182);
+		background(245,235,220);
 		
-
 		stroke(0,40);
 		fill(255);
 		h.setFillGap(0);
@@ -88,7 +98,6 @@ public class PrototypeExample extends PApplet
 				
 		// Right hand demographics area
 		h.rect(740,20,170,height-40);
-		
 		
 		// Likert graphs
 		drawLikert("Local area",        30,  30, 180, 105);
@@ -153,20 +162,24 @@ public class PrototypeExample extends PApplet
 			h.rect(x,y,wdth,hght);
 		}
 		fill(0,200);
+		textSize(16);
 		textFont(mediumFont);
 		textAlign(LEFT);
 		text("Negative response",250,440);
 		textAlign(RIGHT);
 		text("Positive response",710,440);
 		
+		textSize(32);
 		textFont(largeFont);
+		textSize(32);
 		textAlign(CENTER);
 		fill(0,150);
 		text("Question title here",(710+250)/2,530);
 		
+		textSize(16);
 		textFont(mediumFont);
 		fill(0,200);
-		text("Advanced menu options and status will be displayed here",(710+250)/2,605);
+		text("Advanced menu options and status displayed here",(710+250)/2,605);
 		
 		
 		// Demographics bars
@@ -187,19 +200,16 @@ public class PrototypeExample extends PApplet
 		float barLength = (160-40);
 		h.rect(745+40,height-40,barLength,9);
 		
-		
 		noLoop();
 	}
-	
-	
-	@Override
-	/* Redraw on any key press.
+		
+	/** Redraw on any key press.
 	 */
+	@Override
 	public void keyPressed()
 	{
 		loop();
 	}
-	
 	
 	/** Draws one of the horizontal bar charts representing a demographic variable.
 	 *  @param title Title of chart
@@ -215,6 +225,7 @@ public class PrototypeExample extends PApplet
 		float yPos = y;
 		
 		fill(0,140);
+		textSize(18);
 		textFont(mediumFont);
 		stroke(0,50);
 		textAlign(LEFT,CENTER);
@@ -223,11 +234,12 @@ public class PrototypeExample extends PApplet
 		
 	
 		textFont(smallFont);
+		textSize(12);
 		for (int i=0; i<numBars; i++)
 		{
 			fill(0,140);
 			textAlign(RIGHT,CENTER);
-			text("Category",x+34,yPos+2);
+			text("Group",x+34,yPos+2);
 			
 			fill(182,147,146);
 			float barLength = random((wdth-40)*0.1f,(wdth-40));

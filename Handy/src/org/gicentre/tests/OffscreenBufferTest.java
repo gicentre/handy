@@ -7,12 +7,14 @@ import org.gicentre.handy.HandyRenderer;
 import org.gicentre.handy.Simplifier;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 // *****************************************************************************************
-/** Simple mouse-controlled painting application to test line and polygon drawing.
+/** Simple mouse-controlled painting application to test line and polygon drawing and writing
+ *  to an offscreen buffer. Drag mouse to draw lines; shift-drag to draw polygons.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 4th January, 2012.
+ *  @version 2.0, 1st April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -30,8 +32,8 @@ import processing.core.PVector;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
-public class Painter extends PApplet 
+
+public class OffscreenBufferTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -40,25 +42,46 @@ public class Painter extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.Painter"});
+		PApplet.main(new String[] {"org.gicentre.tests.OffscreenBufferTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
 
 	private HandyRenderer h;
-	private ArrayList<Mark> marks;
 	private Mark currentMark;
 	private float roughness;
 
+	private PGraphics pg;				// Offscreen buffer.
+	
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	@Override
+	public void settings()
+	{   
+		size(1200,800);
+		
+		// Should work with all Processing 3 renderers.
+		// size(1200,800, P2D);
+		// size(1200,800, P3D);
+		// size(1200,800, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
+	/** Sets up the sketch.
+	 */
+	@Override
 	public void setup()
 	{
-		size(1200,800);
-		smooth();
-		//h = new HandyRenderer(this);
+		// Create the offscreen buffer into which accumulated drawing will placed.
+		pg = createGraphics(width,height);		
+		pg.beginDraw();
+		pg.background(255);
+		pg.endDraw();
+		
 		h = HandyPresets.createPencil(this);
-		marks = new ArrayList<Mark>();	
 		currentMark = new Mark(h);
 		roughness = 1;
 		h.setRoughness(roughness);
@@ -66,41 +89,62 @@ public class Painter extends PApplet
 
 	// ------------------------ Processing draw -------------------------
 
+	/** Draws the user-generated lines and polygons.
+	 */
+	@Override
 	public void draw()
 	{
 		background(255);
+		
+		h.setSeed(12345);		// Stops jittering on redraw.
+		
+		// Draw accumulated image.
+		image (pg,0,0);
 
-		for (Mark mark : marks)
-		{
-			mark.draw();  
-		}
-
+		// Draw currently active shape on top of image.
 		currentMark.draw();
 
 		noLoop();
 	}
 
-
+	/** Adds the current pointer location to the current shape when mouse is pressed.
+	 */
+	@Override
 	public void mousePressed()
 	{
 		currentMark.add(mouseX,mouseY); 
 		loop(); 
 	}
 
-
+	/** Adds the current pointer location to the current shape when mouse is dragged.
+	 */
+	@Override
 	public void mouseDragged()
 	{
 		currentMark.add(mouseX,mouseY); 
 		loop(); 
 	}
 
+	/** Stores the current shape when the mouse is released.
+	 */
+	@Override
 	public void mouseReleased()
-	{
-		marks.add(currentMark);
+	{		
+		// Add the active shape to the image buffer
+		h.setGraphics(pg);
+		pg.beginDraw();
+		currentMark.draw();
+		pg.endDraw();
+		h.setGraphics(this.g);
+		
+		// Reset new shape.
 		currentMark = new Mark(h);
 		loop();
 	}
 
+	/** Responds to key pressed by allowing appearance of objects to be changed and line/polygon drawing to
+	 *  be controlled with the shift key.
+	 */
 	@Override
 	public void keyPressed()
 	{		
@@ -130,6 +174,8 @@ public class Painter extends PApplet
 		}
 	}
 
+	/** Completes the currenty polygon (if it is being drawn) on mouse release.
+	 */
 	@Override
 	public void keyReleased()
 	{
@@ -142,7 +188,6 @@ public class Painter extends PApplet
 			}
 		}
 	}
-
 
 
 	// ----------------------------------- Nested classes -----------------------------------------

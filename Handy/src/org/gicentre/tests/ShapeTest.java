@@ -7,9 +7,11 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 //*****************************************************************************************
-/** Simple sketch to test positioning and colouring of handy shapes.
+/** Simple sketch to test positioning and styling of handy shapes. The 'A' key toggles 
+ *  alternating hachures. The arrow keys control hachure angle. Zooming and panning with 
+ *  mouse dragging and 'R' to reset zoom.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 6th February 2012.
+ *  @version 2.0, 1st April 2016.
  */ 
 // *****************************************************************************************
 
@@ -27,7 +29,6 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class ShapeTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -52,12 +53,26 @@ public class ShapeTest extends PApplet
 		
 	// ---------------------------- Processing methods -----------------------------
 
-	/** Sets up the sketch.
+	/** Initial window settings prior to setup().
 	 */
-	public void setup()
+	@Override
+	public void settings()
 	{   
 		size(1400,600);
-		smooth();
+		
+		// Should work with all Processing 3 renderers.
+		// size(1400,600, P2D);
+		// size(1400,600, P3D);
+		// size(1400,600, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
+	/** Sets up the sketch.
+	 */
+	@Override
+	public void setup()
+	{   
 		angle = -37;
 		isAlternating = false;
 		zoomer = new ZoomPan(this);
@@ -68,6 +83,7 @@ public class ShapeTest extends PApplet
 	
 	/** Draws a sequence of objects with different sketchy parameters
 	 */
+	@Override
 	public void draw()
 	{
 		background(227,215,197);
@@ -242,7 +258,11 @@ public class ShapeTest extends PApplet
 		if (key == 'a')
 		{
 			isAlternating = !isAlternating;
-			h.setIsAlternating(isAlternating);
+			loop();
+		}
+		else if (key == 'r')
+		{
+			zoomer.reset();
 			loop();
 		}
 		
@@ -251,13 +271,11 @@ public class ShapeTest extends PApplet
 			if (keyCode == PConstants.LEFT)
 			{
 				angle--;
-				h.setHachureAngle(angle);
 				loop();
 			}
 			else if (keyCode == PConstants.RIGHT)
 			{
 				angle++;
-				h.setHachureAngle(angle);
 				loop();
 			}
 		}
@@ -276,7 +294,7 @@ public class ShapeTest extends PApplet
 	{
 		h.resetStyles();
 		h.setHachureAngle(angle);
-		
+		h.setIsAlternating(isAlternating);
 		switch (i)
 		{
 			case 0:
@@ -395,7 +413,10 @@ public class ShapeTest extends PApplet
 				h.setSecondaryColour(color(120,140,190,50));
 				h.setFillWeight(0.5f);
 				h.setFillGap(0.5f);
+				break;
 				
+			default:
+				// Do nothing.
 		}
 	}
 }

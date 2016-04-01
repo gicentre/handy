@@ -8,9 +8,11 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 //*****************************************************************************************
-/** Simple sketch to show handy shape drawing in a pencil sketch style.
+/** Simple sketch to show handy shape drawing in four different present styles. H key toggles
+ *  sketchy rendering on or off. Left and right arrows change the hachure angle. Image zoomed
+ *  and panned with mouse drag.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 2nd December, 2011.
+ *  @version 2.0, 1st April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -28,8 +30,7 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
-public class RandomShapeExample extends PApplet 
+public class PresetStyleTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -38,7 +39,7 @@ public class RandomShapeExample extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.RandomShapeExample"});
+		PApplet.main(new String[] {"org.gicentre.tests.PresetStyleTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
@@ -49,13 +50,27 @@ public class RandomShapeExample extends PApplet
 	private boolean isHandy;
 		
 	// ---------------------------- Processing methods -----------------------------
-
-	/** Sets up the sketch.
+	
+	/** Initial window settings prior to setup().
 	 */
-	public void setup()
+	@Override
+	public void settings()
 	{   
 		size(1200,800);
-		smooth();
+		
+		// Should work with all Processing 3 renderers.
+		// size(1200,800, P2D);
+		// size(1200,800, P3D);
+		// size(1200,800, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
+	/** Sets up the sketch.
+	 */
+	@Override
+	public void setup()
+	{
 		zoomer = new ZoomPan(this);
 		angle = -42;
 		isHandy = true;	
@@ -71,12 +86,13 @@ public class RandomShapeExample extends PApplet
 		marker.setHachureAngle(angle);
 		cPencil.setHachureAngle(angle);
 		
-		textFont(createFont("YWFTHLLVTKA-Normal",36));
+		textFont(loadFont("HumorSans-32.vlw"));
 	}
 	
 	
 	/** Draws the same shapes in four different sketchy styles.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);
@@ -90,7 +106,6 @@ public class RandomShapeExample extends PApplet
 		strokeWeight(1);
 		textAlign(RIGHT,BOTTOM);
 		
-				
 		randomSeed(10);
 		noFill();
 		border.rect(10,10,width/2-20,height/2-20);

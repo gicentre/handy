@@ -6,9 +6,10 @@ import org.gicentre.utils.move.ZoomPan;
 import processing.core.PApplet;
 
 //*****************************************************************************************
-/** Simple sketch to test beginShape(), endShape() and vertex handy rendering.
+/** Simple sketch to test beginShape(), endShape() and vertex handy rendering. Zoom and pan
+ *  by dragging mouse.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.0, 28th January 2012.
+ *  @version 2.0, 1st April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -26,7 +27,6 @@ import processing.core.PApplet;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class ShapeVertexTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -46,12 +46,26 @@ public class ShapeVertexTest extends PApplet
 	
 	// ---------------------------- Processing methods -----------------------------
 
-	/** Sets up the sketch.
+	/** Initial window settings prior to setup().
 	 */
-	public void setup()
+	@Override
+	public void settings()
 	{   
 		size(400,250);
-		smooth();
+		
+		// Should work with all Processing 3 renderers.
+		// size(400,250, P2D);
+		// size(400,250, P3D);
+		// size(400,250, FX2D);
+		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
+	/** Sets up the sketch.
+	 */
+	@Override
+	public void setup()
+	{   
 		fill(168,212,176);
 		stroke(120);
 		strokeWeight(3);
@@ -63,6 +77,7 @@ public class ShapeVertexTest extends PApplet
 
 	/** Draws a sketchy cross at the mouse position.
 	 */
+	@Override
 	public void draw()
 	{
 		background(255);  
@@ -72,9 +87,9 @@ public class ShapeVertexTest extends PApplet
 		noLoop();
 	}
 	
-	@Override
 	/** Redraws screen when mouse is dragged, to allow zooming and panning.
 	 */
+	@Override
 	public void mouseDragged()
 	{
 		loop();

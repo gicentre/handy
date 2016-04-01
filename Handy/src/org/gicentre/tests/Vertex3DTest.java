@@ -11,7 +11,7 @@ import processing.core.PConstants;
 // *****************************************************************************************
 /** Simple sketch to test handy 3d shape building.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.1, 11th April, 2012
+ *  @version 2.0, 1st April, 2016
  */ 
 // *****************************************************************************************
 
@@ -29,7 +29,6 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-@SuppressWarnings("serial")
 public class Vertex3DTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
@@ -55,20 +54,26 @@ public class Vertex3DTest extends PApplet
 
 	// ---------------------------- Processing methods -----------------------------
 
+	/** Initial window settings prior to setup().
+	 */
+	public void settings()
+	{   
+		size(640,360,P3D);		
+		pixelDensity(displayDensity());		// Use platform's maximum display density.
+	}
+	
 	/** Sets up the sketch.
 	 */
+	@Override
 	public void setup()
 	{   
-		size(640, 360,OPENGL); 
 		timer = new FrameTimer();
 		roughness = 1.5f;
 		angle = 45;
-		//h = new HandyRenderer(this);
 		h = HandyPresets.createMarker(this);
 		h.setRoughness(roughness);
 		h.setHachureAngle(angle);
 		h.setHachurePerturbationAngle(0);
-		//h.setBackgroundColour(color(255,128));
 		fill(180,80,80);		
 	}
 
@@ -139,7 +144,6 @@ public class Vertex3DTest extends PApplet
 		  h.vertex( lengthA, -lengthA, -lengthB);
 		  h.vertex( lengthA, -lengthA,  lengthB);
 		  h.vertex(-lengthA, -lengthA,  lengthB);
-
 
 		  h.endShape();
 

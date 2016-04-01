@@ -17,7 +17,7 @@ import processing.core.PVector;
  *  href="http://www.local-guru.net/blog/2010/4/23/simulation-of-hand-drawn-lines-in-processing" 
  *  target="_blank">Nikolaus Gradwohl</a>
  *  @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
- *  @version 2.0, 31st March, 2016.
+ *  @version 2.0, 1st April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -1277,21 +1277,21 @@ public class HandyRenderer
 	}
 
 	/** Draws 3D box with the given dimensions.
-	 *  @param bW Width of the box.
-	 *  @param hH Height of the box.
-	 *  @param bD Depth of the box.
+	 *  @param bWidth Width of the box.
+	 *  @param bHeight Height of the box.
+	 *  @param bDepth Depth of the box.
 	 */
-	public void box(float bWidth, float hHeight, float bDepth)
+	public void box(float bWidth, float bHeight, float bDepth)
 	{
 		if (isHandy == false)
 		{
-			graphics.box(bWidth,hHeight,bDepth);
+			graphics.box(bWidth,bHeight,bDepth);
 		}
 		else
 		{
 			// Create a box without any strokes first.
 			float bW = bWidth/2f;
-			float bH = hHeight/2f;
+			float bH = bHeight/2f;
 			float bD = bDepth/2f;
 			graphics.pushStyle();
 			boolean isStrokeOverridden = overrideStrokeColour;
@@ -1350,7 +1350,6 @@ public class HandyRenderer
 			 line(-bW,  bH, -bD,-bW,  bH,  bD);
 			 line(-bW, -bH,  bD,-bW, -bH, -bD);
 		}
-
 	}
 
 	/** Draws a closed 2d polygon based on the given arrays of vertices.
