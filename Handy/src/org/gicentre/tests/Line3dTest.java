@@ -7,10 +7,10 @@ import processing.core.PConstants;
 
 // *****************************************************************************************
 /** Simple sketch to test handy 3d line drawing. 'H' to toggle sketchy rendering, up and 
- *  down arrows to change degree of sketchiness. Left and right arrows to change curve 
- *  vertex overshoot.Move mouse to rotate cube.
+ *  down arrows to change degree of sketchiness. Left and right arrows to change the vertex 
+ *  overshoot. Move mouse to rotate cube.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016
+ *  @version 2.0, 2nd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -28,7 +28,7 @@ import processing.core.PConstants;
  * http://www.gnu.org/licenses/.
  */
 
-public class Line3DTest extends PApplet 
+public class Line3dTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -37,7 +37,7 @@ public class Line3DTest extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.Line3DTest"});
+		PApplet.main(new String[] {"org.gicentre.tests.Line3dTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------

@@ -1,9 +1,10 @@
 package org.gicentre.tests;
 
-import org.gicentre.handy.HandyGraphics;
+import org.gicentre.handy.HandyRecorder;
 import org.gicentre.handy.HandyRenderer;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 // *****************************************************************************************
 /** Tests the use of the HandyGraphics context to allow sketchy graphics without explicitly
@@ -27,7 +28,7 @@ import processing.core.PApplet;
  * http://www.gnu.org/licenses/.
  */
 
-public class HandyGraphicsTest extends PApplet 
+public class HandyRecorder2dTest extends PApplet 
 {
 	// ------------------------------ Starter method ------------------------------- 
 
@@ -36,14 +37,15 @@ public class HandyGraphicsTest extends PApplet
 	 */
 	public static void main(String[] args)
 	{   
-		PApplet.main(new String[] {"org.gicentre.tests.HandyGraphicsTest"});
+		PApplet.main(new String[] {"org.gicentre.tests.HandyRecorder2dTest"});
 	}
 
 	// ----------------------------- Object variables ------------------------------
 
 	private HandyRenderer h;			// Does the sketchy rendering.
-	private HandyGraphics hg;			// Graphics context in which to render.
+	private HandyRecorder handyRec;		// Graphics context in which to render.
 	private boolean isHandy;			// Toggles handy rendering on and off.
+	private float roughness;			// Degree of sketchiness.
 
 	// ---------------------------- Processing methods -----------------------------
 
@@ -51,11 +53,11 @@ public class HandyGraphicsTest extends PApplet
 	 */
 	public void settings()
 	{   
-		size(800,800);
+		//size(800,800);
 
 		// Should work with all Processing 3 renderers.
 		// size(800,800, P2D);
-		// size(800,800, P3D);
+		size(800,800, P3D);
 		// size(800,800, FX2D);
 
 		pixelDensity(displayDensity());		// Use platform's maximum display density.
@@ -67,8 +69,9 @@ public class HandyGraphicsTest extends PApplet
 	{   
 		h = new HandyRenderer(this);
 		h.setFillGap(2f);
-		hg = new HandyGraphics(h,this);
+		handyRec = new HandyRecorder(h);
 		isHandy = true;
+		roughness = 1;
 	}
 
 	/** Draws a range of graphics objects using a HandyGraphics object.
@@ -77,19 +80,29 @@ public class HandyGraphicsTest extends PApplet
 	public void draw()
 	{
 		background(255);
-		
+		strokeWeight(2);
+		stroke(0);
 		
 		h.setSeed(1224);
-				
+		h.setRoughness(roughness);
 		
+		// Anything drawn before turning on the handy recorder should appear as normal
+		line(mouseX,mouseY-100,mouseX,mouseY+100);
+		line(mouseX-100,mouseY,mouseX+100,mouseY);
+		noFill();
+		strokeWeight(0.5f);
+		ellipse(mouseX,mouseY,200,200);
+				
 		// Turn on Handy rendering at the start of each draw cycle.
 		if (isHandy)
 		{
-			beginRecord(hg);
+			beginRecord(handyRec);
 		}
-		
+		pushMatrix();
+		rotate(radians(-10));
+		translate(0,100);
 		scale(1.5f);
-		strokeWeight(2);
+		fill(100,100);
 		
 		line(10, 10, 200, 200);
 		ellipse(100,100,20,20);
@@ -110,10 +123,33 @@ public class HandyGraphicsTest extends PApplet
 		vertex(180,40);
 		endShape(CLOSE);
 		
+		// Some curved lines and shapes in a different style.
+		pushStyle();
+		
+		noFill();
+		strokeWeight(2);
+		stroke(255, 102, 0);
+		curve(405, 26, 405, 26, 273, 24, 273, 61);
+		curve(405, 26, 273, 24, 273, 61, 415, 65); 
+		curve(273, 24, 273, 61, 415, 65, 415, 65);
+				
+		fill(255, 102, 0);
+		beginShape();
+		curveVertex(384,  191);
+		curveVertex(384,  191);
+		curveVertex(368,  119);
+		curveVertex(321,  117);
+		curveVertex(332, 200);
+		curveVertex(332, 200);
+		vertex(384, 191);		
+		endShape(CLOSE);
+		
+		popStyle();
+		
+		
 		//examples from http://processing.org/reference/beginShape_.html
 		
 		pushMatrix();
-		
 		translate(0,200);
 		beginShape();
 		vertex(30, 20);
@@ -222,18 +258,25 @@ public class HandyGraphicsTest extends PApplet
 		vertex(20, 60);
 		endShape(CLOSE);
 
-		popMatrix();
+		popMatrix();		// End of scaling and translation.
 		
+		popMatrix();		// End of rotation
 		
+		// Small sketchy ellipse after transformations follows mouse position.
 		stroke(0);
 		fill(200,50,50,100);
-		ellipse(mouseX/1.5f,mouseY/1.5f,150,100);
+		ellipse(mouseX,mouseY,90,40);
 		
 		// Turn off handy rendering at the end of each draw cycle.
 		if (isHandy)
 		{
 			endRecord();
 		}
+		
+		// Any code following the turning off of the handy recorder should be unsketchy.
+		fill(50,50,200,100);
+		noStroke();
+		ellipse(mouseX,mouseY,200,120);
 	}
 	
 	/** Responds to key presses to control appearance of shapes.
@@ -245,6 +288,18 @@ public class HandyGraphicsTest extends PApplet
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
+		}
+		
+		if (key == PConstants.CODED)
+		{
+			if (keyCode == PConstants.UP)
+			{
+				roughness *= 1.1;
+			}
+			else if (keyCode == PConstants.DOWN)
+			{
+				roughness *= 0.9;
+			}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package org.gicentre.tests;
 
+import org.gicentre.handy.HandyRecorder;
 import org.gicentre.handy.HandyRenderer;
 import org.gicentre.utils.move.*;				// For zooming.
 
@@ -46,6 +47,7 @@ public class CurvedLinesTest extends PApplet
 	private boolean isHandy;			// Toggles handy rendering on and off.
 	private float tightness;			// Curve tightness.
 	private ZoomPan zoomer;				// For zooming and panning.
+	private HandyRecorder handyRec;
 		
 	// ---------------------------- Processing methods -----------------------------
 
@@ -76,6 +78,7 @@ public class CurvedLinesTest extends PApplet
 		isHandy = true;
 		h = new HandyRenderer(this);
 		h.setIsHandy(isHandy);
+		handyRec = new HandyRecorder(h);
 	}
 	
 	
@@ -89,7 +92,7 @@ public class CurvedLinesTest extends PApplet
 		
 		stroke(80,30,20);
 		fill(80,30,20,100);
-		float cx = width/2;
+		float cx = 10;
 		float cy = height/2;
 		
 		h.beginShape();
@@ -102,6 +105,23 @@ public class CurvedLinesTest extends PApplet
 		
 		h.vertex(cx+84, cy+91);
 		h.endShape();
+		
+		
+		
+		// Second shape using the handy recorder. Should appear identical to first shape but to the right.
+		cx  = width/2;
+		beginRecord(handyRec);
+		beginShape();
+		curveVertex(cx+84, cy+ 91);
+		curveVertex(cx+84, cy+ 91);
+		curveVertex(cx+68, cy+ 19);
+		curveVertex(cx+21, cy+ 17);
+		curveVertex(cx+32, cy+100);
+		curveVertex(cx+32, cy+100);
+		
+		vertex(cx+84, cy+91);
+		endShape();
+		endRecord();
 		
 		noLoop();
 	}

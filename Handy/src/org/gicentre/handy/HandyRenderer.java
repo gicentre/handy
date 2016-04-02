@@ -2260,6 +2260,15 @@ public class HandyRenderer
 		float xRange = maxX-minX;
 		float yRange = maxY-minY;
 		float zRange = maxZ-minZ;
+		
+		
+		// Check that we have at least two dimensions that need to have a surface
+		if ( ((xRange < 2) && (yRange < 2)) ||
+			 ((xRange < 2) && (zRange < 2)) ||
+			 ((yRange < 2) && (zRange < 2)))
+		{
+			return;
+		}
 
 		float left = minX;
 		float right = maxX;

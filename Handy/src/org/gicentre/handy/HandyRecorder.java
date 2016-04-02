@@ -6,8 +6,8 @@ import processing.core.PGraphics;
 // *****************************************************************************************
 /** A PGraphics class for rendering in a sketchy style. An object of this type can be passed
  *  to a sketch's <code>beginRecord(PGraphics)</code> method. 
-*   @author Jo Wood, giCentre, City University London based on an idea by Nikolaus Gradwohl.
-*   @version 2.0, 1st April, 2016.
+*   @author Jo Wood, giCentre, City University London.
+*   @version 2.0, 2nd April, 2016.
 */ 
 // *****************************************************************************************
 
@@ -25,32 +25,30 @@ import processing.core.PGraphics;
 * http://www.gnu.org/licenses/.
 */
 
-public class HandyGraphics extends PGraphics 
+public class HandyRecorder extends PGraphics 
 {
 	// -------------------------------- Object Variables ---------------------------------  
 
 	private HandyRenderer h;
-	private PApplet parentSketch;
 	
 	// --------------------------------- Constructors ------------------------------------  
 
-	/** Creates a new sketchy graphics context associated with the given parent sketch.
-	 * @param parent Sketch with which this handy graphics object is to be associated.
+	/** Creates a new sketchy graphics context associated with the given parent sketch. This 
+	 *  version will create an internal handy renderer with default properties.
+	 *  @param parentSketch Sketch with which this handy graphics object is to be associated.
 	 */
-	public HandyGraphics(PApplet parent)
+	public HandyRecorder(PApplet parentSketch)
 	{
-		this.parentSketch = parent;
-		h = new HandyRenderer(parent);
+		h = new HandyRenderer(parentSketch);
 	}
 	
-	/** Creates a new sketchy graphics context associated with the given parent sketch.
+	/** Creates a new sketchy graphics context associated with the given handy renderer. This
+	 *  version allows the properties of the supplied handy renderer to be changed programmatically.
 	 *  @param h Handy renderer to use when drawing to this graphics context.
-	 *  @param parent Sketch with which this handy graphics object is to be associated.
 	 */
-	public HandyGraphics(HandyRenderer h, PApplet parent)
+	public HandyRecorder(HandyRenderer h)
 	{
 		this.h = h;
-		this.parentSketch = parent;
 	}
 	
 	// ---------------------------- Overridden graphics methods -------------------------------------
@@ -354,6 +352,36 @@ public class HandyGraphics extends PGraphics
 		// Do nothing.
 	}
 	
+	/** Would rotate the coordinate system around the x-axis in 3d space but ignored here as this
+	 *  will be handled by the parent sketch.
+	 *  @param angle Angle by which to rotate around the x-axis (ignored).
+	 */
+	@Override
+	public void rotateX(float angle)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would rotate the coordinate system around the y-axis in 3d space but ignored here as this
+	 *  will be handled by the parent sketch.
+	 *  @param angle Angle by which to rotate around the y-axis (ignored).
+	 */
+	@Override
+	public void rotateY(float angle)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would rotate the coordinate system around the z-axis in 3d space but ignored here as this
+	 *  will be handled by the parent sketch.
+	 *  @param angle Angle by which to rotate around the z-axis (ignored).
+	 */
+	@Override
+	public void rotateZ(float angle)
+	{	
+		// Do nothing.
+	}
+	
 	/** Would rotate the coordinate system by the given angles but ignored here as this will be
 	 *  handled by the parent sketch.
 	 *  @param angle  Angle of rotation  (ignored).
@@ -394,6 +422,63 @@ public class HandyGraphics extends PGraphics
 		// Do nothing.
 	}
 	
+	/** Would print the current transform matrix but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void printMatrix()
+	{	
+		// Do nothing.
+	}
+	
+	
+	/** Would start 3d camera position definition but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void beginCamera()
+	{	
+		// Do nothing.
+	}
+	
+	/** Would allow the default 3d camera position to be set but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void camera()
+	{	
+		// Do nothing.
+	}
+	
+	/** Would end 3d camera position definition but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void endCamera()
+	{	
+		// Do nothing.
+	}
+	
+	/** Would allow the view frustum (clipping object) to be set but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void frustum(float left, float right, float bottom, float top, float near, float far)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would apply the default perspective settings but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void perspective()
+	{	
+		// Do nothing.
+	}
+	
+	/** Would allow perspective settings to be changed but ignored here as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void perspective(float fovy, float aspect, float zNear, float zFar)
+	{	
+		// Do nothing.
+	}
+	
 	/** Would set the blend mode for this graphics context but ignores it in this case as this will
 	 *  be handled by the parent sketch.
 	 */
@@ -402,4 +487,78 @@ public class HandyGraphics extends PGraphics
 	{	
 		// Do nothing.
 	}
+	
+	/** Would set the default 3d lighting for this graphics context but ignores it in this case as this will
+	 *  be handled by the parent sketch.
+	 */
+	@Override
+	public void lights()
+	{	
+		// Do nothing.
+	}
+	
+	/** Would set a point light source for this graphics context but ignores it in this case as this will
+	 *  be handled by the parent sketch.
+	 */
+	@Override
+	public void pointLight(float v1, float v2, float v3, float x, float y, float z)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would set a ambient light source for this graphics context but ignores it in this case as this will
+	 *  be handled by the parent sketch.
+	 */
+	@Override
+	public void ambientLight(float v1, float v2, float v3)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would set a ambient light source for this graphics context but ignores it in this case as this will
+	 *  be handled by the parent sketch.
+	 */
+	@Override
+	public void ambientLight(float v1, float v2, float v3, float x, float y, float z)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would set a directional light source for this graphics context but ignores it in this case as this will
+	 *  be handled by the parent sketch.
+	 */
+	@Override
+	public void directionalLight(float v1, float v2, float v3, float nx, float ny, float nz)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would set a spotlight source for this graphics context but ignores it in this case as this will
+	 *  be handled by the parent sketch.
+	 */
+	@Override
+	public void spotLight(float v1, float v2, float v3, float x, float y, float z, float nx, float ny, float nz, float angle, float concentration)
+	{	
+		// Do nothing.
+	}
+	
+	
+	/** Would set a light falloff for point, spot and ambient light sources for this graphics context but ignores 
+	 *  it in this case as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void lightFalloff(float constant, float linear, float quadratic)
+	{	
+		// Do nothing.
+	}
+	
+	/** Would set a specular colour for light sources in this graphics context but ignores 
+	 *  it in this case as this will be handled by the parent sketch.
+	 */
+	@Override
+	public void lightSpecular(float v1, float v2, float v3)
+	{	
+		// Do nothing.
+	}
+	
 }
