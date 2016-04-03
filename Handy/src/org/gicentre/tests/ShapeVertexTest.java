@@ -9,7 +9,7 @@ import processing.core.PApplet;
 /** Simple sketch to test beginShape(), endShape() and vertex handy rendering. Zoom and pan
  *  by dragging mouse.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016.
+ *  @version 2.0, 3rd April, 2016.
  */ 
 // *****************************************************************************************
 

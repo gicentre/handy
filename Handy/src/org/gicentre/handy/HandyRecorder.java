@@ -7,7 +7,7 @@ import processing.core.PGraphics;
 /** A PGraphics class for rendering in a sketchy style. An object of this type can be passed
  *  to a sketch's <code>beginRecord(PGraphics)</code> method. 
 *   @author Jo Wood, giCentre, City University London.
-*   @version 2.0, 2nd April, 2016.
+*   @version 2.0, 3rd April, 2016.
 */ 
 // *****************************************************************************************
 
@@ -61,7 +61,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void point(float x, float y)
 	{
-		h.point(x, y);
+		if (h.isHandy())
+		{
+			h.point(x, y);
+		}
+		else
+		{
+			super.point(x, y);
+		}
 	}
 
 	/** Draws 3D point at the given location. Currently this draws the point in the same style as the
@@ -73,7 +80,15 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void point(float x, float y, float z)
 	{
-		h.point(x, y, z);
+		if (h.isHandy())
+		{
+			h.point(x, y, z);
+		}
+		else
+		{
+			super.point(x, y, z);
+		}
+		
 	}
 
 	/** Draws an ellipse using the given location and dimensions. By default the x,y coordinates
@@ -87,7 +102,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void ellipse(float x, float y, float eWidth, float eHeight)
 	{
-		h.ellipse(x, y, eWidth, eHeight);
+		if (h.isHandy())
+		{
+			h.ellipse(x, y, eWidth, eHeight);
+		}
+		else
+		{
+			super.ellipse(x, y, eWidth, eHeight);
+		}
 	}
 
 	/** Draws a rectangle using the given location and dimensions. By default the x,y coordinates
@@ -101,7 +123,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void rect(float x, float y, float rWidth, float rHeight)
 	{
-		h.rect(x, y, rWidth, rHeight);
+		if (h.isHandy())
+		{
+			h.rect(x, y, rWidth, rHeight);
+		}
+		else
+		{
+			super.rect(x, y, rWidth, rHeight);
+		}
 	}
 
 	/** Draws a triangle through the three pairs of coordinates.
@@ -115,7 +144,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 	{
-		h.triangle(x1,y1,x2,y2,x3,y3);
+		if (h.isHandy())
+		{
+			h.triangle(x1,y1,x2,y2,x3,y3);
+		}
+		else
+		{
+			super.triangle(x1, y1, x2, y2, x3, y3);
+		}
 	}
 
 	/** Draws a quadrilateral shape. Similar to a rectangle but angles not constrained to 90 degrees.
@@ -132,7 +168,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 	{
-		h.quad(x1,y1,x2,y2,x3,y3,x4,y4);
+		if (h.isHandy())
+		{
+			h.quad(x1,y1,x2,y2,x3,y3,x4,y4);
+		}
+		else
+		{
+			super.quad(x1, y1, x2, y2, x3, y3, x4, y4);
+		}
 	}
 
 	/** Draws an arc along the outer edge of an ellipse defined by the x,y, w and h parameters.
@@ -147,7 +190,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void arc(float x, float y, float aWidth, float aHeight, float start, float stop)
 	{
-		h.arc(x, y, aWidth, aHeight, start, stop);
+		if (h.isHandy())
+		{
+			h.arc(x, y, aWidth, aHeight, start, stop);
+		}
+		else
+		{
+			super.arc(x, y, aWidth, aHeight, start, stop);
+		}
 	}
 
 	/** Starts a new shape of type <code>POLYGON</code>. This must be paired with a call to 
@@ -156,7 +206,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void beginShape()
 	{
-		h.beginShape();
+		if (h.isHandy())
+		{
+			h.beginShape();
+		}
+		else
+		{
+			super.beginShape();
+		}
 	}
 
 	/** Starts a new shape of the type specified in the mode parameter. This must be paired
@@ -166,7 +223,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void beginShape(int mode)
 	{
-		h.beginShape(mode);
+		if (h.isHandy())
+		{
+			h.beginShape(mode);
+		}
+		else
+		{
+			super.beginShape(mode);
+		}
 	}
 
 	/** Adds a 2d vertex to a shape that was started with a call to <code>beginShape()</code> 
@@ -177,7 +241,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void vertex(float x, float y)
 	{
-		h.vertex(x, y);
+		if (h.isHandy())
+		{
+			h.vertex(x, y);
+		}
+		else
+		{
+			super.vertex(x, y);
+		}
 	}
 
 	/** Adds a 3d vertex to a shape that was started with a call to <code>beginShape()</code> 
@@ -189,7 +260,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void vertex(float x, float y, float z)
 	{
-		h.vertex(x, y, z);
+		if (h.isHandy())
+		{
+			h.vertex(x, y, z);
+		}
+		else
+		{
+			super.vertex(x, y, z);
+		}
 	}
 
 	/** Adds a 2d vertex to a shape or line that has curved edges. That shape should have been
@@ -200,7 +278,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void curveVertex(float x, float y)
 	{
-		h.curveVertex(x,y);
+		if (h.isHandy())
+		{
+			h.curveVertex(x,y);
+		}
+		else
+		{
+			super.curveVertex(x,y);
+		}
 	}
 
 	/** Adds a 3d vertex to a shape or line that has curved edges. That shape should have been
@@ -212,7 +297,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void curveVertex(float x, float y, float z)
 	{
-		h.curveVertex(x,y,z);
+		if (h.isHandy())
+		{
+			h.curveVertex(x,y,z);
+		}
+		else
+		{
+			super.curveVertex(x, y, z);
+		}
 	}
 
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code>
@@ -222,7 +314,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void endShape()
 	{
-		h.endShape();
+		if (h.isHandy())
+		{
+			h.endShape();
+		}
+		else
+		{
+			super.endShape();
+		}
 	}
 
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code> 
@@ -231,16 +330,30 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void endShape(int mode) 
 	{
-		h.endShape(mode);
+		if (h.isHandy())
+		{
+			h.endShape(mode);
+		}
+		else
+		{
+			super.endShape(mode);
+		}
 	}
-
+	
 	/** Draws 3D cube with the given unit dimension.
 	 *  @param bSize Size of each dimension of the cube.
 	 */
 	@Override
 	public void box(float bSize)
 	{
-		h.box(bSize);
+		if (h.isHandy())
+		{
+			h.box(bSize);
+		}
+		else
+		{
+			super.box(bSize);
+		}
 	}
 
 	/** Draws 3D box with the given dimensions.
@@ -251,7 +364,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void box(float bWidth, float bHeight, float bDepth)
 	{
-		h.box(bWidth, bHeight, bDepth);
+		if (h.isHandy())
+		{
+			h.box(bWidth, bHeight, bDepth);
+		}
+		else
+		{
+			super.box(bWidth, bHeight, bDepth);
+		}
 	}
 
 	/** Draws a 2D line between the given coordinate pairs. 
@@ -263,7 +383,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void line(float x1, float y1, float x2, float y2)
 	{	
-		h.line(x1,y1, x2,y2);
+		if (h.isHandy())
+		{
+			h.line(x1,y1, x2,y2);
+		}
+		else
+		{
+			super.line(x1, y1, x2, y2);
+		}
 	}
 
 	/** Draws a 3D line between the given coordinate triplets. 
@@ -277,7 +404,14 @@ public class HandyRecorder extends PGraphics
 	@Override
 	public void line(float x1, float y1, float z1, float x2, float y2, float z2)
 	{	
-		h.line(x1, y1, z1, x2, y2, z2);
+		if (h.isHandy())
+		{
+			h.line(x1, y1, z1, x2, y2, z2);
+		}
+		else
+		{
+			super.line(x1, y1, z1, x2, y2, z2);
+		}
 	}
 
 	// ---------------- Methods not directly available in PGraphics requiring the parent sketch instead ----------------

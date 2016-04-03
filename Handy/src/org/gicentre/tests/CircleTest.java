@@ -14,7 +14,7 @@ import processing.core.PConstants;
  *  A set of very small circles are drawn which should not be visible in the sketchy view
  *  but present as points in the non-sketchy view. 
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 31st March, 2013.
+ *  @version 2.0, 2nd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -119,7 +119,7 @@ public class CircleTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);

@@ -15,7 +15,7 @@ import processing.core.PFont;
  *  Arrows to change bar gap. 'X' and 'Y' for toggling axes; 'T' for transposing axes.
  *  'L' for toggling log scaling.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 31st March, 2016. 
+ *  @version 2.0, 2nd April, 2016. 
  */ 
 // *****************************************************************************************
 
@@ -71,9 +71,9 @@ public class ChartTest extends PApplet
 		size(1200,500);
 
 		// Should work with all Processing 3 renderers.
-		//size(800,500, P2D);
-		//size(800,500, P3D);
-		//size(800,500, FX2D);
+		//size(1200, P2D);
+		//size(1200,500, P3D);
+		//size(1200,500, FX2D);
 
 		pixelDensity(displayDensity());		// Use platform's maximum display density.
 	}
@@ -160,13 +160,13 @@ public class ChartTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
 			loop();
 		}
-		else if (key == 'l')
+		else if ((key == 'l') || (key == 'L'))
 		{
 			useLog = !useLog;
 			chart1.setLogValues(useLog);
@@ -174,20 +174,20 @@ public class ChartTest extends PApplet
 			chart2.setLogY(useLog);
 			loop();
 		}
-		if (key == 't')
+		if ((key == 't') || (key == 'T'))
 		{
 			transpose = !transpose;
 			chart1.transposeAxes(transpose);
 			loop();
 		}
-		if (key == 'x')
+		if ((key == 'x') || (key == 'X'))
 		{
 			showXAxis = !showXAxis;
 			chart1.showCategoryAxis(showXAxis);
 			chart2.showXAxis(showXAxis);
 			loop();
 		}
-		else if (key == 'y')
+		else if ((key == 'y') || (key == 'Y'))
 		{
 			showYAxis = !showYAxis;
 			chart1.showValueAxis(showYAxis);

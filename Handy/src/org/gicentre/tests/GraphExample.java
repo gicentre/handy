@@ -81,7 +81,7 @@ public class GraphExample extends PApplet
 		
 		h = new HandyRenderer(this);
 		h.setIsHandy(isHandy);
-		h.setSecondaryColour(color(0,100));
+		h.setSecondaryColour(color(0,30));
 		h.setUseSecondaryColour(useSecondary);	
 		h.setHachureAngle(-37);
 		h.setHachurePerturbationAngle(7);
@@ -156,7 +156,7 @@ public class GraphExample extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
@@ -177,7 +177,7 @@ public class GraphExample extends PApplet
 			sWeight = 2.5f;
 			loop();
 		}
-		else if (key == 's')
+		else if ((key == 's') || (key == 'S'))
 		{
 			useSecondary = !useSecondary;
 			h.setUseSecondaryColour(useSecondary);

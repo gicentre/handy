@@ -111,14 +111,16 @@ public class HandyRenderer
 	 */
 	public static void copyGraphics(PGraphics gSrc, PGraphics gDst)
 	{
-		gDst.bezierDetail    = gSrc.bezierDetail;
 		gDst.backgroundColor = gSrc.backgroundColor;
+		gDst.bezierDetail    = gSrc.bezierDetail;
 		gDst.colorMode       = gSrc.colorMode;
+		gDst.curveDetail     = gSrc.curveDetail;
 		gDst.curveTightness  = gSrc.curveTightness;
 		gDst.ellipseMode     = gSrc.ellipseMode;
 		gDst.fill            = gSrc.fill;
 		gDst.fillColor       = gSrc.fillColor;
 		gDst.imageMode       = gSrc.imageMode;
+		gDst.pixelDensity    = gSrc.pixelDensity;
 		gDst.rectMode        = gSrc.rectMode;
 		gDst.shapeMode       = gSrc.shapeMode;
 		gDst.smooth          = gSrc.smooth;
@@ -127,7 +129,10 @@ public class HandyRenderer
 		gDst.strokeJoin      = gSrc.strokeJoin;
 		gDst.strokeColor     = gSrc.strokeColor;
 		gDst.strokeWeight    = gSrc.strokeWeight;	
-		gDst.pixelDensity    = gSrc.pixelDensity;
+		gDst.textAlign       = gSrc.textAlign;
+		gDst.textAlignY      = gSrc.textAlignY;
+		gDst.textFont        = gSrc.textFont;
+		gDst.textLeading     = gSrc.textLeading;
 	}
 
 	/** Sets the seed used for random offsets when drawing. This should be called if repeated calls
@@ -151,6 +156,14 @@ public class HandyRenderer
 	public void setIsHandy(boolean isHandy)
 	{
 		this.isHandy = isHandy;
+	}
+	
+	/** Reports whether the renderer is currently set to draw in a sketchy style or not.
+	 * @return True if drawing in a sketchy style or false if not.
+	 */
+	public boolean isHandy()
+	{ 
+		return isHandy;
 	}
 
 	/** Sets the angle for shading hachures.
@@ -1817,11 +1830,11 @@ public class HandyRenderer
 	 *  @param y2 y coordinate of the end of the line.
 	 */
 	public void line(float x1, float y1, float x2, float y2)
-	{	
+	{		
 		if ((graphics.stroke) || (overrideStrokeColour))
 		{
 			if (isHandy == false)
-			{
+			{			
 				graphics.line(x1,y1,x2,y2);
 				return;
 			}
@@ -1946,21 +1959,21 @@ public class HandyRenderer
 			midDispY = getOffset(-midDispY,midDispY);
 
 			graphics.beginShape();
-			graphics.vertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
+			graphics.vertex(     x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
 			graphics.curveVertex(x1 + getOffset(-offset,offset), y1 +getOffset(-offset,offset));
 			graphics.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-offset,offset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-offset,offset));
 			graphics.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-offset,offset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-offset,offset)); 
-			graphics.curveVertex(+x2 + getOffset(-offset,offset), +y2 +getOffset(-offset,offset));
-			graphics.vertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
+			graphics.curveVertex(x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
+			graphics.vertex(     x2 + getOffset(-offset,offset), y2 +getOffset(-offset,offset));
 			graphics.endShape();  
-
+			
 			graphics.beginShape();
-			graphics.vertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
+			graphics.vertex(     x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
 			graphics.curveVertex(x1 + getOffset(-halfOffset,halfOffset), y1 +getOffset(-halfOffset,halfOffset));
 			graphics.curveVertex(midDispX+x1+(x2 -x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1 + (y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset));
 			graphics.curveVertex(midDispX+x1+2*(x2-x1)*divergePoint + getOffset(-halfOffset,halfOffset), midDispY+y1+ 2*(y2-y1)*divergePoint +getOffset(-halfOffset,halfOffset)); 
 			graphics.curveVertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
-			graphics.vertex(x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
+			graphics.vertex(     x2 + getOffset(-halfOffset,halfOffset), y2 +getOffset(-halfOffset,halfOffset));
 			graphics.endShape();
 
 			graphics.popStyle();

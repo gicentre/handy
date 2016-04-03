@@ -14,7 +14,7 @@ import processing.core.PVector;
 /** Simple mouse-controlled painting application to test line and polygon drawing and writing
  *  to an offscreen buffer. Drag mouse to draw lines; shift-drag to draw polygons.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016.
+ *  @version 2.0, 3rd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -67,7 +67,8 @@ public class OffscreenBufferTest extends PApplet
 		// size(1200,800, P3D);
 		// size(1200,800, FX2D);
 		
-		pixelDensity(displayDensity());		// Use platform's maximum display density.
+		// TODO: PROCESSING BUG IN OFFSCREEN BUFFER IN RETINA MODE PREVENTS THIS WORKING AT PIXEL DENSITY 2
+		//pixelDensity(displayDensity());		// Use platform's maximum display density.
 	}
 	
 	/** Sets up the sketch.
@@ -174,7 +175,7 @@ public class OffscreenBufferTest extends PApplet
 		}
 	}
 
-	/** Completes the currenty polygon (if it is being drawn) on mouse release.
+	/** Completes the current polygon (if it is being drawn) on mouse release.
 	 */
 	@Override
 	public void keyReleased()

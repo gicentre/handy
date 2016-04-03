@@ -13,7 +13,7 @@ import processing.core.PConstants;
  *  Left and right arrows to change angle of hachures. Up and down arrows to change degree
  *  of sketchiness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 31st March, 2016.
+ *  @version 2.0, 2nd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -129,7 +129,7 @@ public class BoxTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);

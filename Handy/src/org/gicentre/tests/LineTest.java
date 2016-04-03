@@ -7,12 +7,13 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 
-//*****************************************************************************************
-/** Simple sketch to test handy line drawing by drawing a single sketchy line on top of a
- *  non-sketchy line. H key toggles sketchy rendering on or off. Left and right arrow keys
- *  control the degree of sketchiness. Zoom and pan by dragging the mouse.
+// *****************************************************************************************
+/** Simple sketch to test handy line drawing by drawing three parallel sketchy lines with 
+ *  the central one on top of a non-sketchy line. H key toggles sketchy rendering on or off.
+ *  Left and right arrow keys control the degree of sketchiness. Zoom and pan by dragging 
+ *  the mouse, R to reset view.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016.
+ *  @version 2.0, 3rd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -81,18 +82,18 @@ public class LineTest extends PApplet
 	}
 	
 	
-	/** Draws a single line.
+	/** Draws three parallel lines.
 	 */
 	@Override
 	public void draw()
 	{
 		background(255);
 		zoomer.transform();
-		
+			
 		PVector p1 = new PVector(100,100);
 		PVector p2 = new PVector(width-100,height-100);
 		
-		// Draw guides.
+		// Draw guides for middle line
 		pushStyle();
 		strokeWeight(0.3f);
 		stroke(150,0,0);
@@ -104,21 +105,29 @@ public class LineTest extends PApplet
 		
 		popStyle();
 		
+		h.line(p1.x,p1.y-50,p2.x,p2.y-50);	
 		h.line(p1.x,p1.y,p2.x,p2.y);
+		h.line(p1.x,p1.y+50,p2.x,p2.y+50);
 
 		noLoop();
 	}
 		
-	
-	/** Changes the roughness in response to the left and right arrow keys.
+		
+	/** Toggles sketchiness, resets zoomer and re-renders image according to the key pressed and
+	 *  changes the roughness in response to the left and right arrow keys.
 	 */
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key =='H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
+			loop();
+		}
+		else if ((key =='r') || (key =='R'))
+		{
+			zoomer.reset();
 			loop();
 		}
 		else if (key == ' ')

@@ -9,9 +9,11 @@ import processing.core.PConstants;
 
 
 // *****************************************************************************************
-/** Simple sketch to test handy 3d shape building.
+/** Simple sketch to test handy 3d shape building. 'H' toggles sketchiness on or off. 'A'
+ *  changes hachure angle. Left and right arrow keys change vertex overshoot. Up and down
+ *  arrows change degree of sketchiness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016
+ *  @version 2.0, 3rd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -43,13 +45,14 @@ public class Vertex3DTest extends PApplet
 
 	// ----------------------------- Object variables ------------------------------
 
-	private HandyRenderer h;
-	private FrameTimer timer;
+	private HandyRenderer h;			// Does the sketchy rendering.
+	private boolean isHandy;			// Toggles sketchy rendering on and off
+	private float roughness;			// Degree of sketchiness.
+	private FrameTimer timer;			// For rendering speed reporting.
+	private float overshoot;			// Degree of vertex overshoot.
+	private float angle;				// Hachure angle.
 
-	private float angle;
-	private boolean isHandy;
-	private float roughness;
-	private float xmag, ymag = 0;
+	private float xmag, ymag = 0;		// Rotation parameters.
 	private float newXmag, newYmag = 0; 
 
 	// ---------------------------- Processing methods -----------------------------
@@ -69,6 +72,7 @@ public class Vertex3DTest extends PApplet
 	{   
 		timer = new FrameTimer();
 		roughness = 1.5f;
+		overshoot = 1.1f;
 		angle = 45;
 		h = HandyPresets.createMarker(this);
 		h.setRoughness(roughness);
@@ -84,6 +88,9 @@ public class Vertex3DTest extends PApplet
 		background(235,215,182);
 		timer.displayFrameRate();
 		h.setSeed(1969);
+		h.setStrokeWeight(4);
+		h.setStrokeColour(color(0));
+		
 		float lengthA = 100;
 		float lengthB = 60;
 		
@@ -111,41 +118,57 @@ public class Vertex3DTest extends PApplet
 
 		rotateX(-ymag); 
 		rotateY(-xmag); 
-		
-				
-		 h.beginShape(QUADS);
-		 
-		  h.vertex(-lengthA,  lengthA,  lengthB);
-		  h.vertex( lengthA,  lengthA,  lengthB);
-		  h.vertex( lengthA, -lengthA,  lengthB);
-		  h.vertex(-lengthA, -lengthA,  lengthB);
+						
+		h.beginShape(QUADS); 
+		 h.vertex(-lengthA,  lengthA,  lengthB);
+		 h.vertex( lengthA,  lengthA,  lengthB);
+		 h.vertex( lengthA, -lengthA,  lengthB);
+		 h.vertex(-lengthA, -lengthA,  lengthB);
 
-		  h.vertex( lengthA,  lengthA,  lengthB);
-		  h.vertex( lengthA,  lengthA, -lengthB);
-		  h.vertex( lengthA, -lengthA, -lengthB);
-		  h.vertex( lengthA, -lengthA,  lengthB);
+		 h.vertex( lengthA,  lengthA,  lengthB);
+		 h.vertex( lengthA,  lengthA, -lengthB);
+		 h.vertex( lengthA, -lengthA, -lengthB);
+		 h.vertex( lengthA, -lengthA,  lengthB);
 		  
-		  h.vertex( lengthA,  lengthA, -lengthB);
-		  h.vertex(-lengthA,  lengthA, -lengthB);
-		  h.vertex(-lengthA, -lengthA, -lengthB);
-		  h.vertex( lengthA, -lengthA, -lengthB);
+		 h.vertex( lengthA,  lengthA, -lengthB);
+		 h.vertex(-lengthA,  lengthA, -lengthB);
+		 h.vertex(-lengthA, -lengthA, -lengthB);
+		 h.vertex( lengthA, -lengthA, -lengthB);
 		  
-		  h.vertex(-lengthA,  lengthA, -lengthB);
-		  h.vertex(-lengthA,  lengthA,  lengthB);
-		  h.vertex(-lengthA, -lengthA,  lengthB);
-		  h.vertex(-lengthA, -lengthA, -lengthB);
+		 h.vertex(-lengthA,  lengthA, -lengthB);
+		 h.vertex(-lengthA,  lengthA,  lengthB);
+		 h.vertex(-lengthA, -lengthA,  lengthB);
+		 h.vertex(-lengthA, -lengthA, -lengthB);
 
-		  h.vertex(-lengthA,  lengthA, -lengthB);
-		  h.vertex( lengthA,  lengthA, -lengthB);
-		  h.vertex( lengthA,  lengthA,  lengthB);
-		  h.vertex(-lengthA,  lengthA,  lengthB);
+		 h.vertex(-lengthA,  lengthA, -lengthB);
+		 h.vertex( lengthA,  lengthA, -lengthB);
+		 h.vertex( lengthA,  lengthA,  lengthB);
+		 h.vertex(-lengthA,  lengthA,  lengthB);
 		  
-		  h.vertex(-lengthA, -lengthA, -lengthB);
-		  h.vertex( lengthA, -lengthA, -lengthB);
-		  h.vertex( lengthA, -lengthA,  lengthB);
-		  h.vertex(-lengthA, -lengthA,  lengthB);
+		 h.vertex(-lengthA, -lengthA, -lengthB);
+		 h.vertex( lengthA, -lengthA, -lengthB);
+		 h.vertex( lengthA, -lengthA,  lengthB);
+		 h.vertex(-lengthA, -lengthA,  lengthB);
+		h.endShape();
+		  
+		// Pencil guide lines.
+		h.setStrokeWeight(2);
+		h.setStrokeColour(color(0,100));
+		h.line(-lengthA*overshoot,lengthA,lengthB, lengthA*overshoot,lengthA,lengthB);
+		h.line( lengthA,lengthA*overshoot, lengthB, lengthA, -lengthA*overshoot, lengthB);
+		h.line( lengthA*overshoot, -lengthA,  lengthB,-lengthA*overshoot, -lengthA,  lengthB);
+		h.line(-lengthA, -lengthA*overshoot,  lengthB,-lengthA,  lengthA*overshoot,  lengthB);
 
-		  h.endShape();
+		h.line( lengthA,  lengthA,  lengthB*overshoot, lengthA,  lengthA, -lengthB*overshoot);
+		h.line( lengthA,  lengthA*overshoot, -lengthB, lengthA, -lengthA*overshoot, -lengthB);
+		h.line( lengthA, -lengthA, -lengthB*overshoot, lengthA, -lengthA,  lengthB*overshoot);
+
+		h.line( lengthA*overshoot,  lengthA, -lengthB,-lengthA*overshoot,  lengthA, -lengthB);
+		h.line(-lengthA,  lengthA*overshoot, -lengthB,-lengthA, -lengthA*overshoot, -lengthB);
+		h.line(-lengthA*overshoot, -lengthA, -lengthB, lengthA*overshoot, -lengthA, -lengthB);
+
+		h.line(-lengthA,  lengthA, -lengthB*overshoot,-lengthA,  lengthA,  lengthB*overshoot);
+  		h.line(-lengthA, -lengthA,  lengthB*overshoot,-lengthA, -lengthA, -lengthB*overshoot);	
 
 		popMatrix(); 
 	}
@@ -153,25 +176,21 @@ public class Vertex3DTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
 		}
+		
+		else if ((key == 'a') || (key == 'A'))
+		{
+			angle++;
+			h.setHachureAngle(angle);
+		}
 
 		if (key == PConstants.CODED)
 		{
-			if (keyCode == PConstants.LEFT)
-			{
-				angle--;
-				h.setHachureAngle(angle);
-			}
-			else if (keyCode == PConstants.RIGHT)
-			{
-				angle++;
-				h.setHachureAngle(angle);
-			}
-			else if (keyCode == PConstants.UP)
+			if (keyCode == PConstants.UP)
 			{
 				roughness *= 1.1;
 				h.setRoughness(roughness);
@@ -180,6 +199,14 @@ public class Vertex3DTest extends PApplet
 			{
 				roughness *= 0.9;
 				h.setRoughness(roughness);
+			}
+			else if ((keyCode == PConstants.LEFT) && (overshoot > 1))
+			{
+				overshoot *= 0.99;
+			}
+			else if (keyCode == PConstants.RIGHT)
+			{
+				overshoot *= 1.01;
 			}
 		}
 	}

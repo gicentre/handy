@@ -14,7 +14,7 @@ import processing.core.PConstants;
  *  A set of very small arcs are drawn which should not be visible in the sketchy view
  *  but present as points in the non-sketchy view. 
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 31st March, 2016
+ *  @version 2.0, 2nd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -120,13 +120,13 @@ public class ArcTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
 			loop();
 		}
-		else if (key == 'r')
+		else if ((key == 'r') || (key == 'R'))
 		{
 			zoomer.reset();
 			loop();

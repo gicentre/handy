@@ -9,7 +9,7 @@ import processing.core.PApplet;
  *  by pressing the 'P' key or SVG file with the 'S' key. Spacebar re-renders with a different
  *  random perturbation.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 31st March, 2016
+ *  @version 2.0, 3rd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -116,12 +116,12 @@ public class PDFAndSVGTest extends PApplet
 		{
 			loop();
 		}
-		else if (key == 'p')
+		else if ((key == 'p') || (key == 'P'))
 		{
 			outType = Output.PDF_FILE;
 			loop();
 		}
-		else if (key == 's')
+		else if ((key == 's') || (key == 'S'))
 		{
 			outType = Output.SVG_FILE;
 			loop();

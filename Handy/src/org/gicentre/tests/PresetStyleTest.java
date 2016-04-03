@@ -6,13 +6,14 @@ import org.gicentre.utils.move.ZoomPan;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PFont;
 
 //*****************************************************************************************
 /** Simple sketch to show handy shape drawing in four different present styles. H key toggles
  *  sketchy rendering on or off. Left and right arrows change the hachure angle. Image zoomed
  *  and panned with mouse drag.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016.
+ *  @version 2.0, 3rd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -48,7 +49,8 @@ public class PresetStyleTest extends PApplet
 	private ZoomPan zoomer;
 	private float angle;
 	private boolean isHandy;
-		
+	private PFont sketchyFont,normalFont;
+	
 	// ---------------------------- Processing methods -----------------------------
 	
 	/** Initial window settings prior to setup().
@@ -86,7 +88,8 @@ public class PresetStyleTest extends PApplet
 		marker.setHachureAngle(angle);
 		cPencil.setHachureAngle(angle);
 		
-		textFont(loadFont("HumorSans-32.vlw"));
+		sketchyFont = loadFont("HumorSans-32.vlw");
+		normalFont = createFont("sans-serif",32);
 	}
 	
 	
@@ -101,10 +104,11 @@ public class PresetStyleTest extends PApplet
 		water.setSeed(1234);
 		marker.setSeed(1234);
 		cPencil.setSeed(1234);
-		
+				
 		stroke(0);
 		strokeWeight(1);
 		textAlign(RIGHT,BOTTOM);
+		textFont(isHandy? sketchyFont:normalFont);
 		
 		randomSeed(10);
 		noFill();
@@ -142,7 +146,7 @@ public class PresetStyleTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			pencil.setIsHandy(isHandy);
@@ -151,7 +155,7 @@ public class PresetStyleTest extends PApplet
 			cPencil.setIsHandy(isHandy);
 			loop();
 		}
-		else if (key == 'r')
+		else if ((key == 'r') || (key == 'R'))
 		{
 			zoomer.reset();
 			loop();

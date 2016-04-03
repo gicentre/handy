@@ -10,7 +10,7 @@ import processing.core.PConstants;
 /** Simple sketch to test handy 3d cone building. 'H' toggles sketchy rendering, up and 
  *  down arrows control roughness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 1.1, 11th April, 2012
+ *  @version 2.0, 2nd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -95,7 +95,7 @@ public class ConeTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);

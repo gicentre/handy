@@ -10,7 +10,7 @@ import processing.core.PConstants;
 /** Test the handy recorder for 3d sketches. 'H' to toggle sketchy rendering, up and 
  *  down arrows to change degree of sketchiness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016
+ *  @version 2.0, 3rd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -156,7 +156,7 @@ public class HandyRecorder3dTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key =='H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);

@@ -8,10 +8,10 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 //*****************************************************************************************
-/** Simple sketch to test handy curved shape drawing. 'H' to toggle sketchy rendering, left
- *  and right arrows to change curve tightness.
+/** Simple sketch to test handy curved shape drawing. Should draw two identical shapes.
+ *  'H' to toggle sketchy rendering, left and right arrows to change curve tightness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 31st March, 2016.
+ *  @version 2.0, 2nd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -80,8 +80,7 @@ public class CurvedLinesTest extends PApplet
 		h.setIsHandy(isHandy);
 		handyRec = new HandyRecorder(h);
 	}
-	
-	
+		
 	/** Draws a sketchy curve.
 	 */
 	@Override
@@ -92,35 +91,33 @@ public class CurvedLinesTest extends PApplet
 		
 		stroke(80,30,20);
 		fill(80,30,20,100);
+		curveTightness(tightness);
+		
 		float cx = 10;
 		float cy = height/2;
 		
 		h.beginShape();
-		h.curveVertex(cx+84, cy+ 91);
-		h.curveVertex(cx+84, cy+ 91);
-		h.curveVertex(cx+68, cy+ 19);
-		h.curveVertex(cx+21, cy+ 17);
-		h.curveVertex(cx+32, cy+100);
-		h.curveVertex(cx+32, cy+100);
-		
-		h.vertex(cx+84, cy+91);
+		 h.curveVertex(cx+84, cy+ 91);
+		 h.curveVertex(cx+84, cy+ 91);
+		 h.curveVertex(cx+68, cy+ 19);
+		 h.curveVertex(cx+21, cy+ 17);
+		 h.curveVertex(cx+32, cy+100);
+		 h.curveVertex(cx+32, cy+100);
+		 h.vertex(cx+84, cy+91);
 		h.endShape();
-		
-		
 		
 		// Second shape using the handy recorder. Should appear identical to first shape but to the right.
 		cx  = width/2;
 		beginRecord(handyRec);
-		beginShape();
-		curveVertex(cx+84, cy+ 91);
-		curveVertex(cx+84, cy+ 91);
-		curveVertex(cx+68, cy+ 19);
-		curveVertex(cx+21, cy+ 17);
-		curveVertex(cx+32, cy+100);
-		curveVertex(cx+32, cy+100);
-		
-		vertex(cx+84, cy+91);
-		endShape();
+		 beginShape();
+		  curveVertex(cx+84, cy+ 91);
+		  curveVertex(cx+84, cy+ 91);
+		  curveVertex(cx+68, cy+ 19);
+		  curveVertex(cx+21, cy+ 17);
+		  curveVertex(cx+32, cy+100);
+		  curveVertex(cx+32, cy+100);
+		  vertex(cx+84, cy+91);
+		 endShape();
 		endRecord();
 		
 		noLoop();
@@ -131,7 +128,7 @@ public class CurvedLinesTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
@@ -147,13 +144,11 @@ public class CurvedLinesTest extends PApplet
 			if (keyCode == PConstants.LEFT)
 			{
 				tightness -= 0.05f;
-				curveTightness(tightness);
 				loop();
 			}
 			else if (keyCode == PConstants.RIGHT)
 			{
 				tightness += 0.05f;
-				curveTightness(tightness);
 				loop();
 			}
 		}

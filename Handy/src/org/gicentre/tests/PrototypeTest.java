@@ -10,7 +10,7 @@ import processing.core.PFont;
 //*****************************************************************************************
 /** Sketch to illustrate the use of the HandyRenderer to build a digital prototype.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016
+ *  @version 2.0, 3rd April, 2016
  */ 
 // *****************************************************************************************
 

@@ -11,7 +11,7 @@ import processing.core.PConstants;
  *  alternating hachures. The arrow keys control hachure angle. Zooming and panning with 
  *  mouse dragging and 'R' to reset zoom.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April 2016.
+ *  @version 2.0, 3rd April 2016.
  */ 
 // *****************************************************************************************
 
@@ -255,12 +255,12 @@ public class ShapeTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key == 'a')
+		if ((key == 'a') || (key == 'A'))
 		{
 			isAlternating = !isAlternating;
 			loop();
 		}
-		else if (key == 'r')
+		else if ((key == 'r') || (key == 'R'))
 		{
 			zoomer.reset();
 			loop();

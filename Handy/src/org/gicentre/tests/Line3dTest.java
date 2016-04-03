@@ -10,7 +10,7 @@ import processing.core.PConstants;
  *  down arrows to change degree of sketchiness. Left and right arrows to change the vertex 
  *  overshoot. Move mouse to rotate cube.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 2nd April, 2016
+ *  @version 2.0, 3rd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -149,7 +149,7 @@ public class Line3dTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);

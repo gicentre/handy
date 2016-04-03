@@ -10,7 +10,7 @@ import processing.core.PConstants;
 /** Tests the use of the HandyGraphics context to allow sketchy graphics without explicitly
  *  calling methods in the HandyRenderer.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 1st April, 2016
+ *  @version 2.0, 3rd April, 2016
  */ 
 // *****************************************************************************************
 
@@ -284,7 +284,7 @@ public class HandyRecorder2dTest extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		if (key =='h')
+		if ((key =='h') || (key == 'H'))
 		{
 			isHandy = !isHandy;
 			h.setIsHandy(isHandy);
