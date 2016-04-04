@@ -2,6 +2,7 @@ package org.gicentre.tests;
 
 import org.gicentre.handy.HandyRecorder;
 import org.gicentre.handy.HandyRenderer;
+import org.gicentre.utils.FrameTimer;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -46,6 +47,8 @@ public class HandyRecorder3dTest extends PApplet
 	private boolean isHandy;			// Toggles sketchy rendering on and off
 	private float roughness;			// Degree of sketchiness.
 	private HandyRecorder handyRec;		// For sketchy rendering with normal processing commands.
+	private FrameTimer timer;			// For rendering speed reporting.
+	private float fov;					// Field of view of camera.
 
 	// ---------------------------- Processing methods -----------------------------
 
@@ -64,6 +67,8 @@ public class HandyRecorder3dTest extends PApplet
 	{   
 		noStroke(); 
 		roughness = 2;
+		fov = PI/6;
+		timer = new FrameTimer();
 
 		h = new HandyRenderer(this);
 		h.setRoughness(roughness);
@@ -76,6 +81,7 @@ public class HandyRecorder3dTest extends PApplet
 	@Override
 	public void draw()
 	{
+		timer.displayFrameRate();
 		h.setSeed(1234);		// To stop jittering.
 
 		beginRecord(handyRec);
@@ -91,7 +97,6 @@ public class HandyRecorder3dTest extends PApplet
 		rotateZ(radians(-mouseX));		// Rotate view with mouse movement.
 
 		// Perspective transformation.
-		float fov = PI/5.7f;
 		float cameraZ = (height/2f) / tan(fov/2f);
 		perspective(fov, (float)(width)/(float)height, cameraZ/10f, cameraZ*10f);
 
@@ -111,7 +116,8 @@ public class HandyRecorder3dTest extends PApplet
 		
 		// Base mat.
 		fill(70);
-		h.box(950,950,0);
+		noFill();
+		box(950,950,0);
 		fill(255);
 		
 		// Draw a grid of moving buildings.
@@ -173,6 +179,15 @@ public class HandyRecorder3dTest extends PApplet
 			{
 				roughness *= 0.9;
 				h.setRoughness(roughness);
+			}
+			else if (keyCode == PConstants.LEFT)
+			{
+				fov *= 0.9;
+				
+			}
+			else if (keyCode == PConstants.RIGHT)
+			{
+				fov *= 1.1;
 			}
 		}
 	}

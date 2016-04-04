@@ -1301,7 +1301,7 @@ public class HandyRenderer
 			graphics.box(bWidth,bHeight,bDepth);
 		}
 		else
-		{
+		{			
 			// Create a box without any strokes first.
 			float bW = bWidth/2f;
 			float bH = bHeight/2f;
@@ -1310,7 +1310,7 @@ public class HandyRenderer
 			boolean isStrokeOverridden = overrideStrokeColour;
 			setOverrideStrokeColour(false);
 			graphics.noStroke();
-			
+
 			beginShape(PConstants.QUADS);
 			  vertex(-bW,  bH,  bD);
 			  vertex( bW,  bH,  bD);
@@ -1384,7 +1384,7 @@ public class HandyRenderer
 		shape(xCoords,yCoords,zCoords,true);
 	}
 
-	/** Draws a 3d polygon based on the given arrays of vertices. This version can 
+	/** Draws a 2d polygon based on the given arrays of vertices. This version can 
 	 *  draw either open or closed shapes.
 	 *  @param xCoords x coordinates of the shape.
 	 *  @param yCoords y coordinates of the shape.
@@ -1431,7 +1431,7 @@ public class HandyRenderer
 			bottom = Math.max(bottom, yCoords[i]);
 		}
 
-		// Store the original stroke and fill colours.
+		// Store the original stroke and fill colours.		
 		int oStroke = graphics.strokeColor;
 		int oFill   = graphics.fillColor;
 		float oWeight = graphics.strokeWeight;

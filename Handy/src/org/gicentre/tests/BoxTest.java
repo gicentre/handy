@@ -1,19 +1,19 @@
 package org.gicentre.tests;
 
 import org.gicentre.handy.HandyPresets;
+import org.gicentre.handy.HandyRecorder;
 import org.gicentre.handy.HandyRenderer;
 import org.gicentre.utils.FrameTimer;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-
 // *****************************************************************************************
 /** Simple sketch to test handy 3d box rendering. 'H' to toggle sketchy rendering.
  *  Left and right arrows to change angle of hachures. Up and down arrows to change degree
  *  of sketchiness.
  *  @author Jo Wood, giCentre, City University London.
- *  @version 2.0, 2nd April, 2016.
+ *  @version 2.0, 3rd April, 2016.
  */ 
 // *****************************************************************************************
 
@@ -50,7 +50,7 @@ public class BoxTest extends PApplet
 	private boolean isHandy;			// Toggles handy rendering on and off.
 	private float roughness;			// Degree of sketchiness.
 	private FrameTimer timer;			// For rendering speed reporting.
-
+	private HandyRecorder handyRec;		// Handy recorder for sketchy still with standard processing methods.
 	
 	private float xmag, ymag = 0;		// Rotation parameters
 	private float newXmag, newYmag = 0; 
@@ -76,9 +76,11 @@ public class BoxTest extends PApplet
 		angle = 45;
 	
 		h = HandyPresets.createMarker(this);
+		h.setFillWeight(2);
 		h.setRoughness(roughness);
 		h.setHachureAngle(angle);
 		h.setHachurePerturbationAngle(0);
+		handyRec = new HandyRecorder(h);
 		fill(180,80,80);		
 	}
 
@@ -119,8 +121,15 @@ public class BoxTest extends PApplet
 		rotateX(-ymag); 
 		rotateY(-xmag); 
 		
+		translate(0,-150,0);
 		h.box(lengthA,lengthB,lengthC);
-
+		
+		// This version uses the handy recorder but should appear identical to the other box.
+		beginRecord(handyRec);
+		translate(0,300,0);
+		box(lengthA,lengthB,lengthC);
+		endRecord();
+		
 		popMatrix(); 
 	}
 
