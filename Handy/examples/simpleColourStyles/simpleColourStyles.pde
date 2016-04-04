@@ -1,11 +1,14 @@
 import org.gicentre.handy.*;
 
+// Displays 4 sktechy rectangles with different fill styles.
+// Version 2.0, 4th April, 2016
+// Author Jo Wood
+
 HandyRenderer h;
 
 void setup()
 {
   size(300,200);
-  smooth();
   h = new HandyRenderer(this);
   h.setOverrideFillColour(true);
   h.setOverrideStrokeColour(true);
@@ -13,7 +16,7 @@ void setup()
 
 void draw()
 {
-  background(234,215,182);
+  background(247,230,197);
 
   h.setBackgroundColour(color(255));
   h.setFillColour(color(206,76,52));
@@ -31,7 +34,6 @@ void draw()
   h.setFillColour(color(19,39,28));
   h.setStrokeColour(color(200,70,48));
   h.rect(170,120,80,50);  
+  
+  noLoop();     // No need to redraw.
 }
-
-
-
