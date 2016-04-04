@@ -2608,7 +2608,7 @@ public class HandyRenderer
 	 * @param yCoords The y coordinates of the boundary of the shape to be intersected with the line.
 	 * @return List of coordinates representing the intersecting lines.
 	 */
-	private ArrayList<float[]> getIntersectingLines(float[] lineCoords, float[]xCoords, float[]yCoords)
+	private static ArrayList<float[]> getIntersectingLines(float[] lineCoords, float[]xCoords, float[]yCoords)
 	{
 		TreeMap<Float,float[]> intersections = new TreeMap<Float,float[]>();
 		Segment s1 = new Segment(lineCoords[0],lineCoords[1],lineCoords[2],lineCoords[3]);
@@ -2635,7 +2635,7 @@ public class HandyRenderer
 	 * @param y2 y coordinate of second point.
 	 * @return Squared distance between points.
 	 */
-	private float distSq(float x1, float y1, float x2, float y2)
+	private static float distSq(float x1, float y1, float x2, float y2)
 	{
 		return (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
 	}
