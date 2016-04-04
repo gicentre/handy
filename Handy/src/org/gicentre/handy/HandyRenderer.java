@@ -1258,6 +1258,7 @@ public class HandyRenderer
 
 	/** Ends a shape definition. This should have been paired with a call to <code>beginShape()</code> 
 	 *  or one of its variants. If the mode parameter <code>CLOSE</code> the shape will be closed.
+	 *  @param mode Type of shape closure.
 	 */
 	public void endShape(int mode) 
 	{

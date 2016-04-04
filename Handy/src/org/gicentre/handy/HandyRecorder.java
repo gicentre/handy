@@ -88,7 +88,6 @@ public class HandyRecorder extends PGraphics
 		{
 			super.point(x, y, z);
 		}
-		
 	}
 
 	/** Draws an ellipse using the given location and dimensions. By default the x,y coordinates
@@ -97,7 +96,7 @@ public class HandyRecorder extends PGraphics
 	 *  @param x x coordinate of the ellipse's position
 	 *  @param y y coordinate of the ellipse's position.
 	 *  @param eWidth Width of the ellipse (but see modifications possible with ellipseMode())
-	 *  @param wHeight Height of the ellipse (but see modifications possible with ellipseMode())
+	 *  @param eHeight Height of the ellipse (but see modifications possible with ellipseMode())
 	 */
 	@Override
 	public void ellipse(float x, float y, float eWidth, float eHeight)
@@ -117,8 +116,8 @@ public class HandyRecorder extends PGraphics
 	 *  changed with Processing's rectMode() command.
 	 *  @param x x coordinate of the rectangle position
 	 *  @param y y coordinate of the rectangle position.
-	 *  @param w Width of the rectangle (but see modifications possible with rectMode())
-	 *  @param h Height of the rectangle (but see modifications possible with rectMode())
+	 *  @param rWidth Width of the rectangle (but see modifications possible with rectMode())
+	 *  @param rHeight Height of the rectangle (but see modifications possible with rectMode())
 	 */
 	@Override
 	public void rect(float x, float y, float rWidth, float rHeight)
@@ -357,9 +356,9 @@ public class HandyRecorder extends PGraphics
 	}
 
 	/** Draws 3D box with the given dimensions.
-	 *  @param bW Width of the box.
-	 *  @param bH Height of the box.
-	 *  @param bD Depth of the box.
+	 *  @param bWidth Width of the box.
+	 *  @param bHeight Height of the box.
+	 *  @param bDepth Depth of the box.
 	 */
 	@Override
 	public void box(float bWidth, float bHeight, float bDepth)
