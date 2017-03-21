@@ -166,7 +166,7 @@ class Segment
 			xi = otherSegment.getPx1(); //(float)(-otherSegment.getC()/otherSegment.getA());
 			yi = (float)(grad1*xi+int1);
 
-			if (((otherSegment.getPy1()-yi)*(yi-otherSegment.getPy2()) < -0.00001) || ((py1-yi)*(yi-py2) < -000001))
+			if (((otherSegment.getPy1()-yi)*(yi-otherSegment.getPy2()) < -0.00001) || ((py1-yi)*(yi-py2) < -0.00001))
 			{
 				return Relation.SEPARATE;
 			}
