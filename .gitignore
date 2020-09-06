@@ -1,0 +1,9 @@
+# Eclipse Metadata  
+.project
+.classpath
+.settings
+
+# Assets
+./bin/
+./Handy/handy.zip
+
