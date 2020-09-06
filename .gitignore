@@ -4,6 +4,6 @@
 .settings
 
 # Assets
-./bin/
-./Handy/handy.zip
+/bin/
+/Handy/handy.zip
 
